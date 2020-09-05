@@ -13,6 +13,7 @@ const messages = defineMessages({
   redraft: { id: 'status.redraft', defaultMessage: 'Delete & re-draft' },
   edit: { id: 'status.edit', defaultMessage: 'Edit' },
   direct: { id: 'status.direct', defaultMessage: 'Direct message @{name}' },
+  showMemberList: { id: 'status.show_member_list', defaultMessage: 'Show member list' },
   mention: { id: 'status.mention', defaultMessage: 'Mention @{name}' },
   reply: { id: 'status.reply', defaultMessage: 'Reply' },
   reblog: { id: 'status.reblog', defaultMessage: 'Boost' },
@@ -62,6 +63,7 @@ class ActionBar extends React.PureComponent {
     onDelete: PropTypes.func.isRequired,
     onEdit: PropTypes.func.isRequired,
     onDirect: PropTypes.func.isRequired,
+    onMemberList: PropTypes.func.isRequired,
     onMention: PropTypes.func.isRequired,
     onMute: PropTypes.func,
     onUnmute: PropTypes.func,
@@ -106,6 +108,10 @@ class ActionBar extends React.PureComponent {
 
   handleDirectClick = () => {
     this.props.onDirect(this.props.status.get('account'), this.context.router.history);
+  }
+
+  handleMemberListClick = () => {
+    this.props.onMemberList(this.props.status, this.context.router.history);
   }
 
   handleMentionClick = () => {
@@ -197,6 +203,7 @@ class ActionBar extends React.PureComponent {
     const mutingConversation = status.get('muted');
     const account            = status.get('account');
     const writtenByMe        = status.getIn(['account', 'id']) === me;
+    const limitedByMe        = status.get('visibility') === 'limited' && status.get('circle_id');
 
     let menu = [];
 
@@ -212,6 +219,11 @@ class ActionBar extends React.PureComponent {
         menu.push(null);
       }
 
+      if (limitedByMe) {
+        menu.push({ text: intl.formatMessage(messages.showMemberList), action: this.handleMemberListClick });
+      }
+
+      menu.push(null);
       menu.push({ text: intl.formatMessage(mutingConversation ? messages.unmuteConversation : messages.muteConversation), action: this.handleConversationMuteClick });
       menu.push(null);
       // menu.push({ text: intl.formatMessage(messages.edit), action: this.handleEditClick });

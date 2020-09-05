@@ -80,10 +80,11 @@ export function fetchStatusFail(id, error, skipLoading) {
   };
 };
 
-export function redraft(status, raw_text) {
+export function redraft(status, replyStatus, raw_text) {
   return {
     type: REDRAFT,
     status,
+    replyStatus,
     raw_text,
   };
 };
@@ -122,6 +123,7 @@ export const fetchStatusSourceFail = error => ({
 export function deleteStatus(id, routerHistory, withRedraft = false) {
   return (dispatch, getState) => {
     let status = getState().getIn(['statuses', id]);
+    const replyStatus = status.get('in_reply_to_id') ? getState().getIn(['statuses', status.get('in_reply_to_id')]) : null;
 
     if (status.get('poll')) {
       status = status.set('poll', getState().getIn(['polls', status.get('poll')]));
@@ -135,7 +137,7 @@ export function deleteStatus(id, routerHistory, withRedraft = false) {
       dispatch(importFetchedAccount(response.data.account));
 
       if (withRedraft) {
-        dispatch(redraft(status, response.data.text));
+        dispatch(redraft(status, replyStatus, response.data.text));
         ensureComposeIsVisible(getState, routerHistory);
       }
     }).catch(error => {
