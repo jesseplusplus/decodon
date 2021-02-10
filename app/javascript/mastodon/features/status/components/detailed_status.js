@@ -19,6 +19,7 @@ import AnimatedNumber from "mastodon/components/animated_number";
 import PictureInPicturePlaceholder from "mastodon/components/picture_in_picture_placeholder";
 
 const messages = defineMessages({
+<<<<<<< HEAD
   public_short: { id: "privacy.public.short", defaultMessage: "Public" },
   unlisted_short: { id: "privacy.unlisted.short", defaultMessage: "Unlisted" },
   private_short: {
@@ -27,6 +28,14 @@ const messages = defineMessages({
   },
   limited_short: { id: "privacy.limited.short", defaultMessage: "Circle" },
   direct_short: { id: "privacy.direct.short", defaultMessage: "Direct" },
+=======
+  public_short: { id: 'privacy.public.short', defaultMessage: 'Public' },
+  unlisted_short: { id: 'privacy.unlisted.short', defaultMessage: 'Unlisted' },
+  private_short: { id: 'privacy.private.short', defaultMessage: 'Followers-only' },
+  mutual_short: { id: 'privacy.mutual.short', defaultMessage: 'Mutual-followers-only' },
+  limited_short: { id: 'privacy.limited.short', defaultMessage: 'Circle' },
+  direct_short: { id: 'privacy.direct.short', defaultMessage: 'Direct' },
+>>>>>>> ae4e151af (Add mutual-followers-only visibility)
 });
 
 export default
@@ -223,26 +232,12 @@ class DetailedStatus extends ImmutablePureComponent {
     }
 
     const visibilityIconInfo = {
-      public: {
-        icon: "globe",
-        text: intl.formatMessage(messages.public_short),
-      },
-      unlisted: {
-        icon: "unlock",
-        text: intl.formatMessage(messages.unlisted_short),
-      },
-      private: {
-        icon: "lock",
-        text: intl.formatMessage(messages.private_short),
-      },
-      limited: {
-        icon: "user-circle",
-        text: intl.formatMessage(messages.limited_short),
-      },
-      direct: {
-        icon: "envelope",
-        text: intl.formatMessage(messages.direct_short),
-      },
+      'public': { icon: 'globe', text: intl.formatMessage(messages.public_short) },
+      'unlisted': { icon: 'unlock', text: intl.formatMessage(messages.unlisted_short) },
+      'private': { icon: 'lock', text: intl.formatMessage(messages.private_short) },
+      'mutual': { icon: 'exchange', text: intl.formatMessage(messages.mutual_short) },
+      'limited': { icon: 'user-circle', text: intl.formatMessage(messages.limited_short) },
+      'direct': { icon: 'envelope', text: intl.formatMessage(messages.direct_short) },
     };
 
     const visibilityIcon = visibilityIconInfo[status.get("visibility")];
