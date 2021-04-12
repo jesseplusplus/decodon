@@ -1,27 +1,36 @@
-import classNames from 'classnames';
-import React from 'react';
-import { HotKeys } from 'react-hotkeys';
-import { defineMessages, injectIntl } from 'react-intl';
-import { connect } from 'react-redux';
-import { Redirect, withRouter } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import NotificationsContainer from './containers/notifications_container';
-import LoadingBarContainer from './containers/loading_bar_container';
-import ModalContainer from './containers/modal_container';
-import { layoutFromWindow } from 'mastodon/is_mobile';
-import { debounce } from 'lodash';
-import { uploadCompose, resetCompose, changeComposeSpoilerness } from '../../actions/compose';
-import { expandHomeTimeline } from '../../actions/timelines';
-import { expandNotifications } from '../../actions/notifications';
-import { fetchFilters } from '../../actions/filters';
-import { clearHeight } from '../../actions/height_cache';
-import { focusApp, unfocusApp, changeLayout } from 'mastodon/actions/app';
-import { synchronouslySubmitMarkers, submitMarkers, fetchMarkers } from 'mastodon/actions/markers';
-import { WrappedSwitch, WrappedRoute } from './util/react_router_helpers';
-import UploadArea from './components/upload_area';
-import ColumnsAreaContainer from './containers/columns_area_container';
-import DocumentTitle from './components/document_title';
-import PictureInPicture from 'mastodon/features/picture_in_picture';
+import classNames from "classnames";
+import React from "react";
+import { HotKeys } from "react-hotkeys";
+import { defineMessages, injectIntl } from "react-intl";
+import { connect } from "react-redux";
+import { Redirect, withRouter } from "react-router-dom";
+import PropTypes from "prop-types";
+import NotificationsContainer from "./containers/notifications_container";
+import LoadingBarContainer from "./containers/loading_bar_container";
+import ModalContainer from "./containers/modal_container";
+import { layoutFromWindow } from "mastodon/is_mobile";
+import { debounce } from "lodash";
+import {
+  uploadCompose,
+  resetCompose,
+  changeComposeSpoilerness,
+} from "../../actions/compose";
+import { expandHomeTimeline } from "../../actions/timelines";
+import { expandNotifications } from "../../actions/notifications";
+import { fetchFilters } from "../../actions/filters";
+import { clearHeight } from "../../actions/height_cache";
+import { focusApp, unfocusApp, changeLayout } from "mastodon/actions/app";
+import {
+  synchronouslySubmitMarkers,
+  submitMarkers,
+  fetchMarkers,
+} from "mastodon/actions/markers";
+import { getHomeVisibilities } from "mastodon/selectors";
+import { WrappedSwitch, WrappedRoute } from "./util/react_router_helpers";
+import UploadArea from "./components/upload_area";
+import ColumnsAreaContainer from "./containers/columns_area_container";
+import DocumentTitle from "./components/document_title";
+import PictureInPicture from "mastodon/features/picture_in_picture";
 import {
   Compose,
   Status,
@@ -38,6 +47,7 @@ import {
   Favourites,
   Mentions,
   DirectTimeline,
+  LimitedTimeline,
   HashtagTimeline,
   Notifications,
   FollowRequests,
@@ -54,162 +64,363 @@ import {
   Search,
   Directory,
   FollowRecommendations,
-} from './util/async-components';
-import { me } from '../../initial_state';
-import { closeOnboarding, INTRODUCTION_VERSION } from 'mastodon/actions/onboarding';
+} from "./util/async-components";
+import { me } from "../../initial_state";
+import {
+  closeOnboarding,
+  INTRODUCTION_VERSION,
+} from "mastodon/actions/onboarding";
 
 // Dummy import, to make sure that <Status /> ends up in the application bundle.
 // Without this it ends up in ~8 very commonly used bundles.
-import '../../components/status';
+import "../../components/status";
 
 const messages = defineMessages({
-  beforeUnload: { id: 'ui.beforeunload', defaultMessage: 'Your draft will be lost if you leave Mastodon.' },
+  beforeUnload: {
+    id: "ui.beforeunload",
+    defaultMessage: "Your draft will be lost if you leave Mastodon.",
+  },
 });
 
-const mapStateToProps = state => ({
-  layout: state.getIn(['meta', 'layout']),
-  isComposing: state.getIn(['compose', 'is_composing']),
-  hasComposingText: state.getIn(['compose', 'text']).trim().length !== 0,
-  hasMediaAttachments: state.getIn(['compose', 'media_attachments']).size > 0,
-  canUploadMore: !state.getIn(['compose', 'media_attachments']).some(x => ['audio', 'video'].includes(x.get('type'))) && state.getIn(['compose', 'media_attachments']).size < 4,
-  dropdownMenuIsOpen: state.getIn(['dropdown_menu', 'openId']) !== null,
-  firstLaunch: state.getIn(['settings', 'introductionVersion'], 0) < INTRODUCTION_VERSION,
-  username: state.getIn(['accounts', me, 'username']),
+const mapStateToProps = (state) => ({
+  layout: state.getIn(["meta", "layout"]),
+  isComposing: state.getIn(["compose", "is_composing"]),
+  hasComposingText: state.getIn(["compose", "text"]).trim().length !== 0,
+  hasMediaAttachments: state.getIn(["compose", "media_attachments"]).size > 0,
+  canUploadMore:
+    !state
+      .getIn(["compose", "media_attachments"])
+      .some((x) => ["audio", "video"].includes(x.get("type"))) &&
+    state.getIn(["compose", "media_attachments"]).size < 4,
+  dropdownMenuIsOpen: state.getIn(["dropdown_menu", "openId"]) !== null,
+  firstLaunch:
+    state.getIn(["settings", "introductionVersion"], 0) < INTRODUCTION_VERSION,
+  visibilities: getHomeVisibilities(state),
 });
 
 const keyMap = {
-  help: '?',
-  new: 'n',
-  search: 's',
-  forceNew: 'option+n',
-  toggleComposeSpoilers: 'option+x',
-  focusColumn: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
-  reply: 'r',
-  favourite: 'f',
-  boost: 'b',
-  mention: 'm',
-  open: ['enter', 'o'],
-  openProfile: 'p',
-  moveDown: ['down', 'j'],
-  moveUp: ['up', 'k'],
-  back: 'backspace',
-  goToHome: 'g h',
-  goToNotifications: 'g n',
-  goToLocal: 'g l',
-  goToFederated: 'g t',
-  goToDirect: 'g d',
-  goToStart: 'g s',
-  goToFavourites: 'g f',
-  goToPinned: 'g p',
-  goToProfile: 'g u',
-  goToBlocked: 'g b',
-  goToMuted: 'g m',
-  goToRequests: 'g r',
-  toggleHidden: 'x',
-  toggleSensitive: 'h',
-  openMedia: 'e',
+  help: "?",
+  new: "n",
+  search: "s",
+  forceNew: "option+n",
+  toggleComposeSpoilers: "option+x",
+  focusColumn: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+  reply: "r",
+  favourite: "f",
+  boost: "b",
+  mention: "m",
+  open: ["enter", "o"],
+  openProfile: "p",
+  moveDown: ["down", "j"],
+  moveUp: ["up", "k"],
+  back: "backspace",
+  goToHome: "g h",
+  goToNotifications: "g n",
+  goToLocal: "g l",
+  goToFederated: "g t",
+  goToDirect: "g d",
+  goToStart: "g s",
+  goToFavourites: "g f",
+  goToPinned: "g p",
+  goToProfile: "g u",
+  goToBlocked: "g b",
+  goToMuted: "g m",
+  goToRequests: "g r",
+  toggleHidden: "x",
+  toggleSensitive: "h",
+  openMedia: "e",
 };
 
 class SwitchingColumnsArea extends React.PureComponent {
-
   static propTypes = {
     children: PropTypes.node,
     location: PropTypes.object,
     mobile: PropTypes.bool,
   };
 
-  componentWillMount () {
+  componentWillMount() {
     if (this.props.mobile) {
-      document.body.classList.toggle('layout-single-column', true);
-      document.body.classList.toggle('layout-multiple-columns', false);
+      document.body.classList.toggle("layout-single-column", true);
+      document.body.classList.toggle("layout-multiple-columns", false);
     } else {
-      document.body.classList.toggle('layout-single-column', false);
-      document.body.classList.toggle('layout-multiple-columns', true);
+      document.body.classList.toggle("layout-single-column", false);
+      document.body.classList.toggle("layout-multiple-columns", true);
     }
   }
 
-  componentDidUpdate (prevProps) {
-    if (![this.props.location.pathname, '/'].includes(prevProps.location.pathname)) {
+  componentDidUpdate(prevProps) {
+    if (
+      ![this.props.location.pathname, "/"].includes(prevProps.location.pathname)
+    ) {
       this.node.handleChildrenContentChange();
     }
 
     if (prevProps.mobile !== this.props.mobile) {
-      document.body.classList.toggle('layout-single-column', this.props.mobile);
-      document.body.classList.toggle('layout-multiple-columns', !this.props.mobile);
+      document.body.classList.toggle("layout-single-column", this.props.mobile);
+      document.body.classList.toggle(
+        "layout-multiple-columns",
+        !this.props.mobile
+      );
     }
   }
 
-  setRef = c => {
+  setRef = (c) => {
     if (c) {
       this.node = c.getWrappedInstance();
     }
-  }
+  };
 
-  render () {
+  render() {
     const { children, mobile } = this.props;
-    const redirect = mobile ? <Redirect from='/' to='/home' exact /> : <Redirect from='/' to='/getting-started' exact />;
+    const redirect = mobile ? (
+      <Redirect from="/" to="/home" exact />
+    ) : (
+      <Redirect from="/" to="/getting-started" exact />
+    );
 
     return (
       <ColumnsAreaContainer ref={this.setRef} singleColumn={mobile}>
         <WrappedSwitch>
           {redirect}
-          <WrappedRoute path='/getting-started' component={GettingStarted} content={children} />
-          <WrappedRoute path='/keyboard-shortcuts' component={KeyboardShortcuts} content={children} />
+          <WrappedRoute
+            path="/getting-started"
+            component={GettingStarted}
+            content={children}
+          />
+          <WrappedRoute
+            path="/keyboard-shortcuts"
+            component={KeyboardShortcuts}
+            content={children}
+          />
+          <WrappedRoute
+            path="/timelines/home"
+            component={HomeTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path="/timelines/public"
+            exact
+            component={PublicTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path="/timelines/public/local"
+            exact
+            component={CommunityTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path="/timelines/public/domain/:domain"
+            exact
+            component={DomainTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path="/timelines/groups/:id/:tagged?"
+            exact
+            component={GroupTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path="/timelines/direct"
+            component={DirectTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path="/timelines/limited"
+            component={LimitedTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path="/timelines/tag/:id"
+            component={HashtagTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path="/timelines/list/:id"
+            component={ListTimeline}
+            content={children}
+          />
 
-          <WrappedRoute path={['/home', '/timelines/home']} component={HomeTimeline} content={children} />
-          <WrappedRoute path={['/public', '/timelines/public']} exact component={PublicTimeline} content={children} />
-          <WrappedRoute path={['/public/local', '/timelines/public/local']} exact component={CommunityTimeline} content={children} />
-          <WrappedRoute path={['/conversations', '/timelines/direct']} component={DirectTimeline} content={children} />
-          <WrappedRoute path='/tags/:id' component={HashtagTimeline} content={children} />
-          <WrappedRoute path='/lists/:id' component={ListTimeline} content={children} />
-          <WrappedRoute path='/notifications' component={Notifications} content={children} />
-          <WrappedRoute path='/favourites' component={FavouritedStatuses} content={children} />
+          <WrappedRoute
+            path={["/home", "/timelines/home"]}
+            component={HomeTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path={["/public", "/timelines/public"]}
+            exact
+            component={PublicTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path={["/public/local", "/timelines/public/local"]}
+            exact
+            component={CommunityTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path={["/conversations", "/timelines/direct"]}
+            component={DirectTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path="/tags/:id"
+            component={HashtagTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path="/lists/:id"
+            component={ListTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path="/notifications"
+            component={Notifications}
+            content={children}
+          />
+          <WrappedRoute
+            path="/favourites"
+            component={FavouritedStatuses}
+            content={children}
+          />
 
-          <WrappedRoute path='/bookmarks' component={BookmarkedStatuses} content={children} />
-          <WrappedRoute path='/pinned' component={PinnedStatuses} content={children} />
+          <WrappedRoute
+            path="/bookmarks"
+            component={BookmarkedStatuses}
+            content={children}
+          />
+          <WrappedRoute
+            path="/pinned"
+            component={PinnedStatuses}
+            content={children}
+          />
 
-          <WrappedRoute path='/start' component={FollowRecommendations} content={children} />
-          <WrappedRoute path='/search' component={Search} content={children} />
-          <WrappedRoute path='/directory' component={Directory} content={children} />
-          <WrappedRoute path={['/publish', '/statuses/new']} component={Compose} content={children} />
+          <WrappedRoute
+            path="/start"
+            component={FollowRecommendations}
+            content={children}
+          />
+          <WrappedRoute path="/search" component={Search} content={children} />
+          <WrappedRoute
+            path="/directory"
+            component={Directory}
+            content={children}
+          />
+          <WrappedRoute
+            path={["/publish", "/statuses/new"]}
+            component={Compose}
+            content={children}
+          />
 
-          <WrappedRoute path={['/@:acct', '/accounts/:id']} exact component={AccountTimeline} content={children} />
-          <WrappedRoute path={['/@:acct/with_replies', '/accounts/:id/with_replies']} component={AccountTimeline} content={children} componentParams={{ withReplies: true }} />
-          <WrappedRoute path={['/@:acct/followers', '/accounts/:id/followers']} component={Followers} content={children} />
-          <WrappedRoute path={['/@:acct/following', '/accounts/:id/following']} component={Following} content={children} />
-          <WrappedRoute path={['/@:acct/media', '/accounts/:id/media']} component={AccountGallery} content={children} />
-          <WrappedRoute path='/@:acct/:statusId' exact component={Status} content={children} />
-          <WrappedRoute path='/@:acct/:statusId/reblogs' component={Reblogs} content={children} />
-          <WrappedRoute path='/@:acct/:statusId/favourites' component={Favourites} content={children} />
+          <WrappedRoute
+            path={["/@:acct", "/accounts/:id"]}
+            exact
+            component={AccountTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path={["/@:acct/with_replies", "/accounts/:id/with_replies"]}
+            component={AccountTimeline}
+            content={children}
+            componentParams={{ withReplies: true }}
+          />
+          <WrappedRoute
+            path={["/@:acct/followers", "/accounts/:id/followers"]}
+            component={Followers}
+            content={children}
+          />
+          <WrappedRoute
+            path={["/@:acct/following", "/accounts/:id/following"]}
+            component={Following}
+            content={children}
+          />
+          <WrappedRoute
+            path={["/@:acct/media", "/accounts/:id/media"]}
+            component={AccountGallery}
+            content={children}
+          />
+          <WrappedRoute
+            path="/@:acct/:statusId"
+            exact
+            component={Status}
+            content={children}
+          />
+          <WrappedRoute
+            path="/@:acct/:statusId/reblogs"
+            component={Reblogs}
+            content={children}
+          />
+          <WrappedRoute
+            path="/@:acct/:statusId/favourites"
+            component={Favourites}
+            content={children}
+          />
 
           {/* Legacy routes, cannot be easily factored with other routes because they share a param name */}
-          <WrappedRoute path='/timelines/tag/:id' component={HashtagTimeline} content={children} />
-          <WrappedRoute path='/timelines/list/:id' component={ListTimeline} content={children} />
-          <WrappedRoute path='/statuses/:statusId' exact component={Status} content={children} />
-          <WrappedRoute path='/statuses/:statusId/reblogs' component={Reblogs} content={children} />
-          <WrappedRoute path='/statuses/:statusId/favourites' component={Favourites} content={children} />
-          <WrappedRoute path='/statuses/:statusId/mentions' component={Mentions} content={children} />
+          <WrappedRoute
+            path="/timelines/tag/:id"
+            component={HashtagTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path="/timelines/list/:id"
+            component={ListTimeline}
+            content={children}
+          />
+          <WrappedRoute
+            path="/statuses/:statusId"
+            exact
+            component={Status}
+            content={children}
+          />
+          <WrappedRoute
+            path="/statuses/:statusId/reblogs"
+            component={Reblogs}
+            content={children}
+          />
+          <WrappedRoute
+            path="/statuses/:statusId/favourites"
+            component={Favourites}
+            content={children}
+          />
+          <WrappedRoute
+            path="/statuses/:statusId/mentions"
+            component={Mentions}
+            content={children}
+          />
 
-          <WrappedRoute path='/follow_requests' component={FollowRequests} content={children} />
-          <WrappedRoute path='/blocks' component={Blocks} content={children} />
-          <WrappedRoute path='/domain_blocks' component={DomainBlocks} content={children} />
-          <WrappedRoute path='/mutes' component={Mutes} content={children} />
-          <WrappedRoute path='/lists' component={Lists} content={children} />
-          <WrappedRoute path='/circles' component={Circles} content={children} />
+          <WrappedRoute
+            path="/follow_requests"
+            component={FollowRequests}
+            content={children}
+          />
+          <WrappedRoute path="/blocks" component={Blocks} content={children} />
+          <WrappedRoute
+            path="/domain_blocks"
+            component={DomainBlocks}
+            content={children}
+          />
+          <WrappedRoute path="/mutes" component={Mutes} content={children} />
+          <WrappedRoute path="/lists" component={Lists} content={children} />
+          <WrappedRoute
+            path="/circles"
+            component={Circles}
+            content={children}
+          />
 
           <WrappedRoute component={GenericNotFound} content={children} />
         </WrappedSwitch>
       </ColumnsAreaContainer>
     );
   }
-
 }
 
-export default @connect(mapStateToProps)
+export default
+@connect(mapStateToProps)
 @injectIntl
 @withRouter
 class UI extends React.PureComponent {
-
   static contextTypes = {
     router: PropTypes.object.isRequired,
   };
@@ -226,15 +437,21 @@ class UI extends React.PureComponent {
     dropdownMenuIsOpen: PropTypes.bool,
     layout: PropTypes.string.isRequired,
     firstLaunch: PropTypes.bool,
-    username: PropTypes.string,
+    visibilities: PropTypes.arrayOf(PropTypes.string),
   };
 
   state = {
     draggingOver: false,
   };
 
-  handleBeforeUnload = e => {
-    const { intl, dispatch, isComposing, hasComposingText, hasMediaAttachments } = this.props;
+  handleBeforeUnload = (e) => {
+    const {
+      intl,
+      dispatch,
+      isComposing,
+      hasComposingText,
+      hasMediaAttachments,
+    } = this.props;
 
     dispatch(synchronouslySubmitMarkers());
 
@@ -245,16 +462,16 @@ class UI extends React.PureComponent {
       // but we set user-friendly message for other browsers, e.g. Edge.
       e.returnValue = intl.formatMessage(messages.beforeUnload);
     }
-  }
+  };
 
   handleWindowFocus = () => {
     this.props.dispatch(focusApp());
     this.props.dispatch(submitMarkers({ immediate: true }));
-  }
+  };
 
   handleWindowBlur = () => {
     this.props.dispatch(unfocusApp());
-  }
+  };
 
   handleDragEnter = (e) => {
     e.preventDefault();
@@ -267,10 +484,14 @@ class UI extends React.PureComponent {
       this.dragTargets.push(e.target);
     }
 
-    if (e.dataTransfer && Array.from(e.dataTransfer.types).includes('Files') && this.props.canUploadMore) {
+    if (
+      e.dataTransfer &&
+      Array.from(e.dataTransfer.types).includes("Files") &&
+      this.props.canUploadMore
+    ) {
       this.setState({ draggingOver: true });
     }
-  }
+  };
 
   handleDragOver = (e) => {
     if (this.dataTransferIsText(e.dataTransfer)) return false;
@@ -279,13 +500,11 @@ class UI extends React.PureComponent {
     e.stopPropagation();
 
     try {
-      e.dataTransfer.dropEffect = 'copy';
-    } catch (err) {
-
-    }
+      e.dataTransfer.dropEffect = "copy";
+    } catch (err) {}
 
     return false;
-  }
+  };
 
   handleDrop = (e) => {
     if (this.dataTransferIsText(e.dataTransfer)) return;
@@ -295,45 +514,59 @@ class UI extends React.PureComponent {
     this.setState({ draggingOver: false });
     this.dragTargets = [];
 
-    if (e.dataTransfer && e.dataTransfer.files.length >= 1 && this.props.canUploadMore) {
+    if (
+      e.dataTransfer &&
+      e.dataTransfer.files.length >= 1 &&
+      this.props.canUploadMore
+    ) {
       this.props.dispatch(uploadCompose(e.dataTransfer.files));
     }
-  }
+  };
 
   handleDragLeave = (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    this.dragTargets = this.dragTargets.filter(el => el !== e.target && this.node.contains(el));
+    this.dragTargets = this.dragTargets.filter(
+      (el) => el !== e.target && this.node.contains(el)
+    );
 
     if (this.dragTargets.length > 0) {
       return;
     }
 
     this.setState({ draggingOver: false });
-  }
+  };
 
   dataTransferIsText = (dataTransfer) => {
-    return (dataTransfer && Array.from(dataTransfer.types).filter((type) => type === 'text/plain').length === 1);
-  }
+    return (
+      dataTransfer &&
+      Array.from(dataTransfer.types).filter((type) => type === "text/plain")
+        .length === 1
+    );
+  };
 
   closeUploadModal = () => {
     this.setState({ draggingOver: false });
-  }
+  };
 
   handleServiceWorkerPostMessage = ({ data }) => {
-    if (data.type === 'navigate') {
+    if (data.type === "navigate") {
       this.context.router.history.push(data.path);
     } else {
-      console.warn('Unknown message type:', data.type);
+      console.warn("Unknown message type:", data.type);
     }
-  }
+  };
 
-  handleLayoutChange = debounce(() => {
-    this.props.dispatch(clearHeight()); // The cached heights are no longer accurate, invalidate
-  }, 500, {
-    trailing: true,
-  });
+  handleLayoutChange = debounce(
+    () => {
+      this.props.dispatch(clearHeight()); // The cached heights are no longer accurate, invalidate
+    },
+    500,
+    {
+      trailing: true,
+    }
+  );
 
   handleResize = () => {
     const layout = layoutFromWindow();
@@ -344,95 +577,102 @@ class UI extends React.PureComponent {
     } else {
       this.handleLayoutChange();
     }
-  }
+  };
 
-  componentDidMount () {
-    window.addEventListener('focus', this.handleWindowFocus, false);
-    window.addEventListener('blur', this.handleWindowBlur, false);
-    window.addEventListener('beforeunload', this.handleBeforeUnload, false);
-    window.addEventListener('resize', this.handleResize, { passive: true });
+  componentDidMount() {
+    const { dispatch, visibilities } = this.props;
 
-    document.addEventListener('dragenter', this.handleDragEnter, false);
-    document.addEventListener('dragover', this.handleDragOver, false);
-    document.addEventListener('drop', this.handleDrop, false);
-    document.addEventListener('dragleave', this.handleDragLeave, false);
-    document.addEventListener('dragend', this.handleDragEnd, false);
+    window.addEventListener("focus", this.handleWindowFocus, false);
+    window.addEventListener("blur", this.handleWindowBlur, false);
+    window.addEventListener("beforeunload", this.handleBeforeUnload, false);
+    window.addEventListener("resize", this.handleResize, { passive: true });
 
-    if ('serviceWorker' in  navigator) {
-      navigator.serviceWorker.addEventListener('message', this.handleServiceWorkerPostMessage);
+    document.addEventListener("dragenter", this.handleDragEnter, false);
+    document.addEventListener("dragover", this.handleDragOver, false);
+    document.addEventListener("drop", this.handleDrop, false);
+    document.addEventListener("dragleave", this.handleDragLeave, false);
+    document.addEventListener("dragend", this.handleDragEnd, false);
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener(
+        "message",
+        this.handleServiceWorkerPostMessage
+      );
     }
 
     // On first launch, redirect to the follow recommendations page
     if (this.props.firstLaunch) {
-      this.context.router.history.replace('/start');
-      this.props.dispatch(closeOnboarding());
+      this.context.router.history.replace("/start");
+      dispatch(closeOnboarding());
     }
 
-    this.props.dispatch(fetchMarkers());
-    this.props.dispatch(expandHomeTimeline());
-    this.props.dispatch(expandNotifications());
+    dispatch(fetchMarkers());
+    dispatch(expandHomeTimeline({ visibilities }));
+    dispatch(expandNotifications());
     setTimeout(() => this.props.dispatch(fetchFilters()), 500);
 
     this.hotkeys.__mousetrap__.stopCallback = (e, element) => {
-      return ['TEXTAREA', 'SELECT', 'INPUT'].includes(element.tagName);
+      return ["TEXTAREA", "SELECT", "INPUT"].includes(element.tagName);
     };
   }
 
-  componentWillUnmount () {
-    window.removeEventListener('focus', this.handleWindowFocus);
-    window.removeEventListener('blur', this.handleWindowBlur);
-    window.removeEventListener('beforeunload', this.handleBeforeUnload);
-    window.removeEventListener('resize', this.handleResize);
+  componentWillUnmount() {
+    window.removeEventListener("focus", this.handleWindowFocus);
+    window.removeEventListener("blur", this.handleWindowBlur);
+    window.removeEventListener("beforeunload", this.handleBeforeUnload);
+    window.removeEventListener("resize", this.handleResize);
 
-    document.removeEventListener('dragenter', this.handleDragEnter);
-    document.removeEventListener('dragover', this.handleDragOver);
-    document.removeEventListener('drop', this.handleDrop);
-    document.removeEventListener('dragleave', this.handleDragLeave);
-    document.removeEventListener('dragend', this.handleDragEnd);
+    document.removeEventListener("dragenter", this.handleDragEnter);
+    document.removeEventListener("dragover", this.handleDragOver);
+    document.removeEventListener("drop", this.handleDrop);
+    document.removeEventListener("dragleave", this.handleDragLeave);
+    document.removeEventListener("dragend", this.handleDragEnd);
   }
 
-  setRef = c => {
+  setRef = (c) => {
     this.node = c;
-  }
+  };
 
-  handleHotkeyNew = e => {
+  handleHotkeyNew = (e) => {
     e.preventDefault();
 
-    const element = this.node.querySelector('.compose-form__autosuggest-wrapper textarea');
+    const element = this.node.querySelector(
+      ".compose-form__autosuggest-wrapper textarea"
+    );
 
     if (element) {
       element.focus();
     }
-  }
+  };
 
-  handleHotkeySearch = e => {
+  handleHotkeySearch = (e) => {
     e.preventDefault();
 
-    const element = this.node.querySelector('.search__input');
+    const element = this.node.querySelector(".search__input");
 
     if (element) {
       element.focus();
     }
-  }
+  };
 
-  handleHotkeyForceNew = e => {
+  handleHotkeyForceNew = (e) => {
     this.handleHotkeyNew(e);
     this.props.dispatch(resetCompose());
-  }
+  };
 
-  handleHotkeyToggleComposeSpoilers = e => {
+  handleHotkeyToggleComposeSpoilers = (e) => {
     e.preventDefault();
     this.props.dispatch(changeComposeSpoilerness());
-  }
+  };
 
-  handleHotkeyFocusColumn = e => {
-    const index  = (e.key * 1) + 1; // First child is drawer, skip that
+  handleHotkeyFocusColumn = (e) => {
+    const index = e.key * 1 + 1; // First child is drawer, skip that
     const column = this.node.querySelector(`.column:nth-child(${index})`);
     if (!column) return;
-    const container = column.querySelector('.scrollable');
+    const container = column.querySelector(".scrollable");
 
     if (container) {
-      const status = container.querySelector('.focusable');
+      const status = container.querySelector(".focusable");
 
       if (status) {
         if (container.scrollTop > status.offsetTop) {
@@ -441,79 +681,80 @@ class UI extends React.PureComponent {
         status.focus();
       }
     }
-  }
+  };
 
   handleHotkeyBack = () => {
     if (window.history && window.history.length === 1) {
-      this.context.router.history.push('/');
+      this.context.router.history.push("/");
     } else {
       this.context.router.history.goBack();
     }
-  }
+  };
 
-  setHotkeysRef = c => {
+  setHotkeysRef = (c) => {
     this.hotkeys = c;
-  }
+  };
 
   handleHotkeyToggleHelp = () => {
-    if (this.props.location.pathname === '/keyboard-shortcuts') {
+    if (this.props.location.pathname === "/keyboard-shortcuts") {
       this.context.router.history.goBack();
     } else {
-      this.context.router.history.push('/keyboard-shortcuts');
+      this.context.router.history.push("/keyboard-shortcuts");
     }
-  }
+  };
 
   handleHotkeyGoToHome = () => {
-    this.context.router.history.push('/home');
-  }
+    this.context.router.history.push("/home");
+  };
 
   handleHotkeyGoToNotifications = () => {
-    this.context.router.history.push('/notifications');
-  }
+    this.context.router.history.push("/notifications");
+  };
 
   handleHotkeyGoToLocal = () => {
-    this.context.router.history.push('/public/local');
-  }
+    this.context.router.history.push("/public/local");
+  };
 
   handleHotkeyGoToFederated = () => {
-    this.context.router.history.push('/public');
-  }
+    this.context.router.history.push("/public");
+  };
 
   handleHotkeyGoToDirect = () => {
-    this.context.router.history.push('/conversations');
-  }
+    this.context.router.history.push("/conversations");
+  };
 
   handleHotkeyGoToStart = () => {
-    this.context.router.history.push('/getting-started');
-  }
+    this.context.router.history.push("/getting-started");
+  };
 
   handleHotkeyGoToFavourites = () => {
-    this.context.router.history.push('/favourites');
-  }
+    this.context.router.history.push("/favourites");
+  };
 
   handleHotkeyGoToPinned = () => {
-    this.context.router.history.push('/pinned');
-  }
+    this.context.router.history.push("/pinned");
+  };
 
   handleHotkeyGoToProfile = () => {
     this.context.router.history.push(`/@${this.props.username}`);
-  }
+  };
 
   handleHotkeyGoToBlocked = () => {
-    this.context.router.history.push('/blocks');
-  }
+    this.context.router.history.push("/blocks");
+  };
 
   handleHotkeyGoToMuted = () => {
-    this.context.router.history.push('/mutes');
-  }
+    this.context.router.history.push("/mutes");
+  };
 
   handleHotkeyGoToRequests = () => {
-    this.context.router.history.push('/follow_requests');
-  }
+    this.context.router.history.push("/follow_requests");
+  };
 
-  render () {
+  render() {
     const { draggingOver } = this.state;
-    const { children, isComposing, location, dropdownMenuIsOpen, layout } = this.props;
+    const { children, isComposing, location, dropdownMenuIsOpen, layout } =
+      this.props;
 
     const handlers = {
       help: this.handleHotkeyToggleHelp,
@@ -538,15 +779,28 @@ class UI extends React.PureComponent {
     };
 
     return (
-      <HotKeys keyMap={keyMap} handlers={handlers} ref={this.setHotkeysRef} attach={window} focused>
-        <div className={classNames('ui', { 'is-composing': isComposing })} ref={this.setRef} style={{ pointerEvents: dropdownMenuIsOpen ? 'none' : null }}>
-          <SwitchingColumnsArea location={location} mobile={layout === 'mobile' || layout === 'single-column'}>
+      <HotKeys
+        keyMap={keyMap}
+        handlers={handlers}
+        ref={this.setHotkeysRef}
+        attach={window}
+        focused
+      >
+        <div
+          className={classNames("ui", { "is-composing": isComposing })}
+          ref={this.setRef}
+          style={{ pointerEvents: dropdownMenuIsOpen ? "none" : null }}
+        >
+          <SwitchingColumnsArea
+            location={location}
+            mobile={layout === "mobile" || layout === "single-column"}
+          >
             {children}
           </SwitchingColumnsArea>
 
-          {layout !== 'mobile' && <PictureInPicture />}
+          {layout !== "mobile" && <PictureInPicture />}
           <NotificationsContainer />
-          <LoadingBarContainer className='loading-bar' />
+          <LoadingBarContainer className="loading-bar" />
           <ModalContainer />
           <UploadArea active={draggingOver} onClose={this.closeUploadModal} />
           <DocumentTitle />
@@ -554,5 +808,4 @@ class UI extends React.PureComponent {
       </HotKeys>
     );
   }
-
 }
