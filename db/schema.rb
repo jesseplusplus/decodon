@@ -1005,13 +1005,14 @@ ActiveRecord::Schema.define(version: 2022_04_29_101850) do
 
   create_table "web_push_subscriptions", force: :cascade do |t|
     t.string "endpoint", null: false
-    t.string "key_p256dh", null: false
-    t.string "key_auth", null: false
+    t.string "key_p256dh"
+    t.string "key_auth"
     t.json "data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "access_token_id"
     t.bigint "user_id"
+    t.boolean "expo", default: false, null: false
     t.index ["access_token_id"], name: "index_web_push_subscriptions_on_access_token_id", where: "(access_token_id IS NOT NULL)"
     t.index ["user_id"], name: "index_web_push_subscriptions_on_user_id"
   end
