@@ -16,8 +16,10 @@ class Web::PushNotificationWorker
     # in the meantime, so we have to double-check before proceeding
     return unless @notification.activity.present? && @subscription.pushable?(@notification)
 
-    payload = @subscription.encrypt(push_notification_json)
+    return expo_send if @subscription.expo?
 
+    payload = @subscription.encrypt(push_notification_json)
+     
     request_pool.with(@subscription.audience) do |http_client|
       request = Request.new(:post, @subscription.endpoint, body: payload.fetch(:ciphertext), http_client: http_client)
 
@@ -38,7 +40,7 @@ class Web::PushNotificationWorker
         # and must be removed
 
         if (400..499).cover?(response.code) && ![408, 429].include?(response.code)
-          @subscription.destroy!
+          raise Mastodon::UnexpectedResponseError, response
         elsif !(200...300).cover?(response.code)
           raise Mastodon::UnexpectedResponseError, response
         end
@@ -50,6 +52,29 @@ class Web::PushNotificationWorker
 
   private
 
+  def expo_send
+    request_pool.with(@subscription.audience) do |http_client|
+      body = push_notification_json
+      
+      request = Request.new(:post, @subscription.endpoint, body: body, http_client: http_client)
+
+      request.add_headers(
+        'Content-Type'     => 'application/json',
+        'Accept' => 'application/json',
+        'Accept-Encoding' => 'gzip, deflate',
+        'Host' => 'exp.host',
+        'Ttl'              => TTL,
+        'Urgency'          => URGENCY,
+      )
+
+      request.perform do |response|
+        if !(200...300).cover?(response.code)
+          raise Mastodon::UnexpectedResponseError, response
+        end
+      end
+    end
+  end
+
   def push_notification_json
     json = I18n.with_locale(@subscription.locale || I18n.default_locale) do
       ActiveModelSerializers::SerializableResource.new(
@@ -58,6 +83,15 @@ class Web::PushNotificationWorker
         scope: @subscription,
         scope_name: :current_push_subscription
       ).as_json
+    end
+
+    if (@subscription.expo?)
+      json.delete :access_token
+      json.delete :preferred_locale
+      json.delete :notification_id
+      json.delete :notification_type
+
+      json[:to] = @subscription.expo
     end
 
     Oj.dump(json)
