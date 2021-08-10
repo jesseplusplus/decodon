@@ -34,7 +34,6 @@ class FanOutOnWriteService < BaseService
   end
 
   def fan_out_to_local_recipients!
-    deliver_to_self!
     notify_mentioned_accounts!
     notify_about_update! if update?
 

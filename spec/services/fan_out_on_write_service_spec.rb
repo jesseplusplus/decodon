@@ -30,8 +30,8 @@ RSpec.describe FanOutOnWriteService, type: :service do
   context 'when status is public' do
     let(:visibility) { 'public' }
 
-    it 'is added to the home feed of its author' do
-      expect(home_feed_of(alice)).to include status.id
+    it 'does not deliver own status to home timeline' do
+      expect(HomeFeed.new(author).get(10).map(&:id)).not_to include status.id
     end
 
     it 'is added to the home feed of a follower' do
