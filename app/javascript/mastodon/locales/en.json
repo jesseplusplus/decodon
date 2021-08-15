@@ -182,6 +182,7 @@
   "empty_column.account_unavailable": "Profile unavailable",
   "empty_column.blocks": "You haven't blocked any users yet.",
   "empty_column.bookmarked_statuses": "You don't have any bookmarked posts yet. When you bookmark one, it will show up here.",
+  "empty_column.circles": "You don't have any circles yet. When you create one, it will show up here.",
   "empty_column.community": "The local timeline is empty. Write something publicly to get the ball rolling!",
   "empty_column.conversations": "Once you send or receive a post that's only visible to people mentioned in it, it will show up here.",
   "empty_column.domain_blocks": "There are no blocked domains yet.",
