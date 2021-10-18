@@ -1,8 +1,13 @@
 version: 2.1
 
 orbs:
+<<<<<<< HEAD
   ruby: circleci/ruby@1.4.1
   node: circleci/node@5.0.1
+=======
+  ruby: circleci/ruby@1.2.0
+  node: circleci/node@4.7.0
+>>>>>>> 4c44dee01 (Improve CircleCI config (#16861))
 
 executors:
   default:
@@ -19,11 +24,19 @@ executors:
           DB_USER: root
           DISABLE_SIMPLECOV: true
           RAILS_ENV: test
+<<<<<<< HEAD
       - image: cimg/postgres:14.0
         environment:
           POSTGRES_USER: root
           POSTGRES_HOST_AUTH_METHOD: trust
       - image: cimg/redis:6.2
+=======
+      - image: cimg/postgres:12.7
+        environment:
+          POSTGRES_USER: root
+          POSTGRES_HOST_AUTH_METHOD: trust
+      - image: circleci/redis:5-alpine
+>>>>>>> 4c44dee01 (Improve CircleCI config (#16861))
 
 commands:
   install-system-dependencies:
@@ -32,7 +45,11 @@ commands:
           name: Install system dependencies
           command: |
             sudo apt-get update
+<<<<<<< HEAD
             sudo apt-get install -y libicu-dev libidn11-dev
+=======
+            sudo apt-get install -y libicu-dev libidn11-dev libprotobuf-dev protobuf-compiler
+>>>>>>> 4c44dee01 (Improve CircleCI config (#16861))
   install-ruby-dependencies:
     parameters:
       ruby-version:
@@ -45,7 +62,11 @@ commands:
             bundle config without 'development production'
           name: Set bundler settings
       - ruby/install-deps:
+<<<<<<< HEAD
           bundler-version: '2.3.8'
+=======
+          bundler-version: '2.2.29'
+>>>>>>> 4c44dee01 (Improve CircleCI config (#16861))
           key: ruby<< parameters.ruby-version >>-gems-v1
   wait-db:
     steps:
@@ -56,14 +77,22 @@ commands:
 jobs:
   build:
     docker:
+<<<<<<< HEAD
       - image: cimg/ruby:3.0-node
+=======
+      - image: cimg/ruby:2.7-node
+>>>>>>> 4c44dee01 (Improve CircleCI config (#16861))
         environment:
           RAILS_ENV: test
     steps:
       - checkout
       - install-system-dependencies
       - install-ruby-dependencies:
+<<<<<<< HEAD
           ruby-version: '3.0'
+=======
+          ruby-version: '2.7'
+>>>>>>> 4c44dee01 (Improve CircleCI config (#16861))
       - node/install-packages:
           cache-version: v1
           pkg-manager: yarn
@@ -89,6 +118,7 @@ jobs:
       PAM_DEFAULT_SERVICE: pam_test
       PAM_CONTROLLED_SERVICE: pam_test_controlled
     parallelism: 4
+<<<<<<< HEAD
     steps:
       - checkout
       - install-system-dependencies
@@ -133,38 +163,40 @@ jobs:
       - run:
           command: ./bin/rails tests:migrations:populate_v2_4
           name: Populate database with test data
-      - run:
-          command: ./bin/rails db:migrate VERSION=20171010025614
-          name: Run migrations up to v2.0.0
-      - run:
-          command: ./bin/rails tests:migrations:populate_v2
-          name: Populate database with test data
-      - run:
-          command: ./bin/rails db:migrate
-          name: Run all remaining migrations
-
-  test-two-step-migrations:
-    <<: *defaults
-    docker:
-      - image: circleci/ruby:2.7-buster-node
-        environment: *ruby_environment
-      - image: circleci/postgres:12.2
-        environment:
-          POSTGRES_USER: root
-          POSTGRES_HOST_AUTH_METHOD: trust
-      - image: circleci/redis:5-alpine
+=======
     steps:
-      - *attach_workspace
-      - *install_system_dependencies
+      - checkout
+      - install-system-dependencies
+>>>>>>> 4c44dee01 (Improve CircleCI config (#16861))
+      - run:
+          command: sudo apt-get install -y ffmpeg imagemagick libpam-dev
+          name: Install additional system dependencies
+      - run:
+          command: bundle config with 'pam_authentication'
+          name: Enable PAM authentication
+      - install-ruby-dependencies:
+          ruby-version: << parameters.ruby-version >>
+      - attach_workspace:
+          at: .
+      - wait-db
+      - run:
+          command: ./bin/rails db:create db:schema:load db:seed
+          name: Load database schema
+      - ruby/rspec-test
+
+  test-migrations:
+    executor:
+      name: default
+      ruby-version: '2.7'
+    steps:
+      - checkout
+      - install-system-dependencies
+      - install-ruby-dependencies:
+          ruby-version: '2.7'
+      - wait-db
       - run:
           command: ./bin/rails db:create
           name: Create database
-      - run:
-          command: ./bin/rails db:migrate VERSION=20171010025614
-          name: Run migrations up to v2.0.0
-      - run:
-          command: ./bin/rails tests:migrations:populate_v2
-          name: Populate database with test data
       - run:
           command: ./bin/rails db:migrate
           name: Run all pre-deployment migrations
