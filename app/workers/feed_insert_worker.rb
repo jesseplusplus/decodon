@@ -39,7 +39,8 @@ class FeedInsertWorker
   end
 
   def notify?
-    return false if @type != :home || @status.reblog? || (@status.reply? && @status.in_reply_to_account_id != @status.account_id)
+    return false if @type != :home || @status.reblog? || (@status.reply? && @status.in_reply_to_account_id == @status.account_id)
+    return true if @status.reply? && @status.in_reply_to_account_id == @follower.id
 
     Follow.find_by(account: @follower, target_account: @status.account)&.notify?
   end
