@@ -23,9 +23,7 @@ class FeedInsertWorker
   private
 
   def check_and_insert
-    return if feed_filtered?
-
-    perform_push
+    perform_push unless feed_filtered?
     perform_notify if notify?
   end
 

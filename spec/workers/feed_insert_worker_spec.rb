@@ -30,13 +30,17 @@ describe FeedInsertWorker do
     end
 
     context 'when there are real records' do
-      it 'skips the push when there is a filter' do
+      it 'skips the push when there is a filter, but still notifies if needed' do
         instance = double(push_to_home: nil, filter?: true)
         allow(FeedManager).to receive(:instance).and_return(instance)
+        allow(subject).to receive(:notify?).and_return(true)
+        notify_service = double(call: nil)
+        allow(NotifyService).to receive(:new).and_return(notify_service)
         result = subject.perform(status.id, follower.id)
 
         expect(result).to be_nil
         expect(instance).not_to have_received(:push_to_home)
+        expect(notify_service).to have_received(:call)
       end
 
       it 'pushes the status onto the home timeline without filter' do
