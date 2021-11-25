@@ -1,25 +1,14 @@
 # frozen_string_literal: true
 
 class Admin::Metrics::Measure::BaseMeasure
-  CACHE_TTL = 5.minutes.freeze
-
   def self.with_params?
     false
   end
-
-  attr_reader :loaded
-
-  alias loaded? loaded
 
   def initialize(start_at, end_at, params)
     @start_at = start_at&.to_datetime
     @end_at   = end_at&.to_datetime
     @params   = params
-    @loaded   = false
-  end
-
-  def cache_key
-    ["metrics/measure/#{key}", @start_at, @end_at, canonicalized_params].join(';')
   end
 
   def key
@@ -98,10 +87,6 @@ class Admin::Metrics::Measure::BaseMeasure
   end
 
   def params
-    {}
-  end
-
-  def canonicalized_params
-    params.to_h.to_a.sort_by { |k, _v| k.to_s }.map { |k, v| "#{k}=#{v}" }.join(';')
+    raise NotImplementedError
   end
 end

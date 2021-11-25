@@ -5,7 +5,7 @@ class PreviewCardPolicy < ApplicationPolicy
     staff?
   end
 
-  def review?
+  def update?
     staff?
   end
 end

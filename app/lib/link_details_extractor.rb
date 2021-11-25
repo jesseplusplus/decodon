@@ -75,10 +75,6 @@ class LinkDetailsExtractor
       publisher.dig('logo', 'url')
     end
 
-    def valid?
-      json.present?
-    end
-
     private
 
     def author
@@ -217,6 +213,14 @@ class LinkDetailsExtractor
     url.to_s
   rescue Addressable::URI::InvalidURIError
     nil
+  end
+
+  def valid_locale_or_nil(str)
+    return nil if str.blank?
+
+    code,  = str.split(/_-/) # Strip out the region from e.g. en_US or ja-JA
+    locale = ISO_639.find(code)
+    locale&.alpha2
   end
 
   def link_tag(name)

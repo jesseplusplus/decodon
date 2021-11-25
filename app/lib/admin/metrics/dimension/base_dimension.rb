@@ -1,22 +1,15 @@
 # frozen_string_literal: true
 
 class Admin::Metrics::Dimension::BaseDimension
-  CACHE_TTL = 5.minutes.freeze
-
   def self.with_params?
     false
   end
-
-  attr_reader :loaded
-
-  alias loaded? loaded
 
   def initialize(start_at, end_at, limit, params)
     @start_at = start_at&.to_datetime
     @end_at   = end_at&.to_datetime
     @limit    = limit&.to_i
     @params   = params
-    @loaded   = false
   end
 
   def key
@@ -59,10 +52,6 @@ class Admin::Metrics::Dimension::BaseDimension
   end
 
   def params
-    {}
-  end
-
-  def canonicalized_params
-    params.to_h.to_a.sort_by { |k, _v| k.to_s }.map { |k, v| "#{k}=#{v}" }.join(';')
+    raise NotImplementedError
   end
 end

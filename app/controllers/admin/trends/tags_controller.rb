@@ -5,11 +5,11 @@ class Admin::Trends::TagsController < Admin::BaseController
     authorize :tag, :index?
 
     @tags = filtered_tags.page(params[:page])
-    @form = Trends::TagBatch.new
+    @form = Form::TagBatch.new
   end
 
   def batch
-    @form = Trends::TagBatch.new(trends_tag_batch_params.merge(current_account: current_account, action: action_from_button))
+    @form = Form::TagBatch.new(form_tag_batch_params.merge(current_account: current_account, action: action_from_button))
     @form.save
   rescue ActionController::ParameterMissing
     flash[:alert] = I18n.t('admin.accounts.no_account_selected')
@@ -20,15 +20,15 @@ class Admin::Trends::TagsController < Admin::BaseController
   private
 
   def filtered_tags
-    Trends::TagFilter.new(filter_params).results
+    TagFilter.new(filter_params).results
   end
 
   def filter_params
-    params.slice(:page, *Trends::TagFilter::KEYS).permit(:page, *Trends::TagFilter::KEYS)
+    params.slice(:page, *TagFilter::KEYS).permit(:page, *TagFilter::KEYS)
   end
 
-  def trends_tag_batch_params
-    params.require(:trends_tag_batch).permit(:action, tag_ids: [])
+  def form_tag_batch_params
+    params.require(:form_tag_batch).permit(:action, tag_ids: [])
   end
 
   def action_from_button

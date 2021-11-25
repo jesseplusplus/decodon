@@ -4,10 +4,6 @@
 - content_for :header_tags do
   = javascript_pack_tag 'admin', async: true, crossorigin: 'anonymous'
 
-%p= t('admin.trends.preview_card_providers.description_html')
-
-%hr.spacer/
-
 .filters
   .filter-subset
     %strong= t('admin.tags.review')
@@ -26,7 +22,7 @@
 = form_for(@form, url: batch_admin_trends_links_preview_card_providers_path) do |f|
   = hidden_field_tag :page, params[:page] || 1
 
-  - Trends::PreviewCardProviderFilter::KEYS.each do |key|
+  - PreviewCardProviderFilter::KEYS.each do |key|
     = hidden_field_tag key, params[key] if params[key].present?
 
   .batch-table.optional

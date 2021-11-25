@@ -22,12 +22,12 @@ class Trends::TagBatch
   end
 
   def approve!
-    tags.each { |tag| authorize(tag, :review?) }
+    tags.each { |tag| authorize(tag, :update?) }
     tags.update_all(trendable: true, reviewed_at: action_time)
   end
 
   def reject!
-    tags.each { |tag| authorize(tag, :review?) }
+    tags.each { |tag| authorize(tag, :update?) }
     tags.update_all(trendable: false, reviewed_at: action_time)
   end
 

@@ -794,7 +794,6 @@ en:
       links:
         allow: Allow link
         allow_provider: Allow publisher
-        description_html: These are links that are currently being shared a lot by accounts that your server sees posts from. It can help your users find out what's going on in the world. No links are displayed publicly until you approve the publisher. You can also allow or reject individual links.
         disallow: Disallow link
         disallow_provider: Disallow publisher
         shared_by_over_week:
@@ -802,25 +801,12 @@ en:
           other: Shared by %{count} people over the last week
         title: Trending links
         usage_comparison: Shared %{today} times today, compared to %{yesterday} yesterday
-      only_allowed: Only allowed
       pending_review: Pending review
       preview_card_providers:
         allowed: Links from this publisher can trend
-        description_html: These are domains from which links are often shared on your server. Links will not trend publicly unless the domain of the link is approved. Your approval (or rejection) extends to subdomains.
         rejected: Links from this publisher won't trend
         title: Publishers
       rejected: Rejected
-      statuses:
-        allow: Allow post
-        allow_account: Allow author
-        description_html: These are posts that your server knows about that are currently being shared and favourited a lot at the moment. It can help your new and returning users to find more people to follow. No posts are displayed publicly until you approve the author, and the author allows their account to be suggested to others. You can also allow or reject individual posts.
-        disallow: Disallow post
-        disallow_account: Disallow author
-        not_discoverable: Author has not opted-in to being discoverable
-        shared_by:
-          one: Shared or favourited one time
-          other: Shared and favourited %{friendly_count} times
-        title: Trending posts
       tags:
         current_score: Current score %{score}
         dashboard:
@@ -829,7 +815,6 @@ en:
           tag_servers_dimension: Top servers
           tag_servers_measure: different servers
           tag_uses_measure: total uses
-        description_html: These are hashtags that are currently appearing in a lot of posts that your server sees. It can help your users find out what people are talking the most about at the moment. No hashtags are displayed publicly until you approve them.
         listable: Can be suggested
         not_listable: Won't be suggested
         not_trendable: Won't appear under trends
@@ -844,7 +829,6 @@ en:
           one: Used by one person over the last week
           other: Used by %{count} people over the last week
       title: Trends
-      trending: Trending
     warning_presets:
       add_new: Add new
       delete: Delete
@@ -871,21 +855,16 @@ en:
       body: "%{reporter} has reported %{target}"
       body_remote: Someone from %{domain} has reported %{target}
       subject: New report for %{instance} (#%{id})
-    new_trends:
-      body: 'The following items need a review before they can be displayed publicly:'
-      new_trending_links:
-        no_approved_links: There are currently no approved trending links.
-        requirements: 'Any of these candidates could surpass the #%{rank} approved trending link, which is currently "%{lowest_link_title}" with a score of %{lowest_link_score}.'
-        title: Trending links
-      new_trending_statuses:
-        no_approved_statuses: There are currently no approved trending posts.
-        requirements: 'Any of these candidates could surpass the #%{rank} approved trending post, which is currently %{lowest_status_url} with a score of %{lowest_status_score}.'
-        title: Trending posts
-      new_trending_tags:
-        no_approved_tags: There are currently no approved trending hashtags.
-        requirements: 'Any of these candidates could surpass the #%{rank} approved trending hashtag, which is currently #%{lowest_tag_name} with a score of %{lowest_tag_score}.'
-        title: Trending hashtags
-      subject: New trends up for review on %{instance}
+    new_trending_links:
+      body: The following links are trending today, but their publishers have not been previously reviewed. They will not be displayed publicly unless you approve them. Further notifications from the same publishers will not be generated.
+      no_approved_links: There are currently no approved trending links.
+      requirements: The lowest approved trending link is currently "%{lowest_link_title}" with a score of %{lowest_link_score}.
+      subject: New trending links up for review on %{instance}
+    new_trending_tags:
+      body: 'The following hashtags are trending today, but they have not been previously reviewed. They will not be displayed publicly unless you approve them:'
+      no_approved_tags: There are currently no approved trending hashtags.
+      requirements: 'The lowest approved trending hashtag is currently #%{lowest_tag_name} with a score of %{lowest_tag_score}.'
+      subject: New trending hashtags up for review on %{instance}
   aliases:
     add_new: Create alias
     created_msg: Successfully created a new alias. You can now initiate the move from the old account.

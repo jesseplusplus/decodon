@@ -326,13 +326,7 @@
   }
 }
 
-.batch-table__row--muted {
-  color: lighten($ui-base-color, 26%);
-}
-
-.batch-table__row--muted .pending-account__header,
-.batch-table__row--muted .accounts-table,
-.batch-table__row--muted .name-tag {
+.batch-table__row--muted .pending-account__header {
   &,
   a,
   strong {
@@ -340,36 +334,10 @@
   }
 }
 
-.batch-table__row--muted .name-tag .avatar {
-  opacity: 0.5;
-}
-
-.batch-table__row--muted .accounts-table {
-  tbody td.accounts-table__extra,
-  &__count,
-  &__count small {
-    color: lighten($ui-base-color, 26%);
-  }
-}
-
-.batch-table__row--attention {
-  color: $gold-star;
-}
-
-.batch-table__row--attention .pending-account__header,
-.batch-table__row--attention .accounts-table,
-.batch-table__row--attention .name-tag {
+.batch-table__row--attention .pending-account__header {
   &,
   a,
   strong {
-    color: $gold-star;
-  }
-}
-
-.batch-table__row--attention .accounts-table {
-  tbody td.accounts-table__extra,
-  &__count,
-  &__count small {
     color: $gold-star;
   }
 }
