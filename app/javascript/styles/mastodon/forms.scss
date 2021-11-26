@@ -1037,39 +1037,3 @@ code {
     display: none;
   }
 }
-
-.permissions-list {
-  &__item {
-    padding: 15px;
-    color: $ui-secondary-color;
-    border-bottom: 1px solid lighten($ui-base-color, 4%);
-    display: flex;
-    align-items: center;
-
-    &__text {
-      flex: 1 1 auto;
-
-      &__title {
-        font-weight: 500;
-      }
-
-      &__type {
-        color: $darker-text-color;
-      }
-    }
-
-    &__icon {
-      flex: 0 0 auto;
-      font-size: 18px;
-      width: 30px;
-      color: $valid-value-color;
-      display: flex;
-      align-items: center;
-    }
-
-    &:last-child {
-      border-bottom: 0;
-      padding-bottom: 0;
-    }
-  }
-}
