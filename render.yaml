@@ -30,6 +30,7 @@ services:
   - type: pserv
     name: redis
     env: docker
+    repo: https://github.com/docker-library/redis.git
     envVars:
       - key: GENERATED_SECRET
         generateValue: true # will generate a base64-encoded 256-bit secret
