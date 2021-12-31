@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: frequency-mastodon
+    name: frequency_mastodon
     env: docker
     repo: https://github.com/jesseplusplus/mastodon.git # optional
     numInstances: 3 # optional (defaults to 1)
@@ -8,7 +8,7 @@ services:
     envVars:
       - key: DB_URL
         fromDatabase:
-          name: frequency-mastodon-db
+          name: frequency_mastodon_db
           property: connectionString
       - key: REDIS_SECRET
         fromService:
