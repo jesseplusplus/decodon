@@ -1,4 +1,4 @@
-ervices:
+services:
   - type: web
     name: frequency-mastodon
     env: docker
