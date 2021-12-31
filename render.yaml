@@ -1,0 +1,54 @@
+ervices:
+  - type: web
+    name: frequency-mastodon
+    env: docker
+    repo: https://github.com/jesseplusplus/mastodon.git # optional
+    numInstances: 3 # optional (defaults to 1)
+    healthCheckPath: /health
+    envVars:
+      envVars:
+      - key: DB_URL
+        fromDatabase:
+          name: frequency-mastodon-db
+          property: connectionString
+      - key: REDIS_SECRET
+        fromService:
+          type: pserv
+          name: redis
+          envVarKey: GENERATED_SECRET
+      - key: REDIS_HOST
+        fromService:
+          name: redis
+          type: pserv
+          property: host # available properties are listed below
+      - key: REDIS_PORT
+        fromService:
+          name: redis
+          type: pserv
+          property: port
+      - fromGroup: conc-settings
+  # A private Redis instance
+  - type: pserv
+    name: redis
+    env: docker
+    envVars:
+      - key: GENERATED_SECRET
+        generateValue: true # will generate a base64-encoded 256-bit secret
+      - key: DASHBOARD_SECRET
+        sync: false # placeholder for a value to be added in the dashboard
+    disk:
+      name: redis-data
+      mountPath: /var/lib/redis
+databases:
+  - name: frequency-mastodon-db
+    databaseName: frequency-mastodon-db # optional (Render may add a suffix)
+    user: frequency-mastodon-user
+envVarGroups:
+  - name: conc-settings
+    envVars:
+      - key: CONCURRENCY
+        value: 2
+      - key: SECRET
+        generateValue: true
+      - key: USER_PROVIDED_SECRET
+        sync: false
