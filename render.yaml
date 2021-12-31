@@ -6,7 +6,6 @@ services:
     numInstances: 3 # optional (defaults to 1)
     healthCheckPath: /health
     envVars:
-      envVars:
       - key: DB_URL
         fromDatabase:
           name: frequency-mastodon-db
