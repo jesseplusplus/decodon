@@ -39,9 +39,9 @@ services:
       name: redis-data
       mountPath: /var/lib/redis
 databases:
-  - name: frequency-mastodon-db
-    databaseName: frequency-mastodon-db # optional (Render may add a suffix)
-    user: frequency-mastodon-user
+  - name: frequency_mastodon_db
+    databaseName: frequency_mastodon_db # optional (Render may add a suffix)
+    user: frequency_mastodon_user
 envVarGroups:
   - name: conc-settings
     envVars:
