@@ -26,10 +26,4 @@ test:
 
 production:
   <<: *default
-  database: <%= ENV['DB_NAME'] || 'mastodon_production' %>
-  username: <%= ENV['DB_USER'] || 'mastodon' %>
-  password: <%= ENV['DB_PASS'] || '' %>
   url: <%= ENV['DATABASE_URL'] %>
-  port: <%= ENV['DB_PORT'] || 5432 %>
-  prepared_statements: <%= ENV['PREPARED_STATEMENTS'] || 'true' %>
-
