@@ -36,19 +36,9 @@ class ActivityPub::FetchFeaturedCollectionService < BaseService
   end
 
   def process_items(items)
-    status_ids = items.filter_map do |item|
-      uri = value_or_id(item)
-      next if ActivityPub::TagManager.instance.local_uri?(uri)
-
-      status = ActivityPub::FetchRemoteStatusService.new.call(uri, on_behalf_of: local_follower)
-      next unless status&.account_id == @account.id
-
-      status.id
-    rescue ActiveRecord::RecordInvalid => e
-      Rails.logger.debug "Invalid pinned status #{uri}: #{e.message}"
-      nil
-    end
-
+    status_ids = items.map { |item| value_or_id(item) }
+                      .filter_map { |uri| ActivityPub::FetchRemoteStatusService.new.call(uri, on_behalf_of: local_follower) unless ActivityPub::TagManager.instance.local_uri?(uri) }
+                      .filter_map { |status| status.id if status.account_id == @account.id }
     to_remove = []
     to_add    = status_ids
 
@@ -71,5 +61,9 @@ class ActivityPub::FetchFeaturedCollectionService < BaseService
     return @local_follower if defined?(@local_follower)
 
     @local_follower = @account.followers.local.without_suspended.first
+  end
+
+  def local_follower
+    @local_follower ||= account.followers.local.without_suspended.first
   end
 end
