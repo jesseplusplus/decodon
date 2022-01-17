@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_26_000907) do
+ActiveRecord::Schema.define(version: 2022_01_16_202951) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -135,7 +135,6 @@ ActiveRecord::Schema.define(version: 2021_11_26_000907) do
     t.datetime "updated_at", null: false
     t.bigint "report_id"
     t.string "status_ids", array: true
-    t.datetime "overruled_at"
     t.index ["account_id"], name: "index_account_warnings_on_account_id"
     t.index ["target_account_id"], name: "index_account_warnings_on_target_account_id"
   end
@@ -897,7 +896,10 @@ ActiveRecord::Schema.define(version: 2021_11_26_000907) do
     t.boolean "trendable"
     t.bigint "ordered_media_attachment_ids", array: true
     t.index ["account_id", "id", "visibility", "updated_at"], name: "index_statuses_20190820", order: { id: :desc }, where: "(deleted_at IS NULL)"
+<<<<<<< HEAD
     t.index ["account_id"], name: "index_statuses_on_account_id"
+=======
+>>>>>>> 875375019 (Add notifications for statuses deleted by moderators (#17204))
     t.index ["deleted_at"], name: "index_statuses_on_deleted_at", where: "(deleted_at IS NOT NULL)"
     t.index ["id", "account_id"], name: "index_statuses_local_20190824", order: { id: :desc }, where: "((local OR (uri IS NULL)) AND (deleted_at IS NULL) AND (visibility = 0) AND (reblog_of_id IS NULL) AND ((NOT reply) OR (in_reply_to_account_id = account_id)))"
     t.index ["id", "account_id"], name: "index_statuses_public_20200119", order: { id: :desc }, where: "((deleted_at IS NULL) AND (visibility = 0) AND (reblog_of_id IS NULL) AND ((NOT reply) OR (in_reply_to_account_id = account_id)))"

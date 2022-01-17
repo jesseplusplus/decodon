@@ -155,7 +155,7 @@ class Admin::AccountAction
   end
 
   def status_ids
-    report.status_ids if with_report? && include_statuses?
+    report.status_ids if with_report? && include_statuses
   end
 
   def reports

@@ -28,7 +28,7 @@ module Admin
       @deletion_request        = @account.deletion_request
       @account_moderation_note = current_account.account_moderation_notes.new(target_account: @account)
       @moderation_notes        = @account.targeted_moderation_notes.latest
-      @warnings                = @account.strikes.includes(:target_account, :account, :appeal).latest
+      @warnings                = @account.strikes.custom.latest
       @domain_block            = DomainBlock.rule_for(@account.domain)
     end
 

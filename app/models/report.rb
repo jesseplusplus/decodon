@@ -39,9 +39,6 @@ class Report < ApplicationRecord
   scope :with_accounts, -> { includes([:account, :target_account, :action_taken_by_account, :assigned_account].index_with({ user: [:invite_request, :invite] })) }
 
   validates :comment, length: { maximum: 1_000 }
-  validates :rule_ids, absence: true, unless: :violation?
-
-  validate :validate_rule_ids
 
   enum category: {
     other: 0,
@@ -77,6 +74,10 @@ class Report < ApplicationRecord
 
     count += MediaAttachment.where(status_id: statuses_to_query).count unless statuses_to_query.empty?
     count
+  end
+
+  def rules
+    Rule.with_discarded.where(id: rule_ids)
   end
 
   def rules

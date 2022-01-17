@@ -5,13 +5,11 @@ class Admin::Metrics::Measure::ResolvedReportsMeasure < Admin::Metrics::Measure:
     'resolved_reports'
   end
 
-  protected
-
-  def perform_total_query
+  def total
     Report.resolved.where(action_taken_at: time_period).count
   end
 
-  def perform_previous_total_query
+  def previous_total
     Report.resolved.where(action_taken_at: previous_time_period).count
   end
 
