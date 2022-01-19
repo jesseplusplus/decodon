@@ -27,9 +27,7 @@ class ActivityPub::Parser::MediaAttachmentParser
   end
 
   def description
-    str = @json['summary'].presence || @json['name'].presence
-    str = str.strip[0...MediaAttachment::MAX_DESCRIPTION_LENGTH] if str.present?
-    str
+    @json['summary'].presence || @json['name'].presence
   end
 
   def focus

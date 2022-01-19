@@ -38,14 +38,12 @@ class PollExpirationNotifyWorker
 
   def notify_remote_voters_and_owner!
     ActivityPub::DistributePollUpdateWorker.perform_async(@poll.status.id)
-    LocalNotificationWorker.perform_async(@poll.account_id, @poll.id, 'Poll', 'poll')
+    NotifyService.new.call(@poll.account, :poll, @poll)
   end
 
   def notify_local_voters!
-    @poll.voters.merge(Account.local).select(:id).find_in_batches do |accounts|
-      LocalNotificationWorker.push_bulk(accounts) do |account|
-        [account.id, @poll.id, 'Poll', 'poll']
-      end
+    @poll.voters.merge(Account.local).find_each do |account|
+      NotifyService.new.call(account, :poll, @poll)
     end
   end
 end

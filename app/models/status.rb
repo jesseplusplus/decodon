@@ -3,29 +3,27 @@
 #
 # Table name: statuses
 #
-#  id                           :bigint(8)        not null, primary key
-#  uri                          :string
-#  text                         :text             default(""), not null
-#  created_at                   :datetime         not null
-#  updated_at                   :datetime         not null
-#  in_reply_to_id               :bigint(8)
-#  reblog_of_id                 :bigint(8)
-#  url                          :string
-#  sensitive                    :boolean          default(FALSE), not null
-#  visibility                   :integer          default("public"), not null
-#  spoiler_text                 :text             default(""), not null
-#  reply                        :boolean          default(FALSE), not null
-#  language                     :string
-#  conversation_id              :bigint(8)
-#  local                        :boolean
-#  account_id                   :bigint(8)        not null
-#  application_id               :bigint(8)
-#  in_reply_to_account_id       :bigint(8)
-#  poll_id                      :bigint(8)
-#  deleted_at                   :datetime
-#  edited_at                    :datetime
-#  trendable                    :boolean
-#  ordered_media_attachment_ids :bigint(8)        is an Array
+#  id                     :bigint(8)        not null, primary key
+#  uri                    :string
+#  text                   :text             default(""), not null
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  in_reply_to_id         :bigint(8)
+#  reblog_of_id           :bigint(8)
+#  url                    :string
+#  sensitive              :boolean          default(FALSE), not null
+#  visibility             :integer          default("public"), not null
+#  spoiler_text           :text             default(""), not null
+#  reply                  :boolean          default(FALSE), not null
+#  language               :string
+#  conversation_id        :bigint(8)
+#  local                  :boolean
+#  account_id             :bigint(8)        not null
+#  application_id         :bigint(8)
+#  in_reply_to_account_id :bigint(8)
+#  poll_id                :bigint(8)
+#  deleted_at             :datetime
+#  edited_at              :datetime
 #
 
 class Status < ApplicationRecord
@@ -59,6 +57,8 @@ class Status < ApplicationRecord
 
   belongs_to :thread, foreign_key: 'in_reply_to_id', class_name: 'Status', inverse_of: :replies, optional: true
   belongs_to :reblog, foreign_key: 'reblog_of_id', class_name: 'Status', inverse_of: :reblogs, optional: true
+
+  has_many :edits, class_name: 'StatusEdit', inverse_of: :status, dependent: :destroy
 
   has_many :favourites, inverse_of: :status, dependent: :destroy
   has_many :bookmarks, inverse_of: :status, dependent: :destroy
@@ -220,6 +220,10 @@ class Status < ApplicationRecord
 
   def distributable?
     public_visibility? || unlisted_visibility?
+  end
+
+  def edited?
+    edited_at.present?
   end
 
   alias sign? distributable?

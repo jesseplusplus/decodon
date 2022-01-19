@@ -2,78 +2,44 @@
 
 class ActivityPub::ProcessStatusUpdateService < BaseService
   include JsonLdHelper
-  include Redisable
 
   def call(status, json)
-    raise ArgumentError, 'Status has unsaved changes' if status.changed?
-
     @json                      = json
     @status_parser             = ActivityPub::Parser::StatusParser.new(@json)
     @uri                       = @status_parser.uri
     @status                    = status
     @account                   = status.account
     @media_attachments_changed = false
-    @poll_changed              = false
 
     # Only native types can be updated at the moment
-    return @status if !expected_type? || already_updated_more_recently?
-
-    if @status_parser.edited_at.present? && (@status.edited_at.nil? || @status_parser.edited_at > @status.edited_at)
-      handle_explicit_update!
-    else
-      handle_implicit_update!
-    end
-
-    @status
-  end
-
-  private
-
-  def handle_explicit_update!
-    last_edit_date = @status.edited_at.presence || @status.created_at
+    return if !expected_type? || already_updated_more_recently?
 
     # Only allow processing one create/update per status at a time
     RedisLock.acquire(lock_options) do |lock|
       if lock.acquired?
         Status.transaction do
-          record_previous_edit!
+          create_previous_edit!
           update_media_attachments!
           update_poll!
           update_immediate_attributes!
           update_metadata!
-          create_edits!
+          create_edit!
         end
 
         queue_poll_notifications!
-
-        next unless significant_changes?
-
         reset_preview_card!
         broadcast_updates!
       else
         raise Mastodon::RaceConditionError
       end
     end
-
-    forward_activity! if significant_changes? && @status_parser.edited_at > last_edit_date
   end
 
-  def handle_implicit_update!
-    RedisLock.acquire(lock_options) do |lock|
-      if lock.acquired?
-        update_poll!(allow_significant_changes: false)
-      else
-        raise Mastodon::RaceConditionError
-      end
-    end
-
-    queue_poll_notifications!
-  end
+  private
 
   def update_media_attachments!
-    previous_media_attachments     = @status.media_attachments.to_a
-    previous_media_attachments_ids = @status.ordered_media_attachment_ids || previous_media_attachments.map(&:id)
-    next_media_attachments         = []
+    previous_media_attachments = @status.media_attachments.to_a
+    next_media_attachments     = []
 
     as_array(@json['attachment']).each do |attachment|
       media_attachment_parser = ActivityPub::Parser::MediaAttachmentParser.new(attachment)
@@ -106,17 +72,16 @@ class ActivityPub::ProcessStatusUpdateService < BaseService
       end
     end
 
-    added_media_attachments = next_media_attachments - previous_media_attachments
+    removed_media_attachments = previous_media_attachments - next_media_attachments
+    added_media_attachments   = next_media_attachments - previous_media_attachments
 
+    MediaAttachment.where(id: removed_media_attachments.map(&:id)).update_all(status_id: nil)
     MediaAttachment.where(id: added_media_attachments.map(&:id)).update_all(status_id: @status.id)
 
-    @status.ordered_media_attachment_ids = next_media_attachments.map(&:id)
-    @status.media_attachments.reload
-
-    @media_attachments_changed = true if @status.ordered_media_attachment_ids != previous_media_attachments_ids
+    @media_attachments_changed = true if removed_media_attachments.positive? || added_media_attachments.positive?
   end
 
-  def update_poll!(allow_significant_changes: true)
+  def update_poll!
     previous_poll        = @status.preloadable_poll
     @previous_expires_at = previous_poll&.expires_at
     poll_parser          = ActivityPub::Parser::PollParser.new(@json)
@@ -126,8 +91,10 @@ class ActivityPub::ProcessStatusUpdateService < BaseService
 
       # If for some reasons the options were changed, it invalidates all previous
       # votes, so we need to remove them
-      @poll_changed = true if poll_parser.significantly_changes?(poll)
-      return if @poll_changed && !allow_significant_changes
+      if poll_parser.significantly_changes?(poll)
+        @media_attachments_changed = true
+        poll.votes.delete_all unless poll.new_record?
+      end
 
       poll.last_fetched_at = Time.now.utc
       poll.options         = poll_parser.options
@@ -135,15 +102,12 @@ class ActivityPub::ProcessStatusUpdateService < BaseService
       poll.expires_at      = poll_parser.expires_at
       poll.voters_count    = poll_parser.voters_count
       poll.cached_tallies  = poll_parser.cached_tallies
-      poll.reset_votes! if @poll_changed
       poll.save!
 
       @status.poll_id = poll.id
     elsif previous_poll.present?
-      return unless allow_significant_changes
-
       previous_poll.destroy!
-      @poll_changed = true
+      @media_attachments_changed = true
       @status.poll_id = nil
     end
   end
@@ -152,11 +116,8 @@ class ActivityPub::ProcessStatusUpdateService < BaseService
     @status.text         = @status_parser.text || ''
     @status.spoiler_text = @status_parser.spoiler_text || ''
     @status.sensitive    = @account.sensitized? || @status_parser.sensitive || false
-    @status.language     = @status_parser.language
-
-    @significant_changes = text_significantly_changed? || @status.spoiler_text_changed? || @media_attachments_changed || @poll_changed
-
-    @status.edited_at = @status_parser.edited_at if significant_changes?
+    @status.language     = @status_parser.language || detected_language
+    @status.edited_at    = @status_parser.edited_at || Time.now.utc
 
     @status.save!
   end
@@ -242,18 +203,39 @@ class ActivityPub::ProcessStatusUpdateService < BaseService
   end
 
   def lock_options
-    { redis: redis, key: "create:#{@uri}", autorelease: 15.minutes.seconds }
+    { redis: Redis.current, key: "create:#{@uri}", autorelease: 15.minutes.seconds }
   end
 
-  def record_previous_edit!
-    @previous_edit = @status.build_snapshot(at_time: @status.created_at, rate_limit: false) if @status.edits.empty?
+  def detected_language
+    LanguageDetector.instance.detect(@status_parser.text, @account)
   end
 
-  def create_edits!
-    return unless significant_changes?
+  def create_previous_edit!
+    # We only need to create a previous edit when no previous edits exist, e.g.
+    # when the status has never been edited. For other cases, we always create
+    # an edit, so the step can be skipped
 
-    @previous_edit&.save!
-    @status.snapshot!(account_id: @account.id, rate_limit: false)
+    return if @status.edits.any?
+
+    @status.edits.create(
+      text: @status.text,
+      spoiler_text: @status.spoiler_text,
+      media_attachments_changed: false,
+      account_id: @account.id,
+      created_at: @status.created_at
+    )
+  end
+
+  def create_edit!
+    return unless @status.text_previously_changed? || @status.spoiler_text_previously_changed? || @media_attachments_changed
+
+    @status_edit = @status.edits.create(
+      text: @status.text,
+      spoiler_text: @status.spoiler_text,
+      media_attachments_changed: @media_attachments_changed,
+      account_id: @account.id,
+      created_at: @status.edited_at
+    )
   end
 
   def skip_download?
@@ -266,28 +248,17 @@ class ActivityPub::ProcessStatusUpdateService < BaseService
     mime_type.present? && !MediaAttachment.supported_mime_types.include?(mime_type)
   end
 
-  def significant_changes?
-    @significant_changes
-  end
-
-  def text_significantly_changed?
-    return false unless @status.text_changed?
-
-    old, new = @status.text_change
-    HtmlAwareFormatter.new(old, false).to_s != HtmlAwareFormatter.new(new, false).to_s
-  end
-
   def already_updated_more_recently?
     @status.edited_at.present? && @status_parser.edited_at.present? && @status.edited_at > @status_parser.edited_at
   end
 
   def reset_preview_card!
-    @status.preview_cards.clear
-    LinkCrawlWorker.perform_in(rand(1..59).seconds, @status.id)
+    @status.preview_cards.clear if @status.text_previously_changed? || @status.spoiler_text.present?
+    LinkCrawlWorker.perform_in(rand(1..59).seconds, @status.id) if @status.spoiler_text.blank?
   end
 
   def broadcast_updates!
-    ::DistributionWorker.perform_async(@status.id, { 'update' => true })
+    ::DistributionWorker.perform_async(@status.id, update: true)
   end
 
   def queue_poll_notifications!
@@ -300,13 +271,5 @@ class ActivityPub::ProcessStatusUpdateService < BaseService
 
     PollExpirationNotifyWorker.remove_from_scheduled(poll.id) if @previous_expires_at.present? && @previous_expires_at > poll.expires_at
     PollExpirationNotifyWorker.perform_at(poll.expires_at + 5.minutes, poll.id)
-  end
-
-  def forward_activity!
-    forwarder.forward! if forwarder.forwardable?
-  end
-
-  def forwarder
-    @forwarder ||= ActivityPub::Forwarder.new(@account, @json, @status)
   end
 end

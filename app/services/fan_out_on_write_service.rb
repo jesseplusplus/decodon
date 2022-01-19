@@ -35,7 +35,6 @@ class FanOutOnWriteService < BaseService
 
   def fan_out_to_local_recipients!
     notify_mentioned_accounts!
-    notify_about_update! if update?
 
     case @status.visibility.to_sym
     when :public, :unlisted, :private
@@ -61,15 +60,7 @@ class FanOutOnWriteService < BaseService
   def notify_mentioned_accounts!
     @status.active_mentions.where.not(id: @options[:silenced_account_ids] || []).joins(:account).merge(Account.local).select(:id, :account_id).reorder(nil).find_in_batches do |mentions|
       LocalNotificationWorker.push_bulk(mentions) do |mention|
-        [mention.account_id, mention.id, 'Mention', 'mention']
-      end
-    end
-  end
-
-  def notify_about_update!
-    @status.reblogged_by_accounts.merge(Account.local).select(:id).reorder(nil).find_in_batches do |accounts|
-      LocalNotificationWorker.push_bulk(accounts) do |account|
-        [account.id, @status.id, 'Status', 'update']
+        [mention.account_id, mention.id, 'Mention', :mention]
       end
     end
   end
@@ -77,7 +68,7 @@ class FanOutOnWriteService < BaseService
   def deliver_to_all_followers!
     @account.followers_for_local_distribution.select(:id).reorder(nil).find_in_batches do |followers|
       FeedInsertWorker.push_bulk(followers) do |follower|
-        [@status.id, follower.id, 'home', { 'update' => update? }]
+        [@status.id, follower.id, :home, update: update?]
       end
     end
   end
@@ -85,7 +76,7 @@ class FanOutOnWriteService < BaseService
   def deliver_to_lists!
     @account.lists_for_local_distribution.select(:id).reorder(nil).find_in_batches do |lists|
       FeedInsertWorker.push_bulk(lists) do |list|
-        [@status.id, list.id, 'list', { 'update' => update? }]
+        [@status.id, list.id, :list, update: update?]
       end
     end
   end
@@ -93,27 +84,27 @@ class FanOutOnWriteService < BaseService
   def deliver_to_mentioned_followers!
     @status.mentions.joins(:account).merge(@account.followers_for_local_distribution).select(:id, :account_id).reorder(nil).find_in_batches do |mentions|
       FeedInsertWorker.push_bulk(mentions) do |mention|
-        [@status.id, mention.account_id, 'home', { 'update' => update? }]
+        [@status.id, mention.account_id, :home, update: update?]
       end
     end
   end
 
   def broadcast_to_hashtag_streams!
     @status.tags.pluck(:name).each do |hashtag|
-      redis.publish("timeline:hashtag:#{hashtag.mb_chars.downcase}", anonymous_payload)
-      redis.publish("timeline:hashtag:#{hashtag.mb_chars.downcase}:local", anonymous_payload) if @status.local?
+      Redis.current.publish("timeline:hashtag:#{hashtag.mb_chars.downcase}", anonymous_payload)
+      Redis.current.publish("timeline:hashtag:#{hashtag.mb_chars.downcase}:local", anonymous_payload) if @status.local?
     end
   end
 
   def broadcast_to_public_streams!
     return if @status.reply? && @status.in_reply_to_account_id != @account.id
 
-    redis.publish('timeline:public', anonymous_payload)
-    redis.publish(@status.local? ? 'timeline:public:local' : 'timeline:public:remote', anonymous_payload)
+    Redis.current.publish('timeline:public', anonymous_payload)
+    Redis.current.publish(@status.local? ? 'timeline:public:local' : 'timeline:public:remote', anonymous_payload)
 
-    if @status.with_media?
-      redis.publish('timeline:public:media', anonymous_payload)
-      redis.publish(@status.local? ? 'timeline:public:local:media' : 'timeline:public:remote:media', anonymous_payload)
+    if @status.media_attachments.any?
+      Redis.current.publish('timeline:public:media', anonymous_payload)
+      Redis.current.publish(@status.local? ? 'timeline:public:local:media' : 'timeline:public:remote:media', anonymous_payload)
     end
   end
 
@@ -129,7 +120,7 @@ class FanOutOnWriteService < BaseService
   end
 
   def update?
-    @options[:update]
+    @is_update
   end
 
   def broadcastable?

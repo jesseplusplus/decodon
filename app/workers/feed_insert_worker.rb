@@ -3,7 +3,7 @@
 class FeedInsertWorker
   include Sidekiq::Worker
 
-  def perform(status_id, id, type = 'home', options = {})
+  def perform(status_id, id, type = :home, options = {})
     @type      = type.to_sym
     @status    = Status.find(status_id)
     @options   = options.symbolize_keys
@@ -67,6 +67,10 @@ class FeedInsertWorker
 
   def perform_notify
     LocalNotificationWorker.perform_async(@follower.id, @status.id, 'Status', 'status')
+  end
+
+  def update?
+    @options[:update]
   end
 
   def update?

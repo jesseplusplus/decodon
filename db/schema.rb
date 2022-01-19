@@ -843,12 +843,9 @@ ActiveRecord::Schema.define(version: 2022_01_16_202951) do
     t.bigint "account_id"
     t.text "text", default: "", null: false
     t.text "spoiler_text", default: "", null: false
+    t.boolean "media_attachments_changed", default: false, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "ordered_media_attachment_ids", array: true
-    t.text "media_descriptions", array: true
-    t.string "poll_options", array: true
-    t.boolean "sensitive"
     t.index ["account_id"], name: "index_status_edits_on_account_id"
     t.index ["status_id"], name: "index_status_edits_on_status_id"
   end
@@ -893,13 +890,7 @@ ActiveRecord::Schema.define(version: 2022_01_16_202951) do
     t.bigint "poll_id"
     t.datetime "deleted_at"
     t.datetime "edited_at"
-    t.boolean "trendable"
-    t.bigint "ordered_media_attachment_ids", array: true
     t.index ["account_id", "id", "visibility", "updated_at"], name: "index_statuses_20190820", order: { id: :desc }, where: "(deleted_at IS NULL)"
-<<<<<<< HEAD
-    t.index ["account_id"], name: "index_statuses_on_account_id"
-=======
->>>>>>> 875375019 (Add notifications for statuses deleted by moderators (#17204))
     t.index ["deleted_at"], name: "index_statuses_on_deleted_at", where: "(deleted_at IS NOT NULL)"
     t.index ["id", "account_id"], name: "index_statuses_local_20190824", order: { id: :desc }, where: "((local OR (uri IS NULL)) AND (deleted_at IS NULL) AND (visibility = 0) AND (reblog_of_id IS NULL) AND ((NOT reply) OR (in_reply_to_account_id = account_id)))"
     t.index ["id", "account_id"], name: "index_statuses_public_20200119", order: { id: :desc }, where: "((deleted_at IS NULL) AND (visibility = 0) AND (reblog_of_id IS NULL) AND ((NOT reply) OR (in_reply_to_account_id = account_id)))"

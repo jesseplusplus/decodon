@@ -3,9 +3,15 @@ require 'rails_helper'
 RSpec.describe FanOutOnWriteService, type: :service do
   let(:last_active_at) { Time.now.utc }
 
+<<<<<<< HEAD
   let!(:alice) { Fabricate(:user, current_sign_in_at: last_active_at).account }
   let!(:bob)   { Fabricate(:user, current_sign_in_at: last_active_at, account_attributes: { username: 'bob' }).account }
   let!(:tom)   { Fabricate(:user, current_sign_in_at: last_active_at).account }
+=======
+  let!(:alice) { Fabricate(:user, current_sign_in_at: last_active_at, account: Fabricate(:account, username: 'alice')).account }
+  let!(:bob)   { Fabricate(:user, current_sign_in_at: last_active_at, account: Fabricate(:account, username: 'bob')).account }
+  let!(:tom)   { Fabricate(:user, current_sign_in_at: last_active_at, account: Fabricate(:account, username: 'tom')).account }
+>>>>>>> b3d708efc (Add support for editing for published statuses (#16697))
 
   subject { described_class.new }
 
@@ -18,7 +24,7 @@ RSpec.describe FanOutOnWriteService, type: :service do
     ProcessMentionsService.new.call(status)
     ProcessHashtagsService.new.call(status)
 
-    allow(redis).to receive(:publish)
+    allow(Redis.current).to receive(:publish)
 
     subject.call(status)
   end
@@ -50,6 +56,33 @@ RSpec.describe FanOutOnWriteService, type: :service do
     end
   end
 
+  def home_feed_of(account)
+    HomeFeed.new(account).get(10).map(&:id)
+  end
+
+  context 'when status is public' do
+    let(:visibility) { 'public' }
+
+    it 'is added to the home feed of its author' do
+      expect(home_feed_of(alice)).to include status.id
+    end
+
+    it 'is added to the home feed of a follower' do
+      expect(home_feed_of(bob)).to include status.id
+      expect(home_feed_of(tom)).to include status.id
+    end
+
+    it 'is broadcast to the hashtag stream' do
+      expect(Redis.current).to have_received(:publish).with('timeline:hashtag:hoge', anything)
+      expect(Redis.current).to have_received(:publish).with('timeline:hashtag:hoge:local', anything)
+    end
+
+    it 'is broadcast to the public stream' do
+      expect(Redis.current).to have_received(:publish).with('timeline:public', anything)
+      expect(Redis.current).to have_received(:publish).with('timeline:public:local', anything)
+    end
+  end
+
   context 'when status is limited' do
     let(:visibility) { 'limited' }
 
@@ -66,8 +99,8 @@ RSpec.describe FanOutOnWriteService, type: :service do
     end
 
     it 'is not broadcast publicly' do
-      expect(redis).to_not have_received(:publish).with('timeline:hashtag:hoge', anything)
-      expect(redis).to_not have_received(:publish).with('timeline:public', anything)
+      expect(Redis.current).to_not have_received(:publish).with('timeline:hashtag:hoge', anything)
+      expect(Redis.current).to_not have_received(:publish).with('timeline:public', anything)
     end
   end
 
@@ -84,8 +117,8 @@ RSpec.describe FanOutOnWriteService, type: :service do
     end
 
     it 'is not broadcast publicly' do
-      expect(redis).to_not have_received(:publish).with('timeline:hashtag:hoge', anything)
-      expect(redis).to_not have_received(:publish).with('timeline:public', anything)
+      expect(Redis.current).to_not have_received(:publish).with('timeline:hashtag:hoge', anything)
+      expect(Redis.current).to_not have_received(:publish).with('timeline:public', anything)
     end
   end
 
@@ -105,8 +138,8 @@ RSpec.describe FanOutOnWriteService, type: :service do
     end
 
     it 'is not broadcast publicly' do
-      expect(redis).to_not have_received(:publish).with('timeline:hashtag:hoge', anything)
-      expect(redis).to_not have_received(:publish).with('timeline:public', anything)
+      expect(Redis.current).to_not have_received(:publish).with('timeline:hashtag:hoge', anything)
+      expect(Redis.current).to_not have_received(:publish).with('timeline:public', anything)
     end
   end
 end
