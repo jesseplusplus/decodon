@@ -61,56 +61,6 @@
       "note": ""
     },
     {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "71cf98c8235b5cfa9946b5db8fdc1a2f3a862566abb34e4542be6f3acae78233",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/admin/disputes/appeals/_appeal.html.haml",
-      "line": 7,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "t((Unresolved Model).new.strike.action, :scope => \"admin.strikes.actions\", :name => content_tag(:span, (Unresolved Model).new.strike.account.username, :class => \"username\"), :target => content_tag(:span, (Unresolved Model).new.account.username, :class => \"target\"))",
-      "render_path": [
-        {
-          "type": "template",
-          "name": "admin/disputes/appeals/index",
-          "line": 20,
-          "file": "app/views/admin/disputes/appeals/index.html.haml",
-          "rendered": {
-            "name": "admin/disputes/appeals/_appeal",
-            "file": "app/views/admin/disputes/appeals/_appeal.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "admin/disputes/appeals/_appeal"
-      },
-      "user_input": "(Unresolved Model).new.strike",
-      "confidence": "Weak",
-      "note": ""
-    },
-    {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "75fcd147b7611763ab6915faf8c5b0709e612b460f27c05c72d8b9bd0a6a77f8",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "lib/mastodon/snowflake.rb",
-      "line": 87,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "connection.execute(\"CREATE OR REPLACE FUNCTION timestamp_id(table_name text)\\nRETURNS bigint AS\\n$$\\n  DECLARE\\n    time_part bigint;\\n    sequence_base bigint;\\n    tail bigint;\\n  BEGIN\\n    time_part := (\\n      -- Get the time in milliseconds\\n      ((date_part('epoch', now()) * 1000))::bigint\\n      -- And shift it over two bytes\\n      << 16);\\n\\n    sequence_base := (\\n      'x' ||\\n      -- Take the first two bytes (four hex characters)\\n      substr(\\n        -- Of the MD5 hash of the data we documented\\n        md5(table_name || '#{SecureRandom.hex(16)}' || time_part::text),\\n        1, 4\\n      )\\n    -- And turn it into a bigint\\n    )::bit(16)::bigint;\\n\\n    -- Finally, add our sequence number to our base, and chop\\n    -- it to the last two bytes\\n    tail := (\\n      (sequence_base + nextval(table_name || '_id_seq'))\\n      & 65535);\\n\\n    -- Return the time part and the sequence part. OR appears\\n    -- faster here than addition, but they're equivalent:\\n    -- time_part has no trailing two bytes, and tail is only\\n    -- the last two bytes.\\n    RETURN time_part | tail;\\n  END\\n$$ LANGUAGE plpgsql VOLATILE;\\n\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Mastodon::Snowflake",
-        "method": "define_timestamp_id"
-      },
-      "user_input": "SecureRandom.hex(16)",
-      "confidence": "Medium",
-      "note": ""
-    },
-    {
       "warning_type": "Mass Assignment",
       "warning_code": 105,
       "fingerprint": "7631e93d0099506e7c3e5c91ba8d88523b00a41a0834ae30031a5a4e8bb3020a",
@@ -151,15 +101,15 @@
       "note": ""
     },
     {
-      "warning_type": "Mass Assignment",
-      "warning_code": 105,
-      "fingerprint": "ab5035dd1a9f8c3a8d92fb2c37e8fe86fede4f87c91b71aa32e89c9eede602fc",
-      "check_name": "PermitAttributes",
-      "message": "Potentially dangerous key allowed for mass assignment",
-      "file": "app/controllers/api/v1/notifications_controller.rb",
-      "line": 81,
-      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
-      "code": "params.permit(:account_id, :types => ([]), :exclude_types => ([]))",
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "9ccb9ba6a6947400e187d515e0bf719d22993d37cfc123c824d7fafa6caa9ac3",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "lib/mastodon/snowflake.rb",
+      "line": 87,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "connection.execute(\"        CREATE OR REPLACE FUNCTION timestamp_id(table_name text)\\n        RETURNS bigint AS\\n        $$\\n          DECLARE\\n            time_part bigint;\\n            sequence_base bigint;\\n            tail bigint;\\n          BEGIN\\n            time_part := (\\n              -- Get the time in milliseconds\\n              ((date_part('epoch', now()) * 1000))::bigint\\n              -- And shift it over two bytes\\n              << 16);\\n\\n            sequence_base := (\\n              'x' ||\\n              -- Take the first two bytes (four hex characters)\\n              substr(\\n                -- Of the MD5 hash of the data we documented\\n                md5(table_name ||\\n                  '#{SecureRandom.hex(16)}' ||\\n                  time_part::text\\n                ),\\n                1, 4\\n              )\\n            -- And turn it into a bigint\\n            )::bit(16)::bigint;\\n\\n            -- Finally, add our sequence number to our base, and chop\\n            -- it to the last two bytes\\n            tail := (\\n              (sequence_base + nextval(table_name || '_id_seq'))\\n              & 65535);\\n\\n            -- Return the time part and the sequence part. OR appears\\n            -- faster here than addition, but they're equivalent:\\n            -- time_part has no trailing two bytes, and tail is only\\n            -- the last two bytes.\\n            RETURN time_part | tail;\\n          END\\n        $$ LANGUAGE plpgsql VOLATILE;\\n\")",
       "render_path": null,
       "location": {
         "type": "method",
@@ -216,8 +166,8 @@
         "type": "template",
         "template": "admin/trends/links/_preview_card"
       },
-      "user_input": "(Unresolved Model).new.url",
-      "confidence": "Weak",
+      "user_input": "MediaAttachment.attached.find_by!(:shortcode => ((params[:id] or params[:medium_id]))).file.url(:original)",
+      "confidence": "High",
       "note": ""
     },
     {
