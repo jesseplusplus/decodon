@@ -31,7 +31,11 @@ RSpec.describe FollowService, type: :service do
     end
 
     describe 'unlocked account, from silenced account' do
+<<<<<<< HEAD
       let(:bob) { Fabricate(:user, email: 'bob@example.com', account: Fabricate(:account, username: 'bob', locked: false)).account }
+=======
+      let(:bob) { Fabricate(:account, username: 'bob') }
+>>>>>>> e38fc319d (Refactor and improve tests (#17386))
 
       before do
         sender.touch(:silenced_at)
@@ -44,7 +48,11 @@ RSpec.describe FollowService, type: :service do
     end
 
     describe 'unlocked account, from a muted account' do
+<<<<<<< HEAD
       let(:bob) { Fabricate(:user, email: 'bob@example.com', account: Fabricate(:account, username: 'bob', locked: false)).account }
+=======
+      let(:bob) { Fabricate(:account, username: 'bob') }
+>>>>>>> e38fc319d (Refactor and improve tests (#17386))
 
       before do
         bob.mute!(sender)
