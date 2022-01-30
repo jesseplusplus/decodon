@@ -83,7 +83,11 @@ namespace :tests do
            'https://remote.com/@remote', 'https://remote.com/salmon/1'),
           (4, 'Remote', 'remote.com', NULL, #{remote_public_key}, now(), now(),
            'https://remote.com/@Remote', 'https://remote.com/salmon/1'),
+<<<<<<< HEAD
           (5, 'REMOTE', 'Remote.com', NULL, #{remote_public_key2}, now() - interval '1 year', now() - interval '1 year',
+=======
+          (5, 'REMOTE', 'Remote.com', NULL, #{remote_public_key2}, now(), now(),
+>>>>>>> d722222fe (Add more advanced migration tests (#17393))
            'https://remote.com/stale/@REMOTE', 'https://remote.com/stale/salmon/1');
 
         INSERT INTO "accounts"
@@ -98,6 +102,7 @@ namespace :tests do
           (7, 'user', #{local_domain}, #{user_private_key}, #{user_public_key}, now(), now()),
           (8, 'pt_user', NULL, #{user_private_key}, #{user_public_key}, now(), now());
 
+<<<<<<< HEAD
         INSERT INTO "accounts"
           (id, username, domain, private_key, public_key, created_at, updated_at, protocol, inbox_url, outbox_url, followers_url, suspended)
         VALUES
@@ -105,6 +110,8 @@ namespace :tests do
            1, 'https://activitypub.com/users/evil/inbox', 'https://activitypub.com/users/evil/outbox',
            'https://activitypub.com/users/evil/followers', true);
 
+=======
+>>>>>>> d722222fe (Add more advanced migration tests (#17393))
         -- users
 
         INSERT INTO "users"
@@ -118,9 +125,12 @@ namespace :tests do
         VALUES
           (3, 7, 'ptuser@localhost', now(), now(), false, 'pt');
 
+<<<<<<< HEAD
         -- conversations
         INSERT INTO "conversations" (id, created_at, updated_at) VALUES (1, now(), now());
 
+=======
+>>>>>>> d722222fe (Add more advanced migration tests (#17393))
         -- statuses
 
         INSERT INTO "statuses"
@@ -156,6 +166,7 @@ namespace :tests do
         VALUES
           (9, 1, 2, now(), now());
 
+<<<<<<< HEAD
         INSERT INTO "statuses"
           (id, account_id, text, in_reply_to_id, conversation_id, visibility, created_at, updated_at)
         VALUES
@@ -172,6 +183,16 @@ namespace :tests do
           (3, 4, 5, now(), now()),
           (4, 10, 1, now(), now()),
           (5, 11, 2, now(), now());
+=======
+        -- mentions (from previous statuses)
+
+        INSERT INTO "mentions"
+          (status_id, account_id, created_at, updated_at)
+        VALUES
+          (2, 3, now(), now()),
+          (3, 4, now(), now()),
+          (4, 5, now(), now());
+>>>>>>> d722222fe (Add more advanced migration tests (#17393))
 
         -- stream entries
 
@@ -188,6 +209,10 @@ namespace :tests do
           (8, 5, 'status', now(), now()),
           (9, 1, 'status', now(), now());
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> d722222fe (Add more advanced migration tests (#17393))
         -- custom emoji
 
         INSERT INTO "custom_emojis"
@@ -227,12 +252,21 @@ namespace :tests do
         -- follows
 
         INSERT INTO "follows"
+<<<<<<< HEAD
           (id, account_id, target_account_id, created_at, updated_at)
         VALUES
           (1, 1, 5, now(), now()),
           (2, 6, 2, now(), now()),
           (3, 5, 2, now(), now()),
           (4, 6, 1, now(), now());
+=======
+          (account_id, target_account_id, created_at, updated_at)
+        VALUES
+          (1, 5, now(), now()),
+          (6, 2, now(), now()),
+          (5, 2, now(), now()),
+          (6, 1, now(), now());
+>>>>>>> d722222fe (Add more advanced migration tests (#17393))
 
         -- follow requests
 
@@ -241,6 +275,7 @@ namespace :tests do
         VALUES
           (2, 5, now(), now()),
           (5, 1, now(), now());
+<<<<<<< HEAD
 
         -- notifications
 
@@ -250,6 +285,8 @@ namespace :tests do
           (1, 6, 2, 'Follow', 2, now(), now()),
           (2, 2, 1, 'Mention', 4, now(), now()),
           (3, 1, 2, 'Mention', 5, now(), now());
+=======
+>>>>>>> d722222fe (Add more advanced migration tests (#17393))
       SQL
     end
   end
