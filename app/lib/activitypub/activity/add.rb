@@ -6,7 +6,7 @@ class ActivityPub::Activity::Add < ActivityPub::Activity
 
     status = status_from_object
 
-    return unless !status.nil? && status.account_id == @account.id && !@account.pinned?(status)
+    return unless !status.nil? && status.account_id == @account.id && !@account.pinned?(status) && status.distributable?
 
     StatusPin.create!(account: @account, status: status)
   end
