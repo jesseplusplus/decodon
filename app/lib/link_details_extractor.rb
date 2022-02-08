@@ -215,14 +215,6 @@ class LinkDetailsExtractor
     nil
   end
 
-  def valid_locale_or_nil(str)
-    return nil if str.blank?
-
-    code,  = str.split(/_-/) # Strip out the region from e.g. en_US or ja-JA
-    locale = ISO_639.find(code)
-    locale&.alpha2
-  end
-
   def link_tag(name)
     document.xpath("//link[@rel=\"#{name}\"]").map { |link| link['href'] }.first
   end
