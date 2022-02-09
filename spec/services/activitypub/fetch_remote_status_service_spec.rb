@@ -71,7 +71,7 @@ RSpec.describe ActivityPub::FetchRemoteStatusService, type: :service do
 
         expect(status).to_not be_nil
         expect(status.url).to eq "https://#{valid_domain}/watch?v=12345"
-        expect(strip_tags(status.text)).to eq "Nyan Cat 10 hours remixhttps://#{valid_domain}/watch?v=12345"
+        expect(strip_tags(status.text)).to eq "Nyan Cat 10 hours remix https://#{valid_domain}/watch?v=12345"
       end
     end
 
@@ -104,7 +104,7 @@ RSpec.describe ActivityPub::FetchRemoteStatusService, type: :service do
 
         expect(status).to_not be_nil
         expect(status.url).to eq "https://#{valid_domain}/watch?v=12345"
-        expect(strip_tags(status.text)).to eq "Nyan Cat 10 hours remixhttps://#{valid_domain}/watch?v=12345"
+        expect(strip_tags(status.text)).to eq "Nyan Cat 10 hours remix https://#{valid_domain}/watch?v=12345"
       end
     end
 
@@ -124,7 +124,7 @@ RSpec.describe ActivityPub::FetchRemoteStatusService, type: :service do
 
         expect(status).to_not be_nil
         expect(status.url).to eq "https://#{valid_domain}/@foo/1234"
-        expect(strip_tags(status.text)).to eq "Let's change the worldhttps://#{valid_domain}/@foo/1234"
+        expect(strip_tags(status.text)).to eq "Let's change the world https://#{valid_domain}/@foo/1234"
       end
     end
 

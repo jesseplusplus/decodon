@@ -89,10 +89,26 @@ jobs:
       PAM_DEFAULT_SERVICE: pam_test
       PAM_CONTROLLED_SERVICE: pam_test_controlled
     parallelism: 4
-          command: ./bin/rails db:migrate
-          name: Run all remaining migrations
+    steps:
+      - checkout
+      - install-system-dependencies
+      - run:
+          command: sudo apt-get install -y ffmpeg imagemagick libpam-dev
+          name: Install additional system dependencies
+      - run:
+          command: bundle config with 'pam_authentication'
+          name: Enable PAM authentication
+      - install-ruby-dependencies:
+          ruby-version: << parameters.ruby-version >>
+      - attach_workspace:
+          at: .
+      - wait-db
+      - run:
+          command: ./bin/rails db:create db:schema:load db:seed
+          name: Load database schema
+      - ruby/rspec-test
 
-  test-two-step-migrations:
+  test-migrations:
     executor:
       name: default
       ruby-version: '3.0'
@@ -106,19 +122,8 @@ jobs:
           command: ./bin/rails db:create
           name: Create database
       - run:
-          command: ./bin/rails db:migrate VERSION=20171010025614
-          name: Run migrations up to v2.0.0
-      - run:
-          command: ./bin/rails tests:migrations:populate_v2
-          name: Populate database with test data
-      - run:
           command: ./bin/rails db:migrate
-          name: Run all pre-deployment migrations
-          evironment:
-            SKIP_POST_DEPLOYMENT_MIGRATIONS: true
-      - run:
-          command: ./bin/rails db:migrate
-          name: Run all post-deployment remaining migrations
+          name: Run migrations
 
 workflows:
   version: 2
@@ -143,9 +148,6 @@ workflows:
       - test-ruby2.7:
           requires:
             - install-ruby2.7
-            - build
-      - test-two-step-migrations:
-          requires:
             - build
       - test-two-step-migrations:
           requires:

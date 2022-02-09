@@ -37,11 +37,8 @@ RSpec.describe Auth::SessionsController, type: :controller do
     end
 
     context 'with a suspended user' do
-      before do
-        user.account.suspend!
-      end
-
       it 'redirects to home after sign out' do
+        Fabricate(:account, user: user, suspended: true)
         sign_in(user, scope: :user)
         delete :destroy
 
@@ -81,8 +78,8 @@ RSpec.describe Auth::SessionsController, type: :controller do
       end
 
       context 'using a valid email and existing user' do
-        let!(:user) do
-          account = Fabricate.build(:account, username: 'pam_user1', user: nil)
+        let(:user) do
+          account = Fabricate.build(:account, username: 'pam_user1')
           account.save!(validate: false)
           user = Fabricate(:user, email: 'pam@example.com', password: nil, account: account, external: true)
           user
@@ -372,9 +369,85 @@ RSpec.describe Auth::SessionsController, type: :controller do
     end
   end
 
-  describe 'GET #webauthn_options' do
-    context 'with WebAuthn and OTP enabled as second factor' do
-      let(:domain) { "#{Rails.configuration.x.use_https ? 'https' : 'http' }://#{Rails.configuration.x.web_domain}" }
+    context 'when 2FA is disabled and IP is unfamiliar' do
+      let!(:user) { Fabricate(:user, email: 'x@y.com', password: 'abcdefgh', current_sign_in_at: 3.weeks.ago, current_sign_in_ip: '0.0.0.0') }
+
+      before do
+        request.remote_ip  = '10.10.10.10'
+        request.user_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:75.0) Gecko/20100101 Firefox/75.0'
+
+        allow(UserMailer).to receive(:sign_in_token).and_return(double('email', deliver_later!: nil))
+      end
+
+      context 'using email and password' do
+        before do
+          post :create, params: { user: { email: user.email, password: user.password } }
+        end
+
+        it 'renders sign in token authentication page' do
+          expect(controller).to render_template("sign_in_token")
+        end
+
+        it 'generates sign in token' do
+          expect(user.reload.sign_in_token).to_not be_nil
+        end
+
+        it 'sends sign in token e-mail' do
+          expect(UserMailer).to have_received(:sign_in_token)
+        end
+      end
+
+      context 'using email and password after an unfinished log-in attempt to a 2FA-protected account' do
+        let!(:other_user) do
+          Fabricate(:user, email: 'z@y.com', password: 'abcdefgh', otp_required_for_login: true, otp_secret: User.generate_otp_secret(32))
+        end
+
+        before do
+          post :create, params: { user: { email: other_user.email, password: other_user.password } }
+          post :create, params: { user: { email: user.email, password: user.password } }
+        end
+
+        it 'renders sign in token authentication page' do
+          expect(controller).to render_template("sign_in_token")
+        end
+
+        it 'generates sign in token' do
+          expect(user.reload.sign_in_token).to_not be_nil
+        end
+
+        it 'sends sign in token e-mail' do
+          expect(UserMailer).to have_received(:sign_in_token)
+        end
+      end
+
+      context 'using email and password after an unfinished log-in attempt with a sign-in token challenge' do
+        let!(:other_user) do
+          Fabricate(:user, email: 'z@y.com', password: 'abcdefgh', otp_required_for_login: false, current_sign_in_at: 1.month.ago)
+        end
+
+        before do
+          post :create, params: { user: { email: other_user.email, password: other_user.password } }
+          post :create, params: { user: { email: user.email, password: user.password } }
+        end
+
+        it 'renders sign in token authentication page' do
+          expect(controller).to render_template("sign_in_token")
+        end
+
+        it 'generates sign in token' do
+          expect(user.reload.sign_in_token).to_not be_nil
+        end
+
+        it 'sends sign in token e-mail' do
+          expect(UserMailer).to have_received(:sign_in_token).with(user, any_args)
+        end
+      end
+
+      context 'using a valid sign in token' do
+        before do
+          user.generate_sign_in_token && user.save
+          post :create, params: { user: { sign_in_token_attempt: user.sign_in_token } }, session: { attempt_user_id: user.id, attempt_user_updated_at: user.updated_at.to_s }
+        end
 
       let(:fake_client) { WebAuthn::FakeClient.new(domain) }
 
