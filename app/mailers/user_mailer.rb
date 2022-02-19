@@ -15,6 +15,7 @@ class UserMailer < Devise::Mailer
     @resource = user
     @token    = token
     @instance = Rails.configuration.x.local_domain
+    @logo = InstancePresenter.new.email&.file&.url
 
     return unless @resource.active_for_authentication?
 
@@ -29,6 +30,7 @@ class UserMailer < Devise::Mailer
     @resource = user
     @token    = token
     @instance = Rails.configuration.x.local_domain
+    @logo = InstancePresenter.new.email&.file&.url
 
     return unless @resource.active_for_authentication?
 
@@ -40,6 +42,7 @@ class UserMailer < Devise::Mailer
   def password_change(user, **)
     @resource = user
     @instance = Rails.configuration.x.local_domain
+    @logo = InstancePresenter.new.email&.file&.url
 
     return unless @resource.active_for_authentication?
 
@@ -51,6 +54,7 @@ class UserMailer < Devise::Mailer
   def email_changed(user, **)
     @resource = user
     @instance = Rails.configuration.x.local_domain
+    @logo = InstancePresenter.new.email&.file&.url
 
     return unless @resource.active_for_authentication?
 
@@ -62,6 +66,7 @@ class UserMailer < Devise::Mailer
   def two_factor_enabled(user, **)
     @resource = user
     @instance = Rails.configuration.x.local_domain
+    @logo = InstancePresenter.new.email&.file&.url
 
     return unless @resource.active_for_authentication?
 
@@ -73,6 +78,7 @@ class UserMailer < Devise::Mailer
   def two_factor_disabled(user, **)
     @resource = user
     @instance = Rails.configuration.x.local_domain
+    @logo = InstancePresenter.new.email&.file&.url
 
     return unless @resource.active_for_authentication?
 
@@ -84,6 +90,7 @@ class UserMailer < Devise::Mailer
   def two_factor_recovery_codes_changed(user, **)
     @resource = user
     @instance = Rails.configuration.x.local_domain
+    @logo = InstancePresenter.new.email&.file&.url
 
     return unless @resource.active_for_authentication?
 
@@ -95,6 +102,7 @@ class UserMailer < Devise::Mailer
   def webauthn_enabled(user, **)
     @resource = user
     @instance = Rails.configuration.x.local_domain
+    @logo = InstancePresenter.new.email&.file&.url
 
     return unless @resource.active_for_authentication?
 
@@ -106,6 +114,7 @@ class UserMailer < Devise::Mailer
   def webauthn_disabled(user, **)
     @resource = user
     @instance = Rails.configuration.x.local_domain
+    @logo = InstancePresenter.new.email&.file&.url
 
     return unless @resource.active_for_authentication?
 
@@ -118,6 +127,7 @@ class UserMailer < Devise::Mailer
     @resource = user
     @instance = Rails.configuration.x.local_domain
     @webauthn_credential = webauthn_credential
+    @logo = InstancePresenter.new.email&.file&.url
 
     return unless @resource.active_for_authentication?
 
@@ -130,6 +140,7 @@ class UserMailer < Devise::Mailer
     @resource = user
     @instance = Rails.configuration.x.local_domain
     @webauthn_credential = webauthn_credential
+    @logo = InstancePresenter.new.email&.file&.url
 
     return unless @resource.active_for_authentication?
 
@@ -154,6 +165,7 @@ class UserMailer < Devise::Mailer
     @resource = user
     @instance = Rails.configuration.x.local_domain
     @backup   = backup
+    @logo = InstancePresenter.new.email&.file&.url
 
     return unless @resource.active_for_authentication?
 
@@ -167,6 +179,7 @@ class UserMailer < Devise::Mailer
     @warning  = warning
     @instance = Rails.configuration.x.local_domain
     @statuses = Status.where(id: status_ids).includes(:account) if status_ids.is_a?(Array)
+    @logo = InstancePresenter.new.email&.file&.url
 
     I18n.with_locale(@resource.locale || I18n.default_locale) do
       mail to: @resource.email, subject: I18n.t("user_mailer.warning.subject.#{@warning.action}", acct: "@#{user.account.local_username_and_domain}")
@@ -200,6 +213,7 @@ class UserMailer < Devise::Mailer
     @user_agent = user_agent
     @detection  = Browser.new(user_agent)
     @timestamp  = timestamp.to_time.utc
+    @logo = InstancePresenter.new.email&.file&.url
 
     I18n.with_locale(@resource.locale || I18n.default_locale) do
       mail to: @resource.email, subject: I18n.t('user_mailer.suspicious_sign_in.subject')
