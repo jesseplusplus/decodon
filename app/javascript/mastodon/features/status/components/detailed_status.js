@@ -19,23 +19,18 @@ import AnimatedNumber from "mastodon/components/animated_number";
 import PictureInPicturePlaceholder from "mastodon/components/picture_in_picture_placeholder";
 
 const messages = defineMessages({
-<<<<<<< HEAD
   public_short: { id: "privacy.public.short", defaultMessage: "Public" },
   unlisted_short: { id: "privacy.unlisted.short", defaultMessage: "Unlisted" },
   private_short: {
     id: "privacy.private.short",
     defaultMessage: "Followers-only",
   },
+  mutual_short: {
+    id: "privacy.mutual.short",
+    defaultMessage: "Mutual-followers-only",
+  },
   limited_short: { id: "privacy.limited.short", defaultMessage: "Circle" },
   direct_short: { id: "privacy.direct.short", defaultMessage: "Direct" },
-=======
-  public_short: { id: 'privacy.public.short', defaultMessage: 'Public' },
-  unlisted_short: { id: 'privacy.unlisted.short', defaultMessage: 'Unlisted' },
-  private_short: { id: 'privacy.private.short', defaultMessage: 'Followers-only' },
-  mutual_short: { id: 'privacy.mutual.short', defaultMessage: 'Mutual-followers-only' },
-  limited_short: { id: 'privacy.limited.short', defaultMessage: 'Circle' },
-  direct_short: { id: 'privacy.direct.short', defaultMessage: 'Direct' },
->>>>>>> ae4e151af (Add mutual-followers-only visibility)
 });
 
 export default
