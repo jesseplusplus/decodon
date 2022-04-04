@@ -270,17 +270,15 @@ class ActionBar extends React.PureComponent {
       }
 
       menu.push(null);
-      if (!expired) {
-        menu.push({
-          text: intl.formatMessage(
-            mutingConversation
-              ? messages.unmuteConversation
-              : messages.muteConversation
-          ),
-          action: this.handleConversationMuteClick,
-        });
-        menu.push(null);
-      }
+      menu.push({
+        text: intl.formatMessage(
+          mutingConversation
+            ? messages.unmuteConversation
+            : messages.muteConversation
+        ),
+        action: this.handleConversationMuteClick,
+      });
+      menu.push(null);
       menu.push({
         text: intl.formatMessage(messages.delete),
         action: this.handleDeleteClick,

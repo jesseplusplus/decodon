@@ -330,7 +330,7 @@ class StatusActionBar extends ImmutablePureComponent {
       menu.push(null);
     }
 
-    if ((writtenByMe || withDismiss) && !expired) {
+    if (writtenByMe || withDismiss) {
       menu.push({
         text: intl.formatMessage(
           mutingConversation
