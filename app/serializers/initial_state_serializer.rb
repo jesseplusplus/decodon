@@ -28,7 +28,6 @@ class InitialStateSerializer < ActiveModel::Serializer
     if object.current_account
       store[:me]                                = object.current_account.id.to_s
       store[:unfollow_modal]                    = object.current_account.user.setting_unfollow_modal
-      store[:unsubscribe_modal]                 = object.current_account.user.setting_unsubscribe_modal
       store[:boost_modal]                       = object.current_account.user.setting_boost_modal
       store[:delete_modal]                      = object.current_account.user.setting_delete_modal
       store[:auto_play_gif]                     = object.current_account.user.setting_auto_play_gif
@@ -42,16 +41,6 @@ class InitialStateSerializer < ActiveModel::Serializer
       store[:is_staff]                          = object.current_account.user.staff?
       store[:trends]                            = Setting.trends && object.current_account.user.setting_trends
       store[:crop_images]                       = object.current_account.user.setting_crop_images
-      store[:show_follow_button_on_timeline]    = object.current_account.user.setting_show_follow_button_on_timeline
-      store[:show_subscribe_button_on_timeline] = object.current_account.user.setting_show_subscribe_button_on_timeline
-      store[:show_followed_by]                  = object.current_account.user.setting_show_followed_by
-      store[:follow_button_to_list_adder]       = object.current_account.user.setting_follow_button_to_list_adder
-      store[:show_navigation_panel]             = object.current_account.user.setting_show_navigation_panel
-      store[:show_quote_button]                 = object.current_account.user.setting_show_quote_button
-      store[:show_bookmark_button]              = object.current_account.user.setting_show_bookmark_button
-      store[:show_target]                       = object.current_account.user.setting_show_target
-      store[:place_tab_bar_at_bottom]           = object.current_account.user.setting_place_tab_bar_at_bottom
-      store[:show_tab_bar_label]                = object.current_account.user.setting_show_tab_bar_label
       store[:enable_limited_timeline]           = object.current_account.user.setting_enable_limited_timeline
     else
       store[:auto_play_gif] = Setting.auto_play_gif
