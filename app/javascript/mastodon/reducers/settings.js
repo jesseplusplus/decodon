@@ -20,23 +20,6 @@ const initialState = ImmutableMap({
     shows: ImmutableMap({
       reblog: true,
       reply: true,
-      private: false,
-      limited: false,
-      direct: false,
-    }),
-
-    regex: ImmutableMap({
-      body: '',
-    }),
-  }),
-
-  limited: ImmutableMap({
-    shows: ImmutableMap({
-      reblog: true,
-      reply: true,
-      private: true,
-      limited: true,
-      direct: true,
     }),
 
     regex: ImmutableMap({

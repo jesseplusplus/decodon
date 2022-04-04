@@ -55,17 +55,6 @@ class Settings::PreferencesController < Settings::BaseController
       :setting_use_pending_items,
       :setting_trends,
       :setting_crop_images,
-      :setting_show_follow_button_on_timeline,
-      :setting_show_subscribe_button_on_timeline,
-      :setting_show_followed_by,
-      :setting_follow_button_to_list_adder,
-      :setting_show_navigation_panel,
-      :setting_show_quote_button,
-      :setting_show_bookmark_button,
-      :setting_place_tab_bar_at_bottom,
-      :setting_show_tab_bar_label,
-      :setting_show_target,
-      :setting_enable_limited_timeline,
       notification_emails: %i(follow follow_request reblog favourite mention digest report pending_account trending_tag),
       interactions: %i(must_be_follower must_be_following must_be_following_dm)
     )

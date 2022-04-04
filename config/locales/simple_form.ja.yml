@@ -51,8 +51,6 @@ ja:
         setting_display_media_default: 閲覧注意としてマークされたメディアは隠す
         setting_display_media_hide_all: メディアを常に隠す
         setting_display_media_show_all: メディアを常に表示する
-        setting_enable_limited_timeline: フォロワー限定・サークル・ダイレクトメッセージを表示する限定ホームを有効にします
-        setting_follow_button_to_list_adder: フォロー・購読ボタンの動作を変更し、フォロー・購読するリストを選択したり、ホームで受け取らないよう設定するダイアログを開きます
         setting_hide_network: フォローとフォロワーの情報がプロフィールページで見られないようにします
         setting_noindex: 公開プロフィールおよび各投稿ページに影響します
         setting_show_application: 投稿するのに使用したアプリが投稿の詳細ビューに表示されるようになります
@@ -66,7 +64,7 @@ ja:
         domain: メールアドレスのドメイン名および、名前解決したMXレコード、IPアドレスを指定できます。ユーザー登録時にこれらをチェックし、該当する場合はユーザー登録を拒否します。
         with_dns_records: 指定したドメインのDNSレコードを取得し、その結果もメールドメインブロックに登録されます
       featured_tag:
-        name: "これらを使うといいかもしれません:"
+        name: 'これらを使うといいかもしれません:'
       form_challenge:
         current_password: セキュリティ上重要なエリアにアクセスしています
       imports:
@@ -84,7 +82,7 @@ ja:
       rule:
         text: ユーザーのためのルールや要件を記述してください。短くシンプルにしてください。
       sessions:
-        otp: "携帯電話のアプリで生成された二段階認証コードを入力するか、リカバリーコードを使用してください:"
+        otp: '携帯電話のアプリで生成された二段階認証コードを入力するか、リカバリーコードを使用してください:'
         webauthn: USBキーの場合は、必ず挿入し、必要に応じてタップしてください。
       tag:
         name: 視認性向上などのためにアルファベット大文字小文字の変更のみ行うことができます
@@ -161,7 +159,6 @@ ja:
         setting_display_media_default: 標準
         setting_display_media_hide_all: 非表示
         setting_display_media_show_all: 表示
-        setting_enable_limited_timeline: 限定ホームを有効にする
         setting_expand_spoilers: 閲覧注意としてマークされた投稿を常に展開する
         setting_hide_network: 繋がりを隠す
         setting_noindex: 検索エンジンによるインデックスを拒否する
@@ -215,7 +212,7 @@ ja:
         name: ハッシュタグ
         trendable: トレンドへの表示を許可する
         usable: 投稿への使用を許可する
-    "no": いいえ
+    'no': いいえ
     recommended: おすすめ
     required:
       mark: "*"
@@ -223,4 +220,4 @@ ja:
     title:
       sessions:
         webauthn: セキュリティキーを使用してサインインする
-    "yes": はい
+    'yes': はい

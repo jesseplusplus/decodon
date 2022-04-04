@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { expandHomeTimeline } from '../../actions/timelines';
-import { getHomeVisibilities } from 'mastodon/selectors';
 import PropTypes from 'prop-types';
 import StatusListContainer from '../ui/containers/status_list_container';
 import Column from '../../components/column';
@@ -27,7 +26,6 @@ const mapStateToProps = state => ({
   hasAnnouncements: !state.getIn(['announcements', 'items']).isEmpty(),
   unreadAnnouncements: state.getIn(['announcements', 'items']).count(item => !item.get('read')),
   showAnnouncements: state.getIn(['announcements', 'show']),
-  visibilities: getHomeVisibilities(state),
 });
 
 export default @connect(mapStateToProps)
@@ -44,7 +42,6 @@ class HomeTimeline extends React.PureComponent {
     hasAnnouncements: PropTypes.bool,
     unreadAnnouncements: PropTypes.number,
     showAnnouncements: PropTypes.bool,
-    visibilities: PropTypes.arrayOf(PropTypes.string),
   };
 
   handlePin = () => {
@@ -71,9 +68,7 @@ class HomeTimeline extends React.PureComponent {
   }
 
   handleLoadMore = maxId => {
-    const { visibilities } = this.props;
-
-    this.props.dispatch(expandHomeTimeline({ maxId, visibilities }));
+    this.props.dispatch(expandHomeTimeline({ maxId }));
   }
 
   componentDidMount () {
@@ -82,12 +77,6 @@ class HomeTimeline extends React.PureComponent {
   }
 
   componentDidUpdate (prevProps) {
-    const { dispatch, visibilities } = this.props;
-
-    if (prevProps.visibilities.toString() !== visibilities.toString()) {
-      dispatch(expandHomeTimeline({ visibilities }));
-    }
-
     this._checkIfReloadNeeded(prevProps.isPartial, this.props.isPartial);
   }
 
@@ -96,13 +85,13 @@ class HomeTimeline extends React.PureComponent {
   }
 
   _checkIfReloadNeeded (wasPartial, isPartial) {
-    const { dispatch, visibilities } = this.props;
+    const { dispatch } = this.props;
 
     if (wasPartial === isPartial) {
       return;
     } else if (!wasPartial && isPartial) {
       this.polling = setInterval(() => {
-        dispatch(expandHomeTimeline({ visibilities }));
+        dispatch(expandHomeTimeline());
       }, 3000);
     } else if (wasPartial && !isPartial) {
       this._stopPolling();
