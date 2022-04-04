@@ -10,8 +10,6 @@ import {
 import NotificationsCounterIcon from "./notifications_counter_icon";
 import FollowRequestsNavLink from "./follow_requests_nav_link";
 import ListPanel from "./list_panel";
-import FavouriteDomainPanel from "./favourite_domain_panel";
-import FavouriteTagPanel from "./favourite_tag_panel";
 import TrendsContainer from "mastodon/features/getting_started/containers/trends_container";
 
 const NavigationPanel = () => (
