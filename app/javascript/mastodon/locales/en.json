@@ -484,11 +484,8 @@
   "suggestions.header": "You might be interested in…",
   "tabs_bar.federated_timeline": "Federated",
   "tabs_bar.home": "Home",
-<<<<<<< HEAD
-=======
   "tabs_bar.limited_timeline": "Limited",
   "tabs_bar.lists": "List",
->>>>>>> 4d681b84c (Add limited timeline)
   "tabs_bar.local_timeline": "Local",
   "tabs_bar.notifications": "Notifications",
   "tabs_bar.search": "Search",
