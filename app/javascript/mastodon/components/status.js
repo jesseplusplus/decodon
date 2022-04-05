@@ -79,10 +79,6 @@ const messages = defineMessages({
     id: "privacy.private.short",
     defaultMessage: "Followers-only",
   },
-  mutual_short: {
-    id: "privacy.mutual.short",
-    defaultMessage: "Mutual-followers-only",
-  },
   limited_short: { id: "privacy.limited.short", defaultMessage: "Circle" },
   direct_short: { id: "privacy.direct.short", defaultMessage: "Direct" },
 });
@@ -608,10 +604,6 @@ class Status extends ImmutablePureComponent {
       private: {
         icon: "lock",
         text: intl.formatMessage(messages.private_short),
-      },
-      mutual: {
-        icon: "exchange",
-        text: intl.formatMessage(messages.mutual_short),
       },
       limited: {
         icon: "user-circle",

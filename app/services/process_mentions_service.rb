@@ -46,8 +46,8 @@ class ProcessMentionsService < BaseService
     mentioned_account_ids = mentions.pluck(:account_id)
 
     if circle.present?
-      (circle.class.name == 'Account' ? circle.mutuals : circle.accounts).find_each do |target_account|
-        status.mentions.find_or_create_by(silent: true, account: target_account) unless mentioned_account_ids.include?(target_account.id)
+      circle.accounts.find_each do |target_account|
+        status.mentions.create(silent: true, account: target_account)
       end
     elsif status.limited_visibility? && status.thread&.limited_visibility?
       # If we are replying to a local status, then we'll have the complete
