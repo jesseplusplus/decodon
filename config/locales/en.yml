@@ -1660,6 +1660,14 @@ en:
       explanation: You requested a full backup of your Mastodon account. It's now ready for download!
       subject: Your archive is ready for download
       title: Archive takeout
+    subscribe:
+      title: Your free trial is ending
+      explanation: In order to keep %{instance} ad-free and surveillance-free, we ask users to pay a small subscription. But we leave it up to you how much you wish to pay. Please choose whichever price you feel is fair and that you can afford. We may need to adjust the pricing options in the future if current prices are not enough to cover the hosting and development costs, but we will always try to charge the minimum possible to keep %{instance} affordable and accessible. Thank you for your support.
+      first_option: $1/month
+      second_option: $10/year
+      third_option: $5/year
+      fourth_option: $1/year*
+      note: This is not enough to cover hosting costs for a single account, but we understand if it is all you can afford and appreciate any support.
     suspicious_sign_in:
       change_password: change your password
       details: 'Here are details of the sign-in:'
