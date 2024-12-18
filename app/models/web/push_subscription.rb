@@ -26,7 +26,7 @@ class Web::PushSubscription < ApplicationRecord
   validates :key_p256dh, presence: true, unless: :expo?
   validates :key_auth, presence: true, unless: :expo?
 
-  validates_with WebPushKeyValidator
+  validates_with WebPushKeyValidator, unless: :expo?
 
   delegate :locale, to: :associated_user
 
