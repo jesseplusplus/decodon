@@ -31,7 +31,6 @@ class AdminMailer < ApplicationMailer
 
   def new_pending_account(user)
     @account = user.account
-    @logo = InstancePresenter.new.email&.file&.url
 
     locale_for_account(@me) do
       mail subject: default_i18n_subject(instance: @instance, username: @account.username)
