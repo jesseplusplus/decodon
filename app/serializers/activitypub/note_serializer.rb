@@ -158,8 +158,9 @@ class ActivityPub::NoteSerializer < ActivityPub::Serializer
 
   def context
     return if object.conversation.nil?
+    return if object.conversation.parent_status.nil?
 
-    ActivityPub::TagManager.instance.uri_for(object.conversation)
+    ActivityPub::TagManager.instance.uri_for(object.conversation.parent_status)
   end
 
   def local?
