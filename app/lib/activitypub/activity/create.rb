@@ -327,9 +327,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     Rails.logger.warn "Error fetching replies: #{e}"
   end
 
-  def conversation_from_uri
-    atom_uri = @object['conversation']
-
+  def conversation_from_uri(atom_uri)
     conversation = begin
       if atom_uri.present? && OStatus::TagManager.instance.local_id?(atom_uri)
         Conversation.find_by(id: OStatus::TagManager.instance.unique_tag_to_local_id(atom_uri, 'Conversation'))
