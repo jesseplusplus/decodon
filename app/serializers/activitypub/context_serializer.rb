@@ -3,17 +3,13 @@
 class ActivityPub::ContextSerializer < ActivityPub::Serializer
   include RoutingHelper
 
-  attributes :id, :type, :inbox
+  attributes :id, :type
 
   def id
     ActivityPub::TagManager.instance.uri_for(object)
   end
 
   def type
-    'Group'
-  end
-
-  def inbox
-    account_inbox_url(object.parent_account)
+    'Collection'
   end
 end

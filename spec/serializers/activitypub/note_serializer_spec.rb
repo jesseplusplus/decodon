@@ -7,11 +7,11 @@ RSpec.describe ActivityPub::NoteSerializer do
 
   let!(:account) { Fabricate(:account) }
   let!(:other) { Fabricate(:account) }
-  let!(:parent) { Fabricate(:status, account: account, visibility: :public, language: 'zh-TW') }
-  let!(:reply_by_account_first) { Fabricate(:status, account: account, thread: parent, visibility: :public) }
-  let!(:reply_by_account_next) { Fabricate(:status, account: account, thread: parent, visibility: :public) }
-  let!(:reply_by_other_first) { Fabricate(:status, account: other, thread: parent, visibility: :public) }
-  let!(:reply_by_account_third) { Fabricate(:status, account: account, thread: parent, visibility: :public) }
+  let!(:parent) { Fabricate(:status, account: account, visibility: :private, language: 'zh-TW') }
+  let!(:reply_by_account_first) { Fabricate(:status, account: account, thread: parent, visibility: :private) }
+  let!(:reply_by_account_next) { Fabricate(:status, account: account, thread: parent, visibility: :private) }
+  let!(:reply_by_other_first) { Fabricate(:status, account: other, thread: parent, visibility: :private) }
+  let!(:reply_by_account_third) { Fabricate(:status, account: account, thread: parent, visibility: :private) }
   let!(:reply_by_account_visibility_direct) { Fabricate(:status, account: account, thread: parent, visibility: :direct) }
 
   it 'has the expected shape and replies collection' do
@@ -22,16 +22,24 @@ RSpec.describe ActivityPub::NoteSerializer do
       'contentMap' => include({
         'zh-TW' => a_kind_of(String),
       }),
+      'context' => include(
+        'type' => 'Collection',
+        'first' => include(
+          'type' => 'CollectionPage',
+          'items' => include(parent.uri, reply_by_account_first.uri, reply_by_account_next.uri,
+                             reply_by_account_third.uri, reply_by_other_first.uri)
+        )
+      ),
       'replies' => replies_collection_values,
     })
   end
 
   def replies_collection_values
     include(
-      'type' => eql('Collection'),
+      'type' => 'Collection',
       'first' => include(
-        'type' => eql('CollectionPage'),
-        'items' => reply_items
+        'type' => 'CollectionPage',
+        'items' => []
       )
     )
   end
