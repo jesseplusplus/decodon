@@ -22,14 +22,7 @@ RSpec.describe ActivityPub::NoteSerializer do
       'contentMap' => include({
         'zh-TW' => a_kind_of(String),
       }),
-      'context' => include(
-        'type' => 'Collection',
-        'first' => include(
-          'type' => 'CollectionPage',
-          'items' => include(parent.uri, reply_by_account_first.uri, reply_by_account_next.uri,
-                             reply_by_account_third.uri, reply_by_other_first.uri)
-        )
-      ),
+      'context' => ActivityPub::TagManager.instance.uri_for(parent.conversation),
       'replies' => replies_collection_values,
     })
   end

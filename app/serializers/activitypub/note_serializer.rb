@@ -18,8 +18,8 @@ class ActivityPub::NoteSerializer < ActivityPub::Serializer
   has_many :virtual_attachments, key: :attachment
   has_many :virtual_tags, key: :tag
 
+  has_one :context
   has_one :replies, serializer: ActivityPub::CollectionSerializer, if: :local?
-  has_one :context, serializer: ActivityPub::CollectionSerializer, if: :local?
   has_one :likes, serializer: ActivityPub::CollectionSerializer, if: :local?
   has_one :shares, serializer: ActivityPub::CollectionSerializer, if: :local?
 
@@ -161,19 +161,7 @@ class ActivityPub::NoteSerializer < ActivityPub::Serializer
     return if object.conversation.nil?
     return if object.conversation.parent_status.nil?
 
-    conversation_statuses = object.conversation.statuses[0..5].pluck(:id, :uri)
-    last_id = conversation_statuses.last&.first
-
-    ActivityPub::CollectionPresenter.new(
-      type: :unordered,
-      id: ActivityPub::TagManager.instance.uri_for(object.conversation),
-      first: ActivityPub::CollectionPresenter.new(
-        type: :unordered,
-        part_of: ActivityPub::TagManager.instance.uri_for(object.conversation),
-        items: conversation_statuses.map(&:second),
-        next: last_id ? ActivityPub::TagManager.instance.context_uri_for(object, page: true, min_id: last_id) : ActivityPub::TagManager.instance.context_uri_for(object, page: true, only_other_accounts: true)
-      )
-    )
+    ActivityPub::TagManager.instance.uri_for(object.conversation)
   end
 
   def local?
