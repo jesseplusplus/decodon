@@ -18,6 +18,10 @@ class ActivityPub::ContextsController < ActivityPub::BaseController
 
   private
 
+  def account_required?
+    false
+  end
+
   def set_conversation
     @conversation = Conversation.local.find(params[:id])
   end
