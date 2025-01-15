@@ -128,8 +128,6 @@ class User < ApplicationRecord
   scope :matches_ip, ->(value) { left_joins(:ips).where('user_ips.ip <<= ?', value).group('users.id') }
 
   before_validation :sanitize_role
-  before_validation :sanitize_time_zone
-  before_validation :sanitize_locale
   before_create :set_approved
   after_commit :send_pending_devise_notifications
   after_create_commit :trigger_webhooks
