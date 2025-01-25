@@ -77,6 +77,17 @@ class About extends PureComponent {
           <img src={appScreenshot} alt='app screenshot' />
         </div>
       </section>
+
+      <footer className='about-footer'>
+        <p>
+          Powered by <a href='https://github.com/jesseplusplus/decodon'
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            Decodon
+          </a>
+        </p>
+      </footer>
     </div>);
   }
 }
