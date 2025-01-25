@@ -12,7 +12,7 @@ An opinionated fork of mastodon with the following modifications:
 
 * replies are treated more like comments and are filtered from the home feed [jesseplusplus/decodon#3](https://github.com/jesseplusplus/decodon/pull/3)
 
-* circles (lists of followers you can address posts to instead of only followers) - cherry-picked from [fedibird](https://github.com/fedibird/fedibird) - [jesseplusplus/decodon#13](https://github.com/jesseplusplus/decodon/pull/13)
+* circles (lists of followers you can address posts to instead of only followers) - cherry-picked from [fedibird](https://github.com/fedibird/mastodon) - [jesseplusplus/decodon#13](https://github.com/jesseplusplus/decodon/pull/13)
 
 * default "inner circle" for all accounts to get them started - [jesseplusplus/decodon#14](https://github.com/jesseplusplus/decodon/pull/14)
 
