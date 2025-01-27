@@ -43,6 +43,10 @@ class About extends PureComponent {
   };
 
   render () {
+    const { server } = this.props;
+    const domain = server?.get('domain');
+    const supportEmail = domain ? `support@${domain}` : null;
+
     return (<div className='about-body'>
       <section className='intro'>
         <div>
@@ -86,6 +90,14 @@ class About extends PureComponent {
           >
             Decodon
           </a>
+          {supportEmail && (
+            <>
+              {' · '}
+              <a href={`mailto:${supportEmail}`}>
+                Contact Us
+              </a>
+            </>
+          )}
         </p>
       </footer>
     </div>);
