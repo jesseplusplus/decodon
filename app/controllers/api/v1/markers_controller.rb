@@ -42,14 +42,15 @@ class Api::V1::MarkersController < Api::BaseController
   end
 
   def resource_params
-    # Get both static and account-based timeline parameters
-    timeline_params = params.slice(*Marker::TIMELINES)
-    account_params = params.select { |key, _| key.start_with?('account:') && key.split(':', 2)[1].match?(/\A\d+\z/) }
+    timeline_params = params.slice(*Marker::TIMELINES).permit!.to_h
+    account_params = params.select { |key, _| key.start_with?('account:') && key.split(':', 2)[1].match?(/\A\d+\z/) }.permit!.to_h
 
-    # Merge and permit them
-    timeline_params.merge(account_params).permit(
+    merged_params = timeline_params.merge(account_params)
+    params = ActionController::Parameters.new(merged_params)
+
+    params.permit(
       *Marker::TIMELINES.map { |timeline| { timeline.to_sym => [:last_read_id] } },
-      /\Aaccount:\d+\z/ => [:last_read_id]
+      *account_params.keys.map { |key| { key.to_sym => [:last_read_id] } }
     )
   end
 end
