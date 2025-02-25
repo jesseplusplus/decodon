@@ -723,14 +723,25 @@ RSpec.describe Account::Interactions do
     end
   end
 
-  describe 'default circle' do
+  describe 'default circle and list' do
     it 'creates an inner circle for new local accounts' do
       expect(account.owned_circles.count).to eq 1
-      expect(account.owned_circles.first.title).to eq 'inner circle'
+      expect(account.owned_circles.first.title).to eq 'Inner Circle'
     end
 
     it 'does not create a circle for new remote accounts' do
       expect(remote_account.owned_circles.count).to eq 0
+    end
+
+    it 'creates a favorites list for new local accounts' do
+      expect(account.owned_lists.count).to eq 2
+      list_titles = account.owned_lists.map(&:title)
+      expect(list_titles).to include 'Favorites'
+      expect(list_titles).to include 'Inner Circle'
+    end
+
+    it 'does not create a list for new remote accounts' do
+      expect(remote_account.owned_lists.count).to eq 0
     end
   end
 

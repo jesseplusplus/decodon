@@ -113,7 +113,7 @@ module Account::Interactions
     has_many :domain_blocks, class_name: 'AccountDomainBlock', dependent: :destroy
     has_many :announcement_mutes, dependent: :destroy
 
-    after_create :create_default_circle
+    after_create :create_default_circle_and_list, if: :local?
   end
 
   def follow!(other_account, reblogs: nil, notify: nil, languages: nil, uri: nil, rate_limit: false, bypass_limit: false)
@@ -311,7 +311,8 @@ module Account::Interactions
     TagManager.instance.normalize_domain(domain)
   end
 
-  def create_default_circle
-    circles.create(name: 'inner circle')
+  def create_default_circle_and_list
+    owned_circles.create(title: 'Inner Circle')
+    owned_lists.create(title: 'Favorites')
   end
 end
