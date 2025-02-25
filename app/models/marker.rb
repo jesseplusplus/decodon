@@ -19,5 +19,18 @@ class Marker < ApplicationRecord
   belongs_to :user
 
   validates :timeline, :last_read_id, presence: true
-  validates :timeline, inclusion: { in: TIMELINES }
+  validate :timeline_format_valid
+
+  def self.for_account(account_id)
+    "account:#{account_id}"
+  end
+
+  private
+
+  def timeline_format_valid
+    return if TIMELINES.include?(timeline)
+    return if timeline.start_with?('account:') && timeline.split(':', 2)[1].match?(/\A\d+\z/)
+
+    errors.add(:timeline, 'must be a valid timeline type')
+  end
 end

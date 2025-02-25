@@ -16,6 +16,8 @@ An opinionated fork of mastodon with the following modifications:
 
 * default "inner circle" for all accounts to get them started - [jesseplusplus/decodon#14](https://github.com/jesseplusplus/decodon/pull/14)
 
+* timeline markers for accounts' feed of updates - [jesseplusplus/decodon#189](https://github.com/jesseplusplus/decodon/pull/189)
+
 * more control over logo and branding in email templates [jesseplusplus/decodon#10](https://github.com/jesseplusplus/decodon/pull/10)
 
 * updated heroku deployment configs
