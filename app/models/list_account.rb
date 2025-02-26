@@ -12,6 +12,8 @@
 #
 
 class ListAccount < ApplicationRecord
+  SPECIAL_LIST_ACCOUNT_LIMIT = 8
+
   belongs_to :list
   belongs_to :account
   belongs_to :follow, optional: true
@@ -19,6 +21,7 @@ class ListAccount < ApplicationRecord
 
   validates :account_id, uniqueness: { scope: :list_id }
   validate :validate_relationship
+  validate :validate_special_list_account_limit, on: :create
 
   before_validation :set_follow, unless: :list_owner_account_is_account?
 
@@ -42,6 +45,16 @@ class ListAccount < ApplicationRecord
     errors.add(:account_id, 'follow relationship missing') if follow_id.nil? && follow_request_id.nil?
     errors.add(:follow, 'mismatched accounts') if follow_id.present? && follow.target_account_id != account_id
     errors.add(:follow_request, 'mismatched accounts') if follow_request_id.present? && follow_request.target_account_id != account_id
+  end
+
+  def validate_special_list_account_limit
+    return unless special_list?
+
+    errors.add(:base, `Size limit exceeded, limit: #{SPECIAL_LIST_ACCOUNT_LIMIT}`) if list.accounts.count >= SPECIAL_LIST_ACCOUNT_LIMIT
+  end
+
+  def special_list?
+    list.title == 'Favorites' || list.title == 'Inner Circle'
   end
 
   def list_owner_account_is_account?

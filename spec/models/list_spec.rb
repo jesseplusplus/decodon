@@ -12,9 +12,13 @@ RSpec.describe List do
       let(:account) { Fabricate :account }
 
       before do
-        stub_const 'List::PER_ACCOUNT_LIMIT', 1
+        stub_const 'List::PER_ACCOUNT_LIMIT', 3
 
         Fabricate(:list, account: account)
+      end
+
+      after do
+        stub_const 'List::PER_ACCOUNT_LIMIT', 50
       end
 
       context 'when creating a new list' do
@@ -25,6 +29,29 @@ RSpec.describe List do
         before { subject.save(validate: false) }
 
         it { is_expected.to allow_value(account).for(:account).against(:base) }
+      end
+    end
+
+    context 'when trying to rename Favorites list' do
+      let(:account) { Fabricate :account }
+
+      # rubocop:disable RSpec/LeadingSubject
+      subject { account.owned_lists.find_by(title: 'Favorites') }
+      # rubocop:enable RSpec/LeadingSubject
+
+      it { is_expected.to_not allow_value('New title').for(:title).against(:base) }
+    end
+
+    context 'when trying to rename a list' do
+      let(:account) { Fabricate :account }
+      let(:favorites) { account.owned_lists.find_by(title: 'Favorites') }
+
+      it { is_expected.to allow_value('New title').for(:title).against(:base) }
+
+      it 'does not allow creating a new list with a duplicate name' do
+        new_list = Fabricate.build(:list, account: account, title: 'Favorites')
+        expect(new_list).to_not be_valid
+        expect(new_list.errors[:title]).to include(I18n.t('errors.messages.taken'))
       end
     end
   end

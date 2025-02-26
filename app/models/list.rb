@@ -25,9 +25,11 @@ class List < ApplicationRecord
   has_many :list_accounts, inverse_of: :list, dependent: :destroy
   has_many :accounts, through: :list_accounts
 
-  validates :title, presence: true
+  validates :title, presence: true, uniqueness: { scope: :account_id }
 
   validate :validate_account_lists_limit, on: :create
+
+  validate :validate_allowed_title_update, on: :update
 
   before_destroy :clean_feed_manager
 
@@ -35,6 +37,10 @@ class List < ApplicationRecord
 
   def validate_account_lists_limit
     errors.add(:base, I18n.t('lists.errors.limit')) if account.owned_lists.count >= PER_ACCOUNT_LIMIT
+  end
+
+  def validate_allowed_title_update
+    errors.add(:base, I18n.t('lists.errors.title')) if title_changed? && title_was == 'Favorites'
   end
 
   def clean_feed_manager
