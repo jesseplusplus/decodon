@@ -23,6 +23,8 @@ class ListAccount < ApplicationRecord
   validate :validate_relationship
   validate :validate_special_list_account_limit, on: :create
 
+  scope :active, -> { where.not(follow_id: nil) }
+
   before_validation :set_follow, unless: :list_owner_account_is_account?
 
   after_create :backfill_list
