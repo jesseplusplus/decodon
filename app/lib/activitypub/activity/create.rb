@@ -58,6 +58,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     resolve_thread(@status)
     resolve_unresolved_mentions(@status)
     fetch_replies(@status)
+    fetch_conversation_statuses(@status)
     distribute
     forward_for_conversation
     forward_for_reply
@@ -455,5 +456,17 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
   rescue ActiveRecord::StaleObjectError
     poll.reload
     retry
+  end
+
+  def fetch_conversation_statuses(status)
+    return if status.conversation.nil? || status.conversation.local?
+
+    collection = @object['context']
+    return if collection.blank?
+
+    uri = value_or_id(collection)
+    ActivityPub::FetchConversationStatusesWorker.perform_async(status.id, uri, { 'request_id' => @options[:request_id] }) unless uri.nil?
+  rescue => e
+    Rails.logger.warn "Error fetching conversation statuses: #{e}"
   end
 end
