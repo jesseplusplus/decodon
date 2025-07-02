@@ -18,6 +18,7 @@ class ActivityPub::NoteSerializer < ActivityPub::Serializer
   has_many :virtual_attachments, key: :attachment
   has_many :virtual_tags, key: :tag
 
+  has_one :context
   has_one :replies, serializer: ActivityPub::CollectionSerializer, if: :local?
   has_one :likes, serializer: ActivityPub::CollectionSerializer, if: :local?
   has_one :shares, serializer: ActivityPub::CollectionSerializer, if: :local?
@@ -158,6 +159,7 @@ class ActivityPub::NoteSerializer < ActivityPub::Serializer
 
   def context
     return if object.conversation.nil?
+    return if object.conversation.parent_status.nil?
 
     ActivityPub::TagManager.instance.uri_for(object.conversation)
   end

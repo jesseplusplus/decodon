@@ -59,7 +59,7 @@ class StatusesController < ApplicationController
   def set_status
     @status = @account.statuses.find(params[:id])
 
-    if request.authorization.present? && request.authorization.match(/^Bearer /i)
+    if !@status.distributable? && request.authorization.present? && request.authorization.match(/^Bearer /i)
       raise Mastodon::NotPermittedError unless @status.capability_tokens.find_by(token: request.authorization.gsub(/^Bearer /i, ''))
     else
       authorize @status, :show?
