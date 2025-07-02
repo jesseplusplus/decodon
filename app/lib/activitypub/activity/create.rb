@@ -97,7 +97,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
       sensitive: @account.sensitized? || @status_parser.sensitive || false,
       visibility: @status_parser.visibility,
       thread: replied_to_status,
-      conversation: conversation_from_uri(@object['conversation']),
+      conversation: @options[:conversation] || conversation_from_uri(@object['conversation']),
       media_attachment_ids: attachment_ids,
       ordered_media_attachment_ids: attachment_ids,
       poll: process_poll,
