@@ -35,6 +35,10 @@ tt:
           attributes:
             data:
               malformed: формат дөрес түгел
+        list_account:
+          attributes:
+            account_id:
+              taken: инде исемлектә
         status:
           attributes:
             reblog:

@@ -18,7 +18,7 @@ class List < ApplicationRecord
 
   PER_ACCOUNT_LIMIT = 50
 
-  enum :replies_policy, { list: 0, followed: 1, none: 2 }, prefix: :show
+  enum :replies_policy, { list: 0, followed: 1, none: 2 }, prefix: :show, validate: true
 
   belongs_to :account
 
@@ -37,7 +37,7 @@ class List < ApplicationRecord
   private
 
   def validate_account_lists_limit
-    errors.add(:base, I18n.t('lists.errors.limit')) if account.owned_lists.count >= PER_ACCOUNT_LIMIT
+    errors.add(:base, I18n.t('lists.errors.limit')) if account.owned_owned_lists.count >= PER_ACCOUNT_LIMIT
   end
 
   def validate_allowed_title_update

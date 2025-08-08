@@ -12,6 +12,7 @@ import { fetchServer, fetchExtendedDescription, fetchDomainBlocks  } from 'masto
 
 const mapStateToProps = state => ({
   server: state.getIn(['server', 'server']),
+  locale: state.getIn(['meta', 'locale']),
   extendedDescription: state.getIn(['server', 'extendedDescription']),
   domainBlocks: state.getIn(['server', 'domainBlocks']),
 });
@@ -20,6 +21,7 @@ class About extends PureComponent {
 
   static propTypes = {
     server: ImmutablePropTypes.map,
+    locale: ImmutablePropTypes.string,
     extendedDescription: ImmutablePropTypes.map,
     domainBlocks: ImmutablePropTypes.contains({
       isLoading: PropTypes.bool,

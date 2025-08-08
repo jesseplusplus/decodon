@@ -22,17 +22,17 @@ RSpec.describe ActivityPub::NoteSerializer do
       'contentMap' => include({
         'zh-TW' => a_kind_of(String),
       }),
-      'context' => ActivityPub::TagManager.instance.uri_for(parent.conversation),
       'replies' => replies_collection_values,
+      'context' => ActivityPub::TagManager.instance.uri_for(parent.conversation),
     })
   end
 
   def replies_collection_values
     include(
-      'type' => 'Collection',
+      'type' => eql('Collection'),
       'first' => include(
-        'type' => 'CollectionPage',
-        'items' => []
+        'type' => eql('CollectionPage'),
+        'items' => reply_items
       )
     )
   end

@@ -3,7 +3,7 @@ ast:
   about:
     about_mastodon_html: 'La rede social del futuru: ¡ensin anuncios nin vixilancia, con un diseñu éticu y descentralizáu! Controla los tos datos con Mastodon.'
     contact_unavailable: N/D
-    hosted_on: 'Decodon ta agospiáu en: %{domain}'
+    hosted_on: 'Mastodon ta agospiáu en: %{domain}'
     title: Tocante a
   accounts:
     last_active: última actividá
@@ -319,7 +319,6 @@ ast:
         preamble: L'apaición de conteníu interesante ye fundamental p'atrayer persones nueves que nun conozan nada de Mastodon. Controla'l funcionamientu de delles funciones de descubrimientu d'esti sirvidor.
         profile_directory: Direutoriu de perfiles
         public_timelines: Llinies de tiempu públiques
-        publish_discovered_servers: Espublizamientu de sirvidores descubiertos
         publish_statistics: Espublizamientu d'estadístiques
         title: Descubrimientu
         trends: Tendencies
@@ -459,7 +458,6 @@ ast:
     logout: Zarrar la sesión
     migrate_account: Cambéu de cuenta
     migrate_account_html: Si quies redirixir esta cuenta a otra diferente, pues <a href="%{path}">configurar esta opción equí</a>.
-    privacy_policy_agreement_html: Lleí y acepto la <a href="%{privacy_policy_path}" target="_blank">política de privacidá</a>
     progress:
       confirm: Confirmación del corréu electrónicu
       details: Los tos detalles
@@ -478,7 +476,6 @@ ast:
     sign_in:
       preamble_html: Anicia la sesión coles credenciales del dominiu <strong>%{domain}</strong>. Si la to cuenta ta agospiada n'otru sirvidor, nun vas ser a aniciar la sesión equí.
     sign_up:
-      preamble: Con una cuenta nesti sirvidor de Mastodon vas ser a siguir a cualesquier perfil de la rede, independientemente del sirvidor onde s'agospie la so cuenta.
       title: 'Creación d''una cuenta en: %{domain}.'
     status:
       account_status: Estáu de la cuenta

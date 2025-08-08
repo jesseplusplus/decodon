@@ -108,11 +108,11 @@ class Header extends PureComponent {
           <Link to='/' className='column-link column-link--logo'><WordmarkLogo /><SymbolLogo /></Link>
         </header>
         <section className='navlinks'>
-          <a href={process.env.APP_LINK} className='header-link'>{process.env.APP_LINK_TEXT}</a>
+          <a href={""} className='header-link'>{""}</a>
           <a href='/auth/sign_in' className='header-link'>Sign in</a>
           <div className='button-container'>
-            <a href={process.env.JOIN_BUTTON_LINK} className='header-button'>
-              <span>{process.env.JOIN_BUTTON_TEXT}</span>
+            <a href={""} className='header-button'>
+              <span>Join</span>
             </a>
           </div>
         </section>

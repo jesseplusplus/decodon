@@ -9,7 +9,9 @@ import {
   changeComposeSpoilerText,
   insertEmojiCompose,
   uploadCompose,
-} from '../../../actions/compose';
+} from 'mastodon/actions/compose';
+import { openModal } from 'mastodon/actions/modal';
+
 import ComposeForm from '../components/compose_form';
 
 const mapStateToProps = (state) => ({
@@ -30,6 +32,7 @@ const mapStateToProps = (state) => ({
     state.getIn(['compose', 'reply_status', 'visibility']) !== 'limited' &&
     !state.getIn(['compose', 'circle_id']),
   anyMedia: state.getIn(['compose', 'media_attachments']).size > 0,
+  missingAltText: state.getIn(['compose', 'media_attachments']).some(media => ['image', 'gifv'].includes(media.get('type')) && (media.get('description') ?? '').length === 0),
   isInReply: state.getIn(['compose', 'in_reply_to']) !== null,
   lang: state.getIn(['compose', 'language']),
   maxChars: state.getIn(['server', 'server', 'configuration', 'statuses', 'max_characters'], 500),
@@ -40,8 +43,15 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(changeCompose(text));
   },
 
-  onSubmit () {
-    dispatch(submitCompose());
+  onSubmit (missingAltText) {
+    if (missingAltText) {
+      dispatch(openModal({
+        modalType: 'CONFIRM_MISSING_ALT_TEXT',
+        modalProps: {},
+      }));
+    } else {
+      dispatch(submitCompose());
+    }
   },
 
   onClearSuggestions() {

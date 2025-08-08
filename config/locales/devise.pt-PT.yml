@@ -94,11 +94,6 @@ pt-PT:
       updated_not_active: A tua palavra-passe foi alterada.
     registrations:
       destroyed: Adeus! A tua conta foi cancelada. Esperamos ver-te em breve.
-      signed_up: Bem-vindo! A sua conta foi registada com sucesso.
-      signed_up_but_inactive: Registou-se com sucesso. No entanto, não foi possível iniciar sessão porque a sua conta ainda não está ativada.
-      signed_up_but_locked: Registou-se com sucesso. No entanto, não foi possível iniciar sessão porque a sua conta está bloqueada.
-      signed_up_but_pending: Foi enviada uma mensagem com uma hiperligação de confirmação para o seu endereço de e-mail. Depois de clicar na hiperligação, analisaremos a sua candidatura. Será notificado se for aprovado.
-      signed_up_but_unconfirmed: Foi enviada para o seu endereço de e-mail uma mensagem com uma hiperligação de confirmação. Siga a hiperligação para ativar a sua conta. Verifique a sua pasta de spam se não recebeu esta mensagem de e-mail.
       update_needs_confirmation: Atualizaste a tua conta com sucesso, mas temos de verificar o teu novo endereço de e-mail. Verifica o teu e-mail e segue a hiperligação de confirmação para confirmares o teu novo endereço de e-mail. Verifica a tua pasta de spam se não recebeste esta mensagem de correio eletrónico.
       updated: A tua conta foi corretamente atualizada.
     sessions:

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { injectIntl, defineMessages, FormattedMessage } from 'react-intl';
 
 import classNames from 'classnames';
+import { Link } from 'react-router-dom';
 
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import ImmutablePureComponent from 'react-immutable-pure-component';
@@ -10,12 +11,11 @@ import ImmutablePureComponent from 'react-immutable-pure-component';
 import { HotKeys } from 'react-hotkeys';
 
 import AlternateEmailIcon from '@/material-icons/400-24px/alternate_email.svg?react';
-import PushPinIcon from '@/material-icons/400-24px/push_pin.svg?react';
 import RepeatIcon from '@/material-icons/400-24px/repeat.svg?react';
 import { ContentWarning } from 'mastodon/components/content_warning';
 import { FilterWarning } from 'mastodon/components/filter_warning';
 import { Icon }  from 'mastodon/components/icon';
-import PictureInPicturePlaceholder from 'mastodon/components/picture_in_picture_placeholder';
+import { PictureInPicturePlaceholder } from 'mastodon/components/picture_in_picture_placeholder';
 import { withOptionalRouter, WithOptionalRouterPropTypes } from 'mastodon/utils/react_router';
 
 import Card from '../features/status/components/card';
@@ -68,7 +68,7 @@ export const defaultMediaVisibility = (status) => {
     status = status.get('reblog');
   }
 
-  return (displayMedia !== 'hide_all' && !status.get('sensitive') || displayMedia === 'show_all');
+  return !status.get('matched_media_filters') && (displayMedia !== 'hide_all' && !status.get('sensitive') || displayMedia === 'show_all');
 };
 
 const messages = defineMessages({
@@ -87,6 +87,7 @@ class Status extends ImmutablePureComponent {
   static propTypes = {
     status: ImmutablePropTypes.map,
     account: ImmutablePropTypes.record,
+    children: PropTypes.node,
     previousId: PropTypes.string,
     nextInReplyToId: PropTypes.string,
     rootId: PropTypes.string,
@@ -115,6 +116,7 @@ class Status extends ImmutablePureComponent {
     onMoveUp: PropTypes.func,
     onMoveDown: PropTypes.func,
     showThread: PropTypes.bool,
+    isQuotedPost: PropTypes.bool,
     getScrollPosition: PropTypes.func,
     updateScrollBottom: PropTypes.func,
     cacheMediaWidth: PropTypes.func,
@@ -166,32 +168,22 @@ class Status extends ImmutablePureComponent {
   };
 
   handleClick = e => {
-    if (e && (e.button !== 0 || e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+
+    if (e?.button === 0 && !(e?.ctrlKey || e?.metaKey)) {
+      this._openStatus();
+    } else if (e?.button === 1 || (e?.button === 0 && (e?.ctrlKey || e?.metaKey))) {
+      this._openStatus(true);
+    }
+  };
+
+  handleHeaderClick = e => {
+    // Only handle clicks on the empty space above the content
+    if (e.target !== e.currentTarget && e.detail >= 1) {
       return;
     }
 
-    if (e) {
-      e.preventDefault();
-    }
-
-    this.handleHotkeyOpen();
-  };
-
-  handlePrependAccountClick = e => {
-    this.handleAccountClick(e, false);
-  };
-
-  handleAccountClick = (e, proper = true) => {
-    if (e && (e.button !== 0 || e.ctrlKey || e.metaKey))  {
-      return;
-    }
-
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
-    this._openProfile(proper);
+    this.handleClick(e);
   };
 
   handleExpandedToggle = () => {
@@ -290,6 +282,10 @@ class Status extends ImmutablePureComponent {
   };
 
   handleHotkeyOpen = () => {
+    this._openStatus();
+  };
+
+  _openStatus = (newTab = false) => {
     if (this.props.onClick) {
       this.props.onClick();
       return;
@@ -302,7 +298,17 @@ class Status extends ImmutablePureComponent {
       return;
     }
 
-    history.push(`/@${status.getIn(['account', 'acct'])}/${status.get('id')}`);
+    const path = `/@${status.getIn(['account', 'acct'])}/${status.get('id')}`;
+
+    if (newTab) {
+      window.open(path, '_blank', 'noopener');
+    } else {
+      if (history.location.pathname.replace('/deck/', '/') === path) {
+        history.replace(path);
+      } else {
+        history.push(path);
+      }
+    }
   };
 
   handleHotkeyOpenProfile = () => {
@@ -372,7 +378,7 @@ class Status extends ImmutablePureComponent {
   };
 
   render () {
-    const { intl, hidden, featured, unfocusable, unread, showThread, scrollKey, pictureInPicture, previousId, nextInReplyToId, rootId, skipPrepend, avatarSize = 46 } = this.props;
+    const { intl, hidden, featured, unfocusable, unread, showThread, isQuotedPost = false, scrollKey, pictureInPicture, previousId, nextInReplyToId, rootId, skipPrepend, avatarSize = 46, children } = this.props;
 
     let { status, account, ...other } = this.props;
 
@@ -392,40 +398,23 @@ class Status extends ImmutablePureComponent {
       toggleHidden: this.handleHotkeyToggleHidden,
       toggleSensitive: this.handleHotkeyToggleSensitive,
       openMedia: this.handleHotkeyOpenMedia,
+      onTranslate: this.handleTranslate,
     };
 
     let media, statusAvatar, prepend, rebloggedByText;
-
-    if (hidden) {
-      return (
-        <HotKeys handlers={handlers} tabIndex={unfocusable ? null : -1}>
-          <div ref={this.handleRef} className={classNames('status__wrapper', { focusable: !this.props.muted })} tabIndex={unfocusable ? null : 0}>
-            <span>{status.getIn(['account', 'display_name']) || status.getIn(['account', 'username'])}</span>
-            <span>{status.get('content')}</span>
-          </div>
-        </HotKeys>
-      );
-    }
 
     const connectUp = previousId && previousId === status.get('in_reply_to_id');
     const connectToRoot = rootId && rootId === status.get('in_reply_to_id');
     const connectReply = nextInReplyToId && nextInReplyToId === status.get('id');
     const matchedFilters = status.get('matched_filters');
 
-    if (featured) {
-      prepend = (
-        <div className='status__prepend'>
-          <div className='status__prepend__icon'><Icon id='thumb-tack' icon={PushPinIcon} /></div>
-          <FormattedMessage id='status.pinned' defaultMessage='Pinned post' />
-        </div>
-      );
-    } else if (status.get('reblog', null) !== null && typeof status.get('reblog') === 'object') {
+    if (status.get('reblog', null) !== null && typeof status.get('reblog') === 'object') {
       const display_name_html = { __html: status.getIn(['account', 'display_name_html']) };
 
       prepend = (
         <div className='status__prepend'>
           <div className='status__prepend__icon'><Icon id='retweet' icon={RepeatIcon} /></div>
-          <FormattedMessage id='status.reblogged_by' defaultMessage='{name} boosted' values={{ name: <a onClick={this.handlePrependAccountClick} data-id={status.getIn(['account', 'id'])} data-hover-card-account={status.getIn(['account', 'id'])} href={`/@${status.getIn(['account', 'acct'])}`} className='status__display-name muted'><bdi><strong dangerouslySetInnerHTML={display_name_html} /></bdi></a> }} />
+          <FormattedMessage id='status.reblogged_by' defaultMessage='{name} boosted' values={{ name: <Link data-id={status.getIn(['account', 'id'])} data-hover-card-account={status.getIn(['account', 'id'])} to={`/@${status.getIn(['account', 'acct'])}`} className='status__display-name muted'><bdi><strong dangerouslySetInnerHTML={display_name_html} /></bdi></Link> }} />
         </div>
       );
 
@@ -443,6 +432,20 @@ class Status extends ImmutablePureComponent {
     } else if (showThread && status.get('in_reply_to_id')) {
       prepend = (
         <StatusThreadLabel accountId={status.getIn(['account', 'id'])} inReplyToAccountId={status.get('in_reply_to_account_id')} />
+      );
+    }
+
+    const expanded = (!matchedFilters || this.state.showDespiteFilter) && (!status.get('hidden') || status.get('spoiler_text').length === 0);
+
+    if (hidden) {
+      return (
+        <HotKeys handlers={handlers} tabIndex={unfocusable ? null : -1}>
+          <div ref={this.handleRef} className={classNames('status__wrapper', { focusable: !this.props.muted })} tabIndex={unfocusable ? null : 0}>
+            <span>{status.getIn(['account', 'display_name']) || status.getIn(['account', 'username'])}</span>
+            {status.get('spoiler_text').length > 0 && (<span>{status.get('spoiler_text')}</span>)}
+            {expanded && <span>{status.get('content')}</span>}
+          </div>
+        </HotKeys>
       );
     }
 
@@ -465,6 +468,7 @@ class Status extends ImmutablePureComponent {
                 defaultWidth={this.props.cachedMediaWidth}
                 visible={this.state.showMedia}
                 onToggleVisibility={this.handleToggleMediaVisibility}
+                matchedFilters={status.get('matched_media_filters')}
               />
             )}
           </Bundle>
@@ -485,14 +489,12 @@ class Status extends ImmutablePureComponent {
                 foregroundColor={attachment.getIn(['meta', 'colors', 'foreground'])}
                 accentColor={attachment.getIn(['meta', 'colors', 'accent'])}
                 duration={attachment.getIn(['meta', 'original', 'duration'], 0)}
-                width={this.props.cachedMediaWidth}
-                height={110}
-                cacheWidth={this.props.cacheMediaWidth}
                 deployPictureInPicture={pictureInPicture.get('available') ? this.handleDeployPictureInPicture : undefined}
                 sensitive={status.get('sensitive')}
                 blurhash={attachment.get('blurhash')}
                 visible={this.state.showMedia}
                 onToggleVisibility={this.handleToggleMediaVisibility}
+                matchedFilters={status.get('matched_media_filters')}
               />
             )}
           </Bundle>
@@ -517,12 +519,13 @@ class Status extends ImmutablePureComponent {
                 deployPictureInPicture={pictureInPicture.get('available') ? this.handleDeployPictureInPicture : undefined}
                 visible={this.state.showMedia}
                 onToggleVisibility={this.handleToggleMediaVisibility}
+                matchedFilters={status.get('matched_media_filters')}
               />
             )}
           </Bundle>
         );
       }
-    } else if (status.get('card')) {
+    } else if (status.get('card') && !status.get('quote')) {
       media = (
         <Card
           onOpenMedia={this.handleOpenMedia}
@@ -540,30 +543,40 @@ class Status extends ImmutablePureComponent {
     }
 
     const {statusContentProps, hashtagBar} = getHashtagBarForStatus(status);
-    const expanded = (!matchedFilters || this.state.showDespiteFilter) && (!status.get('hidden') || status.get('spoiler_text').length === 0);
 
     return (
       <HotKeys handlers={handlers} tabIndex={unfocusable ? null : -1}>
         <div className={classNames('status__wrapper', `status__wrapper-${status.get('visibility')}`, { 'status__wrapper-reply': !!status.get('in_reply_to_id'), unread, focusable: !this.props.muted })} tabIndex={this.props.muted || unfocusable ? null : 0} data-featured={featured ? 'true' : null} aria-label={textForScreenReader(intl, status, rebloggedByText)} ref={this.handleRef} data-nosnippet={status.getIn(['account', 'noindex'], true) || undefined}>
           {!skipPrepend && prepend}
 
-          <div className={classNames('status', `status-${status.get('visibility')}`, { 'status-reply': !!status.get('in_reply_to_id'), 'status--in-thread': !!rootId, 'status--first-in-thread': previousId && (!connectUp || connectToRoot), muted: this.props.muted })} data-id={status.get('id')}>
+          <div
+            className={
+              classNames('status', `status-${status.get('visibility')}`,
+              {
+                'status-reply': !!status.get('in_reply_to_id'),
+                'status--in-thread': !!rootId,
+                'status--first-in-thread': previousId && (!connectUp || connectToRoot), muted: this.props.muted,
+                'status--is-quote': isQuotedPost,
+                'status--has-quote': !!status.get('quote'),
+              })
+            }
+            data-id={status.get('id')}
+          >
             {(connectReply || connectUp || connectToRoot) && <div className={classNames('status__line', { 'status__line--full': connectReply, 'status__line--first': !status.get('in_reply_to_id') && !connectToRoot })} />}
 
-            {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-            <div onClick={this.handleClick} className='status__info'>
-              <a href={`/@${status.getIn(['account', 'acct'])}/${status.get('id')}`} className='status__relative-time' target='_blank' rel='noopener noreferrer'>
+            <div onClick={this.handleHeaderClick} onAuxClick={this.handleHeaderClick} className='status__info'>
+              <Link to={`/@${status.getIn(['account', 'acct'])}/${status.get('id')}`} className='status__relative-time'>
                 <span className='status__visibility-icon'><VisibilityIcon visibility={status.get('visibility')} /></span>
                 <RelativeTimestamp timestamp={status.get('created_at')} />{status.get('edited_at') && <abbr title={intl.formatMessage(messages.edited, { date: intl.formatDate(status.get('edited_at'), { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }) })}> *</abbr>}
-              </a>
+              </Link>
 
-              <a onClick={this.handleAccountClick} href={`/@${status.getIn(['account', 'acct'])}`} title={status.getIn(['account', 'acct'])} data-hover-card-account={status.getIn(['account', 'id'])} className='status__display-name' target='_blank' rel='noopener noreferrer'>
+              <Link to={`/@${status.getIn(['account', 'acct'])}`} title={status.getIn(['account', 'acct'])} data-hover-card-account={status.getIn(['account', 'id'])} className='status__display-name'>
                 <div className='status__avatar'>
                   {statusAvatar}
                 </div>
 
                 <DisplayName account={status.get('account')} />
-              </a>
+              </Link>
             </div>
 
             {media}
@@ -584,10 +597,14 @@ class Status extends ImmutablePureComponent {
                 />
 
                 {hashtagBar}
+
+                {children}
               </>
             )}
 
-            <StatusActionBar scrollKey={scrollKey} status={status} account={account}  {...other} />
+            {!isQuotedPost &&
+              <StatusActionBar scrollKey={scrollKey} status={status} account={account}  {...other} />
+            }
           </div>
         </div>
       </HotKeys>

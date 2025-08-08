@@ -94,11 +94,6 @@ fil:
       updated_not_active: Matagumpay na napalitan ang password mo.
     registrations:
       destroyed: Paalam! Matagumpay na nakansela ang account mo. Sana ay magkita ulit tayo sa hinaharap.
-      signed_up: Maligayang pagdating! Nakapag-sign up ka na.
-      signed_up_but_inactive: Nakapag-sign up ka na. Pero ka namin ma-sign in dahil hindi pa naa-activate ang account mo.
-      signed_up_but_locked: Nakapag-sign up ka na. Pero ka namin ma-sign in dahil naka-lock ang account mo.
-      signed_up_but_pending: Naipadala na sa email address mo ang mensaheng may confirmation link. Pagka-click ng link, ire-review namin ang application. Aabisuhan ka kapag naaprobahan ito.
-      signed_up_but_unconfirmed: Naipadala na sa email address mo ang mensaheng may confirmation link. Pakisundan ang link para ma-activate ang account mo. Pakitingnan ang spam folder mo kung hindi mo natanggap ang email na ito.
       update_needs_confirmation: Na-update mo na ang account mo, pero kailangan naming beripikahin ang bago mong email address. Pakitingnan ang email mo at sundan ang confirm link para makumpirma ang bagong email address mo. Pakitingnan ang spam folder mo kung hindi mo natanggap ang email na ito.
       updated: Matagumpay na na-update ang account mo.
     sessions:

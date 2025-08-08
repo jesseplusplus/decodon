@@ -2,7 +2,7 @@
 
 ENV['RAILS_ENV'] ||= 'test'
 
-unless ENV['DISABLE_SIMPLECOV'] == 'true'
+if ENV.fetch('COVERAGE', false)
   require 'simplecov'
 
   SimpleCov.start 'rails' do
@@ -32,7 +32,7 @@ end
 STREAMING_PORT = ENV.fetch('TEST_STREAMING_PORT', '4020')
 ENV['STREAMING_API_BASE_URL'] = "http://localhost:#{STREAMING_PORT}"
 
-require File.expand_path('../config/environment', __dir__)
+require_relative '../config/environment'
 
 abort('The Rails environment is running in production mode!') if Rails.env.production?
 
@@ -54,7 +54,7 @@ WebMock.disable_net_connect!(
   allow_localhost: true,
   allow: Chewy.settings[:host]
 )
-Sidekiq.logger = nil
+Sidekiq.default_configuration.logger = nil
 
 DatabaseCleaner.strategy = [:deletion]
 
@@ -119,6 +119,11 @@ RSpec.configure do |config|
   config.include SignedRequestHelpers, type: :request
   config.include CommandLineHelpers, type: :cli
   config.include SystemHelpers, type: :system
+
+  # TODO: Remove when Devise fixes https://github.com/heartcombo/devise/issues/5705
+  config.before do
+    Rails.application.reload_routes_unless_loaded
+  end
 
   config.around(:each, use_transactional_tests: false) do |example|
     self.use_transactional_tests = false

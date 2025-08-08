@@ -1,14 +1,11 @@
 import escapeTextContentForBrowser from 'escape-html';
 
+import { makeEmojiMap } from 'mastodon/models/custom_emoji';
+
 import emojify from '../../features/emoji/emoji';
 import { expandSpoilers } from '../../initial_state';
 
 const domParser = new DOMParser();
-
-const makeEmojiMap = emojis => emojis.reduce((obj, emoji) => {
-  obj[`:${emoji.shortcode}:`] = emoji;
-  return obj;
-}, {});
 
 export function searchTextFromRawStatus (status) {
   const spoilerText   = status.spoiler_text || '';
@@ -26,10 +23,18 @@ export function normalizeFilterResult(result) {
 
 export function normalizeStatus(status, normalOldStatus) {
   const normalStatus   = { ...status };
+
   normalStatus.account = status.account.id;
 
   if (status.reblog && status.reblog.id) {
     normalStatus.reblog = status.reblog.id;
+  }
+
+  if (status.quote?.quoted_status ?? status.quote?.quoted_status_id) {
+    normalStatus.quote = {
+      ...status.quote,
+      quoted_status: status.quote.quoted_status?.id ?? status.quote?.quoted_status_id,
+    };
   }
 
   if (status.poll && status.poll.id) {
@@ -81,6 +86,17 @@ export function normalizeStatus(status, normalOldStatus) {
     normalStatus.spoilerHtml  = emojify(escapeTextContentForBrowser(spoilerText), emojiMap);
     normalStatus.hidden       = expandSpoilers ? false : spoilerText.length > 0 || normalStatus.sensitive;
     normalStatus.visibility   = normalStatus.limited ? 'limited' : normalStatus.visibility;
+
+    if (normalStatus.url && !(normalStatus.url.startsWith('http://') || normalStatus.url.startsWith('https://'))) {
+      normalStatus.url = null;
+    }
+
+    normalStatus.url ||= normalStatus.uri;
+
+    normalStatus.media_attachments.forEach(item => {
+      if (item.remote_url && !(item.remote_url.startsWith('http://') || item.remote_url.startsWith('https://')))
+        item.remote_url = null;
+    });
   }
 
   if (normalOldStatus) {
@@ -108,38 +124,6 @@ export function normalizeStatusTranslation(translation, status) {
     contentHtml: emojify(translation.content, emojiMap),
     spoilerHtml: emojify(escapeTextContentForBrowser(translation.spoiler_text), emojiMap),
     spoiler_text: translation.spoiler_text,
-  };
-
-  return normalTranslation;
-}
-
-export function normalizePoll(poll, normalOldPoll) {
-  const normalPoll = { ...poll };
-  const emojiMap = makeEmojiMap(poll.emojis);
-
-  normalPoll.options = poll.options.map((option, index) => {
-    const normalOption = {
-      ...option,
-      voted: poll.own_votes && poll.own_votes.includes(index),
-      titleHtml: emojify(escapeTextContentForBrowser(option.title), emojiMap),
-    };
-
-    if (normalOldPoll && normalOldPoll.getIn(['options', index, 'title']) === option.title) {
-      normalOption.translation = normalOldPoll.getIn(['options', index, 'translation']);
-    }
-
-    return normalOption;
-  });
-
-  return normalPoll;
-}
-
-export function normalizePollOptionTranslation(translation, poll) {
-  const emojiMap = makeEmojiMap(poll.get('emojis').toJS());
-
-  const normalTranslation = {
-    ...translation,
-    titleHtml: emojify(escapeTextContentForBrowser(translation.title), emojiMap),
   };
 
   return normalTranslation;

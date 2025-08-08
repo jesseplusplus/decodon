@@ -186,6 +186,7 @@ lad:
         create_domain_block: Kriya bloko de domeno
         create_email_domain_block: Kriya bloko de domeno de posta
         create_ip_block: Kriya regla de IP
+        create_relay: Kriya relevo
         create_unavailable_domain: Kriya domeno no desponivle
         create_user_role: Kriya rolo
         demote_user: Degrada utilizador
@@ -197,6 +198,7 @@ lad:
         destroy_email_domain_block: Efasa bloko de domeno de posta
         destroy_instance: Efasa domeno
         destroy_ip_block: Efasa regla de IP
+        destroy_relay: Efasa relevo
         destroy_status: Efasa publikasyon
         destroy_unavailable_domain: Efasa domeno no desponivle
         destroy_user_role: Efasa rolo
@@ -205,10 +207,12 @@ lad:
         disable_sign_in_token_auth_user: Inkapasita la autentifikasyon por token de posta elektronika para el utilizador
         disable_user: Inkapasita utilizador
         enable_custom_emoji: Kapasita emoji personalizados
+        enable_relay: Aktiva relevo
         enable_sign_in_token_auth_user: Kapasita la autentifikasyon por token de posta para el utilizador
         enable_user: Kapasita utilizador
         memorialize_account: Transforma en kuento komemorativo
         promote_user: Promove utilizador
+        publish_terms_of_service: Puvlika terminos de servisyo
         reject_appeal: Refuza apelasyon
         reject_user: Refuza utilizador
         remove_avatar_user: Efasa imaje de profil
@@ -228,6 +232,7 @@ lad:
         update_custom_emoji: Aktualiza emoji personalizado
         update_domain_block: Aktualiza bloko de domeno
         update_ip_block: Aktualiza regla de IP
+        update_report: Aktualiza raporto
         update_status: Aktualiza publikasyon
         update_user_role: Aktualiza rolo
       actions:
@@ -462,6 +467,23 @@ lad:
       new:
         title: Importa blokos de domeno
       no_file: Dinguna dosya tiene sido eskojida
+    fasp:
+      debug:
+        callbacks:
+          created_at: Kriyado en
+          delete: Efasa
+          ip: Adreso IP
+      providers:
+        active: Aktivo
+        delete: Efasa
+        finish_registration: Finaliza enrejistrasyon
+        name: Nombre
+        registrations:
+          confirm: Konfirma
+          reject: Refuza
+        save: Guadra
+        sign_in: Konektate
+        status: Estado
     follow_recommendations:
       description_html: "<strong>Las rekomendasyones de kuentos ayudan a los muevos utilizadores a topar presto kontenido enteresante</strong>. Kuando un utilizador no tiene enteraktuado kon otros lo sufisiente komo para djenerar rekomendasyones personalizadas de kuentos a las ke segir, en sus lugar se le rekomiendan estes kuentos. Se rekalkulan diariamente a partir de una mikstura de kuentos kon el mayor numero de enteraksyones rezientes i kon el mayor numero de suivantes lokales kon una lingua determinada."
       language: Para la lingua
@@ -527,6 +549,12 @@ lad:
         all: Todos
         limited: Limitado
         title: Moderasyon
+      moderation_notes:
+        create: Adjusta nota de moderasyon
+        created_msg: Nota de moderasyon de sirvidor kriyada kon sukseso!
+        description_html: Ve i desha notas a otros moderadores i a tu yo futuro
+        destroyed_msg: Nota de moderasyon de sirvidor efasada kon sukseso!
+        title: Notas de moderasyon
       private_comment: Komento privado
       public_comment: Komento publiko
       purge: Purga
@@ -733,11 +761,14 @@ lad:
       title: Rolos
     rules:
       add_new: Adjusta regla
+      add_translation: Adjusta traduksyon
       delete: Efasa
       description_html: Aunke la majorita afirma aver meldado i estar de akodro kon los terminos de servisyo, la djente normalmente no los melda asta dempues de ke surja algun problema. <strong>Az ke sea mas kolay ver las normas de tu sirvidor de un vistazo estipulándolas en una lista de puntos.</strong> Aprova ke kada norma sea corta i kolay, ama sin estar divididas en munchos puntos.
       edit: Edita regla
       empty: Dinguna regla del sirvidor tiene sido definida.
       title: Reglas del sirvidor
+      translation: Traduksyon
+      translations: Traduksyones
     settings:
       about:
         manage_rules: Administra reglas del sirvidor
@@ -765,7 +796,6 @@ lad:
         preamble: Ekspone kontenido enteresante a la superfisie es fundamental para inkorporar muevos utilizadores ke pueden no koneser a dinguno Mastodon. Kontrola komo fonksionan varias opsiones de diskuvrimiento en tu sirvidor.
         profile_directory: Katalogo de profiles
         public_timelines: Linyas de tiempo publikas
-        publish_discovered_servers: Publika sirvidores diskuviertos
         publish_statistics: Publika estatistikas
         title: Diskuvrimiento
         trends: Trendes
@@ -812,6 +842,7 @@ lad:
       batch:
         remove_from_report: Kita del raporto
         report: Raporto
+      contents: Kontenidos
       deleted: Efasado
       favourites: Favoritos
       history: Estoria de versiones
@@ -825,7 +856,6 @@ lad:
       original_status: Publikasyon orijinala
       reblogs: Repartajasyones
       status_changed: Publikasyon trokada
-      title: Publikasyones del kuento
       trending: Trendes
       visibility: Vizivilita
       with_media: Kon multimedia
@@ -902,6 +932,15 @@ lad:
       search: Bushka
       title: Etiketas
       updated_msg: Konfigurasyon de etiketas aktualizada kon sukseso
+    terms_of_service:
+      changelog: Ke troko
+      current: Aktual
+      generates:
+        action: Djenera
+      history: Istorya
+      live: En bivo
+      publish: Publika
+      title: Terminos de servisyo
     title: Administrasyon
     trends:
       allow: Permete
@@ -1098,7 +1137,6 @@ lad:
     migrate_account: Transferate a otro kuento
     migrate_account_html: Si keres readresar este kuento a otra distinta, puedes <a href="%{path}">konfigurarlo aki</a>.
     or_log_in_with: O konektate kon tu kuento kon
-    privacy_policy_agreement_html: Tengo meldado i acheto la <a href="%{privacy_policy_path}" target="_blank">politika de privasita</a>
     progress:
       confirm: Konfirma posta
       details: Tus detalyos
@@ -1123,7 +1161,6 @@ lad:
     set_new_password: Establese muevo kod
     setup:
       email_below_hint_html: Mira en tu kuti de spam o solisita de muevo. Si el adreso de posta elektronika ke aparese aki es yerrado, puedes trokarlo aki.
-      email_settings_hint_html: Klika el atadjiko ke te embimos para verifikar %{email}. Asperaremos aki.
       link_not_received: No risivites un atadijo?
       new_confirmation_instructions_sent: Resiviras un muevo mesaj de posta elektronika kon el atadjio de konfirmasyon en unos minutos!
       title: Reviza tu kuti de arivo
@@ -1132,7 +1169,7 @@ lad:
       title: Konektate kon %{domain}
     sign_up:
       manual_review: Las enrejistrasyones en %{domain} pasan por la revizyon manuala de muestros moderadores. Para ayudarmos a prosesar tu enrejistrasyon, eskrive un poko sovre ti i por ke keres un kuento en %{domain}.
-      preamble: Kon un kuento en este sirvidor de Mastodon, podras segir a kualkier otra persona en la red, endependientemente del sirvidor en el ke se tope.
+      preamble: Kon un kuento en este sirvidor de Mastodon, podras segir a kualkier otra persona en el fediverso, endependientemente del sirvidor en el ke se tope.
       title: Kriya kuento de Mastodon en %{domain}.
     status:
       account_status: Estado del kuento
@@ -1344,20 +1381,6 @@ lad:
       merge_long: Manten rejistros egzistentes i adjusta muevos
       overwrite: Sobreskrive
       overwrite_long: Mete muevos rejistros en vez de los aktuales
-    overwrite_preambles:
-      blocking_html: Estas a punto de <strong>substituyir tu lista de blokos</strong> por asta <strong>%{total_items} kuentos </strong> de <strong>%{filename}</strong>.
-      bookmarks_html: Estas a punto de <strong>substituyir tus markadores</strong> por asta <strong>%{total_items} publikasyones</strong> ke vinyeron de <strong>%{filename}</strong>.
-      domain_blocking_html: Estas a punto de <strong>substituyir tu lista de blokos de domeno</strong> por asta <strong>%{total_items} domenos </strong> de <strong>%{filename}</strong>.
-      following_html: Estas a punto de <strong>segir</strong> asta <strong>%{total_items} kuentos</strong> de <strong>%{filename}</strong> i <strong>deshar de segir todos los otros kuentos</strong>.
-      lists_html: Estas a punto de <strong>sustituyir tus listas</strong> con el kontenido de <strong>%{filename}</strong>. Asta <strong>%{total_items} kuentos</strong> seran adjustados a muevas listas.
-      muting_html: Estas a punto de <strong>substituyir tu lista de kuentos silensyados</strong> por asta <strong>%{total_items} kuentos </strong> de <strong>%{filename}</strong>.
-    preambles:
-      blocking_html: Estas a punto de <strong>blokar</strong> asta <strong>%{total_items} kuentos </strong> de <strong>%{filename}</strong>.
-      bookmarks_html: Estas a punto de adjustar asta <strong>%{total_items} publikasyones</strong> de <strong>%{filename}</strong> a tus <strong>markadores</strong>.
-      domain_blocking_html: Estas a punto de <strong>blokar</strong> asta <strong>%{total_items} domenos </strong> de <strong>%{filename}</strong>.
-      following_html: Estas a punto de <strong>segir</strong> asta <strong>%{total_items} kuentos </strong> de <strong>%{filename}</strong>.
-      lists_html: Estas a punto de adjustar <strong>%{total_items} kuentos</strong> dizde <strong>%{filename}</strong> a tus <strong>listas</strong>. Se kriyaran muevas listas si no ay listas para adjustarlas.
-      muting_html: Estas a punto de <strong>silensyar</strong> asta <strong>%{total_items} kuentos </strong> de <strong>%{filename}</strong>.
     preface: Puedes importar siertos datos, komo todas las personas a las kualas estas sigiendo o blokando en tu kuento en esta instansya, dizde dosyas eksportadas de otra instansya.
     recent_imports: Importasyones resyentes
     states:
@@ -1613,7 +1636,6 @@ lad:
   scheduled_statuses:
     over_daily_limit: Tienes superado el limito de %{limit} publikasyones programadas para akel diya
     over_total_limit: Tienes superado el limito de %{limit} publikasyones programadas
-    too_soon: La data programada deve estar en el avenir
   self_destruct:
     lead_html: Malorozamente, <strong>%{domain}</strong> va serrar permanentemente. Si teniyas un kuento ayi, ya no podras utilizarlo, ama ainda puedes solisitar una kopya de tus datos.
     title: Este sirvidor esta serrando
@@ -1720,6 +1742,8 @@ lad:
       limit: Ya tienes fiksado el numero maksimo de publikasyones
       ownership: La publikasyon de otra persona no puede fiksarse
       reblog: No se puede fixar una repartajasyon
+    quote_policies:
+      public: Todos
     title: '%{name}: "%{quote}"'
     visibilities:
       direct: Direkto
@@ -1771,6 +1795,8 @@ lad:
       too_late: Es demaziado tadre para apelar este amonestamiento
   tags:
     does_not_match_previous_name: no koensida kon el nombre anterior
+  terms_of_service:
+    title: Terminos de servisyo
   themes:
     contrast: Mastodon (alto kontraste)
     default: Mastodon (eskuro)
@@ -1830,6 +1856,8 @@ lad:
       further_actions_html: Si no fuites tu, te rekomendamos ke %{action} pishin i kapasites la autentifikasyon en dos pasos para mantener tu kuento siguro.
       subject: Tu kuento fue aksedido dizde un muevo adreso IP
       title: Una mueva koneksyon kon tu kuento
+    terms_of_service_changed:
+      title: Aktualizasyon emportante
     warning:
       appeal: Embia una apelasyon
       appeal_description: Si kreyes ke esto es un yerro, puedes embiar una apelasyon a la taifa de %{instance}.
@@ -1891,7 +1919,6 @@ lad:
       post_action: Eskrive
       post_step: Puedes introdusirte al mundo kon teksto, fotos, videos o anketas.
       post_title: Eskrive tu primera publikasyon
-      share_action: Partaja
       share_step: Informa a tus amigos komo toparte en Mastodon.
       share_title: Partaja tu profil de Mastodon
       sign_in_action: Konektate
