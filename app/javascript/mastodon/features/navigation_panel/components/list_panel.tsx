@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from 'mastodon/store';
 import { CollapsiblePanel } from './collapsible_panel';
 
 const messages = defineMessages({
-  lists: { id: 'navigation_bar.lists', defaultMessage: 'Lists' },
+  lists: { id: 'navigation_bar.lists', defaultMessage: 'Custom Feeds' },
   expand: {
     id: 'navigation_panel.expand_lists',
     defaultMessage: 'Expand list menu',
@@ -45,6 +45,7 @@ export const ListPanel: React.FC = () => {
       icon='list-ul'
       iconComponent={ListAltIcon}
       activeIconComponent={ListAltActiveIcon}
+      defaultExpanded
       title={intl.formatMessage(messages.lists)}
       collapseTitle={intl.formatMessage(messages.collapse)}
       expandTitle={intl.formatMessage(messages.expand)}

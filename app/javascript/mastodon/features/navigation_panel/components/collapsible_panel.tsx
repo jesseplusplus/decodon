@@ -17,6 +17,7 @@ export const CollapsiblePanel: React.FC<{
   iconComponent: IconProp;
   activeIconComponent?: IconProp;
   loading?: boolean;
+  defaultExpanded?: boolean;
 }> = ({
   children,
   to,
@@ -27,8 +28,9 @@ export const CollapsiblePanel: React.FC<{
   collapseTitle,
   expandTitle,
   loading,
+  defaultExpanded = false,
 }) => {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const accessibilityId = useId();
 
   const handleClick = useCallback(() => {
