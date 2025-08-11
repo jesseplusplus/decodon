@@ -14,11 +14,12 @@ import { ConfirmationModal } from './confirmation_modal';
 const messages = defineMessages({
   deleteListTitle: {
     id: 'confirmations.delete_list.title',
-    defaultMessage: 'Delete list?',
+    defaultMessage: 'Delete custom feed?',
   },
   deleteListMessage: {
     id: 'confirmations.delete_list.message',
-    defaultMessage: 'Are you sure you want to permanently delete this list?',
+    defaultMessage:
+      'Are you sure you want to permanently delete this custom feed?',
   },
   deleteListConfirm: {
     id: 'confirmations.delete_list.confirm',
