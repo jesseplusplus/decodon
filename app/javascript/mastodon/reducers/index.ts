@@ -8,9 +8,7 @@ import { accountsFamiliarFollowersReducer } from './accounts_familiar_followers'
 import { accountsMapReducer } from './accounts_map';
 import { alertsReducer } from './alerts';
 import announcements from './announcements';
-import circleAdder from './circle_adder';
-import circleEditor from './circle_editor';
-import circles from './circles';
+import { circlesReducer } from './circles';
 import { composeReducer } from './compose';
 import { contextsReducer } from './contexts';
 import conversations from './conversations';
@@ -72,9 +70,7 @@ const reducers = {
   custom_emojis,
   lists: listsReducer,
   followedTags: followedTagsReducer,
-  circles,
-  circleEditor,
-  circleAdder,
+  circles: circlesReducer,
   filters,
   conversations,
   suggestions: suggestionsReducer,

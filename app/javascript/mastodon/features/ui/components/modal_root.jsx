@@ -12,8 +12,6 @@ import {
   ReportModal,
   EmbedModal,
   ListAdder,
-  CircleEditor,
-  CircleAdder,
   CompareHistoryModal,
   FilterModal,
   InteractionModal,
@@ -39,6 +37,7 @@ import {
   ConfirmLogOutModal,
   ConfirmFollowToListModal,
   ConfirmMissingAltTextModal,
+  ConfirmDeleteCircleModal,
 } from './confirmation_modals';
 import { ImageModal } from './image_modal';
 import MediaModal from './media_modal';
@@ -54,6 +53,7 @@ export const MODAL_COMPONENTS = {
   'CONFIRM': () => Promise.resolve({ default: ConfirmationModal }),
   'CONFIRM_DELETE_STATUS': () => Promise.resolve({ default: ConfirmDeleteStatusModal }),
   'CONFIRM_DELETE_LIST': () => Promise.resolve({ default: ConfirmDeleteListModal }),
+  'CONFIRM_DELETE_CIRCLE': () => Promise.resolve({ default: ConfirmDeleteCircleModal }),
   'CONFIRM_REPLY': () => Promise.resolve({ default: ConfirmReplyModal }),
   'CONFIRM_EDIT_STATUS': () => Promise.resolve({ default: ConfirmEditStatusModal }),
   'CONFIRM_UNFOLLOW': () => Promise.resolve({ default: ConfirmUnfollowModal }),
@@ -69,8 +69,6 @@ export const MODAL_COMPONENTS = {
   'EMBED': EmbedModal,
   'FOCAL_POINT': () => Promise.resolve({ default: AltTextModal }),
   'LIST_ADDER': ListAdder,
-  'CIRCLE_EDITOR': CircleEditor,
-  'CIRCLE_ADDER': CircleAdder,
   'COMPARE_HISTORY': CompareHistoryModal,
   'FILTER': FilterModal,
   'SUBSCRIBED_LANGUAGES': SubscribedLanguagesModal,

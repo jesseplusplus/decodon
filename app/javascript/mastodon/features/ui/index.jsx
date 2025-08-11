@@ -64,6 +64,8 @@ import {
   Lists,
   ListEdit,
   ListMembers,
+  CircleEdit,
+  CircleMembers,
   Blocks,
   DomainBlocks,
   Mutes,
@@ -258,6 +260,9 @@ class SwitchingColumnsArea extends PureComponent {
             <WrappedRoute path='/followed_tags' component={FollowedTags} content={children} />
             <WrappedRoute path='/mutes' component={Mutes} content={children} />
             <WrappedRoute path='/lists' component={Lists} content={children} />
+            <WrappedRoute path='/circles/new' component={CircleEdit} content={children} />
+            <WrappedRoute path='/circles/:id/edit' component={CircleEdit} content={children} />
+            <WrappedRoute path='/circles/:id/members' component={CircleMembers} content={children} />
             <WrappedRoute path='/circles' component={Circles} content={children} />
 
             <Route component={BundleColumnError} />

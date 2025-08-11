@@ -154,14 +154,6 @@ export function Circles () {
   return import(/* webpackChunkName: "features/circles" */'../../circles');
 }
 
-export function CircleEditor () {
-  return import(/* webpackChunkName: "features/circle_editor" */'../../circle_editor');
-}
-
-export function CircleAdder () {
-  return import(/*webpackChunkName: "features/circle_adder" */'../../circle_adder');
-}
-
 export function Tesseract () {
   return import('tesseract.js');
 }
@@ -244,4 +236,12 @@ export function ListEdit () {
 
 export function ListMembers () {
   return import('../../lists/members');
+}
+
+export function CircleEdit () {
+  return import('../../circles/new');
+}
+
+export function CircleMembers () {
+  return import('../../circles/members');
 }
