@@ -17,9 +17,11 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     return reject_payload! if unsupported_object_type? || non_matching_uri_hosts?(@account.uri, object_uri) || tombstone_exists? || !related_to_local_activity?
 
     with_redis_lock("create:#{object_uri}") do
-      return if delete_arrived_first?(object_uri) || poll_vote?
+      Status.uncached do
+        return if delete_arrived_first?(object_uri) || poll_vote?
 
-      @status = find_existing_status
+        @status = find_existing_status
+      end
 
       if @status.nil?
         process_status
@@ -65,6 +67,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     resolve_unresolved_mentions(@status)
     fetch_replies(@status)
     fetch_conversation_statuses(@status)
+    fetch_and_verify_quote
     distribute
     forward_for_conversation
     forward_for_reply
@@ -208,11 +211,6 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
 
     @quote.status = status
     @quote.save
-
-    embedded_quote = safe_prefetched_embed(@account, @status_parser.quoted_object, @json['context'])
-    ActivityPub::VerifyQuoteService.new.call(@quote, fetchable_quoted_uri: @quote_uri, prefetched_quoted_object: embedded_quote, request_id: @options[:request_id])
-  rescue Mastodon::UnexpectedResponseError, *Mastodon::HTTP_CONNECTION_ERRORS
-    ActivityPub::RefetchAndVerifyQuoteWorker.perform_in(rand(30..600).seconds, @quote.id, @quote_uri, { 'request_id' => @options[:request_id] })
   end
 
   def process_tags
@@ -382,15 +380,26 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     Rails.logger.warn "Error fetching replies: #{e}"
   end
 
-  def conversation_from_uri(atom_uri)
+  def fetch_and_verify_quote
+    return if @quote.nil?
+
+    embedded_quote = safe_prefetched_embed(@account, @status_parser.quoted_object, @json['context'])
+    ActivityPub::VerifyQuoteService.new.call(@quote, fetchable_quoted_uri: @quote_uri, prefetched_quoted_object: embedded_quote, request_id: @options[:request_id], depth: @options[:depth])
+  rescue Mastodon::RecursionLimitExceededError, Mastodon::UnexpectedResponseError, *Mastodon::HTTP_CONNECTION_ERRORS
+    ActivityPub::RefetchAndVerifyQuoteWorker.perform_in(rand(30..600).seconds, @quote.id, @quote_uri, { 'request_id' => @options[:request_id] })
+  end
+
+  def conversation_from_uri(uri)
+    return nil if uri.nil?
+
     conversation = begin
-      if atom_uri.present? && OStatus::TagManager.instance.local_id?(atom_uri)
-        Conversation.find_by(id: OStatus::TagManager.instance.unique_tag_to_local_id(atom_uri, 'Conversation'))
-      elsif atom_uri.present? && @object['context'].present?
-        Conversation.find_by(uri: atom_uri)
-      elsif atom_uri.present?
+      if uri.present? && OStatus::TagManager.instance.local_id?(uri)
+        Conversation.find_by(id: OStatus::TagManager.instance.unique_tag_to_local_id(uri, 'Conversation'))
+      elsif uri.present? && @object['context'].present?
+        Conversation.find_by(uri: uri)
+      elsif uri.present?
         begin
-          Conversation.find_or_create_by!(uri: atom_uri)
+          Conversation.find_or_create_by!(uri: uri)
         rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
           retry
         end
@@ -399,17 +408,17 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
 
     return conversation if @object['context'].nil?
 
-    uri                  = value_or_id(@object['context'])
+    context_uri = value_or_id(@object['context'])
     context_conversation = ActivityPub::TagManager.instance.uri_to_resource(uri, Conversation)
-    conversation       ||= context_conversation
+    conversation ||= context_conversation
 
-    return conversation if (conversation.present? && (conversation.local? || conversation.uri == uri)) || !uri.start_with?('https://')
+    return conversation if (conversation.present? && (conversation.local? || conversation.uri == context_uri)) || !context_uri.start_with?('https://')
 
     conversation_json = begin
-      if @object['context'].is_a?(Hash) && !invalid_origin?(uri)
+      if @object['context'].is_a?(Hash) && !invalid_origin?(context_uri)
         @object['context']
       else
-        fetch_resource(uri, true)
+        fetch_resource(context_uri, true)
       end
     end
 
@@ -417,7 +426,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
 
     conversation = context_conversation if context_conversation.present?
     conversation ||= Conversation.new
-    conversation.uri = uri
+    conversation.uri = context_uri
     conversation.inbox_url = conversation_json['inbox']
     conversation.save! if conversation.changed?
     conversation
