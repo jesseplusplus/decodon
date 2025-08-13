@@ -1,3 +1,5 @@
+@use 'variables' as *;
+
 .app-holder > div.about-container {
   display: flex;
   flex-direction: column;

@@ -22,6 +22,7 @@ class Api::V1::Push::SubscriptionsController < Api::BaseController
         key_p256dh: subscription_params[:keys][:p256dh],
         key_auth: subscription_params[:keys][:auth],
         expo: subscription_params[:expo],
+        standard: subscription_params[:standard] || false,
         data: data_params,
         user_id: current_user.id,
         access_token_id: doorkeeper_token.id
@@ -56,12 +57,12 @@ class Api::V1::Push::SubscriptionsController < Api::BaseController
   end
 
   def subscription_params
-    params.require(:subscription).permit(:endpoint, :expo, keys: [:auth, :p256dh])
+    params.expect(subscription: [:endpoint, :expo, :standard, keys: [:auth, :p256dh]])
   end
 
   def data_params
     return {} if params[:data].blank?
 
-    params.require(:data).permit(:policy, alerts: Notification::TYPES)
+    params.expect(data: [:policy, alerts: Notification::TYPES])
   end
 end

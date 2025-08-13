@@ -207,6 +207,7 @@ sk:
         enable_user: Povoľ užívateľa
         memorialize_account: Zmena na „in memoriam“
         promote_user: Povýš užívateľskú rolu
+        publish_terms_of_service: Zverejni podmienky prevozu
         reject_appeal: Zamietni námietku
         reject_user: Zamietni užívateľa
         remove_avatar_user: Vymaž avatar
@@ -644,7 +645,6 @@ sk:
         follow_recommendations: Odporúčania pre nasledovanie
         profile_directory: Katalóg profilov
         public_timelines: Verejné časové osi
-        publish_discovered_servers: Zverejni objavené servery
         publish_statistics: Zverejni štatistiky
         title: Objavovanie
         trends: Trendy
@@ -693,7 +693,6 @@ sk:
       open: Otvor príspevok
       original_status: Pôvodný príspevok
       status_changed: Príspevok bol zmenený
-      title: Príspevky na účte
       trending: Populárne
       visibility: Viditeľnosť
       with_media: S médiami
@@ -1204,7 +1203,6 @@ sk:
   scheduled_statuses:
     over_daily_limit: Prekročil/a si denný limit %{limit} predplánovaných príspevkov
     over_total_limit: Prekročil/a si limit %{limit} predplánovaných príspevkov
-    too_soon: Dátum musí byť stanovený do budúcnosti
   sessions:
     activity: Najnovšia aktivita
     browser: Prehliadač
@@ -1375,7 +1373,6 @@ sk:
       follow_title: Prispôsob svoj domáci kanál
       follows_title: Koho nasledovať
       post_title: Vytvor svoj prvý príspevok
-      share_action: Zdieľaj
       sign_in_action: Prihlás sa
       subject: Vitaj na Mastodone
       title: Vitaj na palube, %{name}!

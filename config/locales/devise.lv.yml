@@ -6,7 +6,7 @@ lv:
       send_instructions: Pēc dažām minūtēm saņemsi e-pasta ziņojum ar norādēm, kā apstiprināt savu e-pasta adresi. Lūgums pārbaudīt mēstuļu mapi, ja nesaņēmi šo e-pasta ziņojumu.
       send_paranoid_instructions: Ja Tava e-pasta adrese ir mūsu datubāzē, pēc dažām minūtēm saņemsi e-pasta ziņojumu ar norādēm, kā apstiprināt savu e-pasta adresi. Lūgums pārbaudīt mēstuļu mapi, ja nesaņēmi šo e-pasta ziņojumu.
     failure:
-      already_authenticated: Tu jau esi pieteicies.
+      already_authenticated: Tu jau pieteicies.
       inactive: Tavs konts vēl nav aktivizēts.
       invalid: Nederīga %{authentication_keys} vai parole.
       last_attempt: Tev ir vēl viens mēģinājums, pirms tavs konts tiks bloķēts.
@@ -70,7 +70,7 @@ lv:
           subject: 'Mastodon: Jauna drošības atslēga'
           title: Tika pievienota jauna drošības atslēga
         deleted:
-          explanation: Tālāk norādītā drošības atslēga ir izdzēsta no tava konta
+          explanation: Tālāk norādītā drošības atslēga tika izdzēsta no Tava konta
           subject: 'Mastodon: Drošības atslēga izdzēsta'
           title: Viena no tavām drošības atslēgām tika izdzēsta
       webauthn_disabled:
@@ -94,11 +94,6 @@ lv:
       updated_not_active: Tava parole tika sekmīgi nomainīta.
     registrations:
       destroyed: Visu labu! Tavs konts ir sekmīgi atcelts. Mēs ceram Tevi drīz atkal redzēt.
-      signed_up: Laipni lūdzam! Reģistrēšanās bija sekmīga.
-      signed_up_but_inactive: Reģistrēšanās bija sekmīga. Tomēr mēs nevarējām Tevi pieteikt, jo Tavs konts vēl nav aktivēts.
-      signed_up_but_locked: Reģistrēšanās bija sekmīga. Tomēr mēs nevarējām Tevi pieteikt, jo Tavs konts ir slēgts.
-      signed_up_but_pending: Ziņojums ar apstiprinājuma saiti tika nosūtīts uz Tavu e-pasta adresi. Pēc tam, kad atvērsi saiti, mēs izskatīsim Tavu pieteikumu. Tev tiks paziņots, ja tas tiks apstiprināts.
-      signed_up_but_unconfirmed: Ziņojums ar apstiprinājuma saiti tika nosūtīts uz Tavu e-pasta adresi. Lūgums sekot saitei, lai aktivētu savu kontu. Lūgums pārbaudīt savu mēstuļu mapi, ja nesaņēmi šo e-pasta ziņojumu.
       update_needs_confirmation: Tu sekmīgi atjaunināji savu kontu, taču mums ir jāapliecina Tava jaunā e-pasta adrese. Lūgums pārbaudīt savu e-pastu un sekot apstiprinājuma saitei, lai apstiprinātu savu jauno e-pasta adresi. Lūgums pārbaudīt mēstuļu mapi, ja nesaņēmi šo e-pasta ziņojumu.
       updated: Tavs konts tika sekmīgi atjaunināts.
     sessions:

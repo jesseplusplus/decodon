@@ -4,31 +4,28 @@ import { PureComponent } from 'react';
 import { Helmet } from 'react-helmet';
 
 import Base from 'mastodon/components/modal_root';
+import { AltTextModal } from 'mastodon/features/alt_text_modal';
 import {
   MuteModal,
   BlockModal,
   DomainBlockModal,
   ReportModal,
   EmbedModal,
-  ListEditor,
   ListAdder,
-  CircleEditor,
-  CircleAdder,
   CompareHistoryModal,
   FilterModal,
   InteractionModal,
   SubscribedLanguagesModal,
   ClosedRegistrationsModal,
   IgnoreNotificationsModal,
+  AnnualReportModal,
 } from 'mastodon/features/ui/util/async-components';
-import { getScrollbarWidth } from 'mastodon/utils/scrollbar';
 
 import BundleContainer from '../containers/bundle_container';
 
-import ActionsModal from './actions_modal';
+import { ActionsModal } from './actions_modal';
 import AudioModal from './audio_modal';
 import { BoostModal } from './boost_modal';
-import BundleModalError from './bundle_modal_error';
 import {
   ConfirmationModal,
   ConfirmDeleteStatusModal,
@@ -38,11 +35,13 @@ import {
   ConfirmUnfollowModal,
   ConfirmClearNotificationsModal,
   ConfirmLogOutModal,
+  ConfirmFollowToListModal,
+  ConfirmMissingAltTextModal,
+  ConfirmDeleteCircleModal,
 } from './confirmation_modals';
-import FocalPointModal from './focal_point_modal';
-import ImageModal from './image_modal';
+import { ImageModal } from './image_modal';
 import MediaModal from './media_modal';
-import ModalLoading from './modal_loading';
+import { ModalPlaceholder } from './modal_placeholder';
 import VideoModal from './video_modal';
 
 export const MODAL_COMPONENTS = {
@@ -54,28 +53,29 @@ export const MODAL_COMPONENTS = {
   'CONFIRM': () => Promise.resolve({ default: ConfirmationModal }),
   'CONFIRM_DELETE_STATUS': () => Promise.resolve({ default: ConfirmDeleteStatusModal }),
   'CONFIRM_DELETE_LIST': () => Promise.resolve({ default: ConfirmDeleteListModal }),
+  'CONFIRM_DELETE_CIRCLE': () => Promise.resolve({ default: ConfirmDeleteCircleModal }),
   'CONFIRM_REPLY': () => Promise.resolve({ default: ConfirmReplyModal }),
   'CONFIRM_EDIT_STATUS': () => Promise.resolve({ default: ConfirmEditStatusModal }),
   'CONFIRM_UNFOLLOW': () => Promise.resolve({ default: ConfirmUnfollowModal }),
   'CONFIRM_CLEAR_NOTIFICATIONS': () => Promise.resolve({ default: ConfirmClearNotificationsModal }),
   'CONFIRM_LOG_OUT': () => Promise.resolve({ default: ConfirmLogOutModal }),
+  'CONFIRM_FOLLOW_TO_LIST': () => Promise.resolve({ default: ConfirmFollowToListModal }),
+  'CONFIRM_MISSING_ALT_TEXT': () => Promise.resolve({ default: ConfirmMissingAltTextModal }),
   'MUTE': MuteModal,
   'BLOCK': BlockModal,
   'DOMAIN_BLOCK': DomainBlockModal,
   'REPORT': ReportModal,
   'ACTIONS': () => Promise.resolve({ default: ActionsModal }),
   'EMBED': EmbedModal,
-  'LIST_EDITOR': ListEditor,
-  'FOCAL_POINT': () => Promise.resolve({ default: FocalPointModal }),
+  'FOCAL_POINT': () => Promise.resolve({ default: AltTextModal }),
   'LIST_ADDER': ListAdder,
-  'CIRCLE_EDITOR': CircleEditor,
-  'CIRCLE_ADDER': CircleAdder,
   'COMPARE_HISTORY': CompareHistoryModal,
   'FILTER': FilterModal,
   'SUBSCRIBED_LANGUAGES': SubscribedLanguagesModal,
   'INTERACTION': InteractionModal,
   'CLOSED_REGISTRATIONS': ClosedRegistrationsModal,
   'IGNORE_NOTIFICATIONS': IgnoreNotificationsModal,
+  'ANNUAL_REPORT': AnnualReportModal,
 };
 
 export default class ModalRoot extends PureComponent {
@@ -91,32 +91,20 @@ export default class ModalRoot extends PureComponent {
     backgroundColor: null,
   };
 
-  getSnapshotBeforeUpdate () {
-    return { visible: !!this.props.type };
-  }
-
-  componentDidUpdate (prevProps, prevState, { visible }) {
-    if (visible) {
-      document.body.classList.add('with-modals--active');
-      document.documentElement.style.marginRight = `${getScrollbarWidth()}px`;
-    } else {
-      document.body.classList.remove('with-modals--active');
-      document.documentElement.style.marginRight = '0';
-    }
-  }
-
   setBackgroundColor = color => {
     this.setState({ backgroundColor: color });
   };
 
-  renderLoading = modalId => () => {
-    return ['MEDIA', 'VIDEO', 'BOOST', 'CONFIRM', 'ACTIONS'].indexOf(modalId) === -1 ? <ModalLoading /> : null;
+  renderLoading = () => {
+    const { onClose } = this.props;
+
+    return <ModalPlaceholder loading onClose={onClose} />;
   };
 
   renderError = (props) => {
     const { onClose } = this.props;
 
-    return <BundleModalError {...props} onClose={onClose} />;
+    return <ModalPlaceholder {...props} onClose={onClose} />;
   };
 
   handleClose = (ignoreFocus = false) => {
@@ -138,10 +126,9 @@ export default class ModalRoot extends PureComponent {
       <Base backgroundColor={backgroundColor} onClose={this.handleClose} ignoreFocus={ignoreFocus}>
         {visible && (
           <>
-            <BundleContainer fetchComponent={MODAL_COMPONENTS[type]} loading={this.renderLoading(type)} error={this.renderError} renderDelay={200}>
+            <BundleContainer fetchComponent={MODAL_COMPONENTS[type]} loading={this.renderLoading} error={this.renderError} renderDelay={200}>
               {(SpecificComponent) => {
-                const ref = typeof SpecificComponent !== 'function' ? this.setModalRef : undefined;
-                return <SpecificComponent {...props} onChangeBackgroundColor={this.setBackgroundColor} onClose={this.handleClose} ref={ref} />;
+                return <SpecificComponent {...props} onChangeBackgroundColor={this.setBackgroundColor} onClose={this.handleClose} ref={this.setModalRef} />;
               }}
             </BundleContainer>
 

@@ -17,10 +17,6 @@ RSpec.describe List do
         Fabricate(:list, account: account)
       end
 
-      after do
-        stub_const 'List::PER_ACCOUNT_LIMIT', 50
-      end
-
       context 'when creating a new list' do
         it { is_expected.to_not allow_value(account).for(:account).against(:base).with_message(I18n.t('lists.errors.limit')) }
       end

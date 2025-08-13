@@ -132,7 +132,7 @@ en:
         filters: Filters
         follow: Follows, Mutes and Blocks
         follows: Follows
-        lists: Lists
+        lists: Custom Feeds
         media: Media attachments
         mutes: Mutes
         notifications: Notifications

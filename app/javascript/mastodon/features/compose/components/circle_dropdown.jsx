@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 
 import MotionPhotosOnIcon from '@/material-icons/400-24px/motion_photos_on.svg?react';
-import IconButton from 'mastodon/components/icon_button';
+import { IconButton } from 'mastodon/components/icon_button';
 
 const messages = defineMessages({
   circle_unselect: { id: 'circle.unselect', defaultMessage: '(Select circle)' },

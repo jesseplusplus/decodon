@@ -187,6 +187,7 @@ io:
         create_domain_block: Kreez domenobstrukto
         create_email_domain_block: Krear retpostodomenblokuso
         create_ip_block: Kreez IP-regulo
+        create_relay: Krear relayo
         create_unavailable_domain: Kreez nedisponebla domeno
         create_user_role: Kreez rolo
         demote_user: Despromocez uzanto
@@ -198,18 +199,22 @@ io:
         destroy_email_domain_block: Forigar retpostodomenblokuso
         destroy_instance: Efacez domeno
         destroy_ip_block: Efacez IP-regulo
+        destroy_relay: Forigar relayo
         destroy_status: Efacez posto
         destroy_unavailable_domain: Efacez nedisponebla domeno
         destroy_user_role: Destruktez rolo
         disable_2fa_user: Desebligar 2FA
         disable_custom_emoji: Desebligar personesigita emocimajo
+        disable_relay: Desebligar relayo
         disable_sign_in_token_auth_user: Desebligar retpostofichyurizo por uzanto
         disable_user: Desaktivigar uzanto
         enable_custom_emoji: Ebligar personesigita emocimajo
+        enable_relay: Ebligar relayo
         enable_sign_in_token_auth_user: Ebligar retpostofichyurizo por uzanto
         enable_user: Aktivigez uzanto
         memorialize_account: Memorializez konto
         promote_user: Promocez uzanto
+        publish_terms_of_service: Publikigar servtermini
         reject_appeal: Refuzez apelo
         reject_user: Refuzez uzanto
         remove_avatar_user: Efacez profilimajo
@@ -247,6 +252,7 @@ io:
         create_domain_block_html: "%{name} obstruktis domeno %{target}"
         create_email_domain_block_html: "%{name} blokusis retpostodomeno %{target}"
         create_ip_block_html: "%{name} kreis regulo por IP %{target}"
+        create_relay_html: "%{name} kreis relayo %{target}"
         create_unavailable_domain_html: "%{name} cesis sendo a domeno %{target}"
         create_user_role_html: "%{name} kreis rolo di %{target}"
         demote_user_html: "%{name} despromocis uzanto %{target}"
@@ -258,18 +264,22 @@ io:
         destroy_email_domain_block_html: "%{name} desblokusis retpostodomeno %{target}"
         destroy_instance_html: "%{name} efacis domeno %{target}"
         destroy_ip_block_html: "%{name} efacis regulo por IP %{target}"
+        destroy_relay_html: "%{name} forigis la relayo %{target}"
         destroy_status_html: "%{name} efacis posto da %{target}"
         destroy_unavailable_domain_html: "%{name} durigis sendo a domeno %{target}"
         destroy_user_role_html: "%{name} efacis rolo di %{target}"
         disable_2fa_user_html: "%{name} desebligis dufaktora bezono por uzanto %{target}"
         disable_custom_emoji_html: "%{name} desebligis emocimajo %{target}"
+        disable_relay_html: "%{name} desebligis la relayo %{target}"
         disable_sign_in_token_auth_user_html: "%{name} desebligis retpostofichyurizo por %{target}"
         disable_user_html: "%{name} desebligis eniro por uzanto %{target}"
         enable_custom_emoji_html: "%{name} ebligis emocimajo %{target}"
+        enable_relay_html: "%{name} ebligis la relayo %{target}"
         enable_sign_in_token_auth_user_html: "%{name} ebligis retpostofishyurizo por %{target}"
         enable_user_html: "%{name} ebligis eniro por uzanto %{target}"
         memorialize_account_html: "%{name} kauzigis konto di %{target} divenar memorialpagino"
         promote_user_html: "%{name} promocis uzanto %{target}"
+        publish_terms_of_service_html: "%{name} publikigis tildatigi ad la servtermini"
         reject_appeal_html: "%{name} refuzis jerdecidapelo de %{target}"
         reject_user_html: "%{name} refuzis registro de %{target}"
         remove_avatar_user_html: "%{name} efacis profilimajo de %{target}"
@@ -773,7 +783,6 @@ io:
         preamble: Montrar interesanta kontenajo esas importanta ye voligar nova uzanti quo forsan ne savas irgu. Dominacez quale ca deskovrotraiti funcionar en ca servilo.
         profile_directory: Profiluyo
         public_timelines: Publika tempolinei
-        publish_discovered_servers: Publikar deskovrita servili
         publish_statistics: Publikar statistiki
         title: Deskovro
         trends: Populari
@@ -818,8 +827,10 @@ io:
       back_to_account: Retrovenez a kontopagino
       back_to_report: Retrovenez a raportpagino
       batch:
+        add_to_report: 'Adjuntar ad raporto #%{id}'
         remove_from_report: Efacez de raporto
         report: Raportizez
+      contents: Enhavaji
       deleted: Efacesis
       favourites: Favoriziti
       history: Historio di versioni
@@ -828,13 +839,17 @@ io:
       media:
         title: Audvidaji
       metadata: Metadatumi
+      no_history: Ca afisho ne redaktesis
       no_status_selected: Nula posti chanjesis pro ke nulo selektesis
       open: Apertez posto
       original_status: Originala posto
       reblogs: Dissemi
+      replied_to_html: Respondis ad %{acct_link}
       status_changed: Posto chanjita
-      title: Kontoposti
+      status_title: Afisho da %{name}
+      title: Kontoafishi - @%{name}
       trending: Populara
+      view_publicly: Vidar publike
       visibility: Videbleso
       with_media: Kun audvidaji
     strikes:
@@ -909,6 +924,33 @@ io:
       search: Serchar
       title: Gretvorti
       updated_msg: Gretvortpreferaji tildatigesis sucese
+    terms_of_service:
+      back: Retroirar ad servtermini
+      changelog: Quo chanjesis
+      create: Uzar vua sua ajo
+      current: Nuntempa
+      draft: Skribureto
+      generate: Uzar shablono
+      generates:
+        action: Igar
+        chance_to_review_html: "<strong>Igita servtermini ne publikigos automate.</strong> Plenigez la necesa detali por daurar."
+      history: Historio
+      live: Nuna
+      no_history: Ne havas rekordita chanji di servtermini ankore.
+      no_terms_of_service_html: Vu nune ne havas irga fixita servtermini.
+      notified_on_html: Uzanti savigesis ye %{date}
+      notify_users: Savigar uzanti
+      preview:
+        explanation_html: La retposto sendesos ad <strong>%{display_count}uzanti</strong> qua registris ante %{date}.
+        send_preview: Sendar prevido ad %{email}
+        send_to_all:
+          one: Sendar %{display_count} retposto
+          other: Sendar %{display_count} retposti
+        title: Previdar servterminsavigo
+      publish: Publikigar
+      published_on_html: Publikigita ye %{date}
+      save_draft: Konservar skiso
+      title: Servtermini
     title: Administro
     trends:
       allow: Permisez
@@ -1114,7 +1156,6 @@ io:
     migrate_account: Transferez a diferanta konto
     migrate_account_html: Se vu volas ridirektar ca konto a diferanto, vu povas <a href="%{path}">ajustar hike</a>.
     or_log_in_with: O eniras per
-    privacy_policy_agreement_html: Me lektis e konsentis <a href="%{privacy_policy_path}" target="_blank">privatesguidilo</a>
     progress:
       confirm: Konfirmar retpostoadreso
       details: Vua detali
@@ -1139,7 +1180,7 @@ io:
     set_new_password: Selektar nova pasvorto
     setup:
       email_below_hint_html: Kontrolez vua spamdosieruyo, o demandez altra ligilo.
-      email_settings_hint_html: Uzez la ligilo quan ni sendis a vu por verifikar %{email}. Ni vartos hike.
+      email_settings_hint_html: Klikez la ligilo quan ni sendis ad %{email} por komencar uzar Mastodon.
       link_not_received: Ka vu ne recevis ligilo?
       new_confirmation_instructions_sent: Vu recevos nova retposto kun la konfirmligilo pos kelka minuti!
       title: Kontrolez vua retposti
@@ -1148,7 +1189,7 @@ io:
       title: Enirez a %{domain}
     sign_up:
       manual_review: Registragi che %{domain} es revuata da nia personaro. Por helpar ni traktar vua aplikajo, skribez kelko pri vu e pro quo vu volas konto che %{domain}.
-      preamble: Per konto en ca servilo di Mastodon, on povas sequar irga persono en ca reto, ne ye ube ona konto hostagisas.
+      preamble: Per konto en ca servilo di Mastodon, on povas sequar irga persono en ca fediverso, ne ye ube ona konto gastigesis.
       title: Ni komencigez vu en %{domain}.
     status:
       account_status: Kontostando
@@ -1160,6 +1201,8 @@ io:
       view_strikes: Videz antea streki kontre vua konto
     too_fast: Formulario sendesis tro rapide, probez itere.
     use_security_key: Uzes sekuresklefo
+    user_agreement_html: Me lektas e asentas <a href="%{terms_of_service_path}" target="_blank">servtermini</a> e <a href="%{privacy_policy_path}" target="_blank">privatesguidilo</a>
+    user_privacy_agreement_html: Me lektas e konsentas <a href="%{privacy_policy_path}" target="_blank">privatesguidilo</a>
   author_attribution:
     example_title: Exemplotexto
     hint_html: Ka vu skribas novaji o blogartikli ne en Mastodon?
@@ -1359,20 +1402,6 @@ io:
       merge_long: Konservar existanta rekordi e adjuntar novi
       overwrite: Remplasez
       overwrite_long: Remplasez nuna rekordi per novi
-    overwrite_preambles:
-      blocking_html: Vu <strong>substitucos vua blokusolisto</strong> per til <strong>%{total_items} konti</strong> de <strong>%{filename}</strong>.
-      bookmarks_html: Vu <strong>substitucos vua libromarki</strong> per til <strong>%{total_items} posti</strong> de <strong>%{filename}</strong>.
-      domain_blocking_html: Vu <strong>substitucos vua domenoblokusolisto</strong> per til <strong>%{total_items} domeni</strong> de <strong>%{filename}</strong>.
-      following_html: Vu <strong>sequos</strong> til <strong>%{total_items} konti</strong> de <strong>%{filename}</strong> e <strong>haltar sequar irga altra konto</strong>.
-      lists_html: Vu <strong>substitucos vua listi</strong> kun la kontenaji di <strong>%{filename}</strong>. Til <strong>%{total_items} konti</strong> adjuntesos a nova listi.
-      muting_html: Vu <strong>substitucos vua listo di konti silencigita</strong> per til <strong>%{total_items} konti</strong> de <strong>%{filename}</strong>.
-    preambles:
-      blocking_html: Vu <strong>blokusos</strong> til <strong>%{total_items} konti</strong> de <strong>%{filename}</strong>.
-      bookmarks_html: Vu adjuntos <strong>%{total_items} posti</strong> de <strong>%{filename}</strong> a vua <strong>libromarki</strong>.
-      domain_blocking_html: Vu <strong>blokusos</strong> til <strong>%{total_items} domeni</strong> de <strong>%{filename}</strong>.
-      following_html: Vu <strong>sequos</strong> til <strong>%{total_items} konti</strong> de <strong>%{filename}</strong>.
-      lists_html: Vu adjuntos til <strong>%{total_items} konti</strong> de <strong>%{filename}</strong> a vua <strong>listi</strong>. Nova listi kreesos se ne existas listo a quo adjuntar.
-      muting_html: Vu <strong>silencigos</strong> til <strong>%{total_items}</strong> konti en <strong>%{filename}</strong>.
     preface: Tu povas importacar kelka datumi, tal quala listi de omna homi quin tu sequas o blokusas, a tua konto di ca instaluro, per dosiero exportacita de altra instaluro.
     recent_imports: Importacaji recenta
     states:
@@ -1613,7 +1642,6 @@ io:
   scheduled_statuses:
     over_daily_limit: Vu ecesas limito quale esas %{limit} projetita posti por hodio
     over_total_limit: Vu ecesas limito quale esas %{limit} projetita posti
-    too_soon: Projetita dato mustas esar en futuro
   self_destruct:
     lead_html: Desfortunoze, <strong>%{domain}</strong> balde klozos. Se vu havis konto ibe, vu ne plus povas uzar it, ma vu ankore povas demandar exportacajo de vua datumi.
     title: Ca servilo balde klozos
