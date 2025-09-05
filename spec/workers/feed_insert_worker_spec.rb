@@ -10,6 +10,16 @@ RSpec.describe FeedInsertWorker do
     let(:status) { Fabricate(:status) }
     let(:list) { Fabricate(:list) }
 
+    context 'with decodon non-mention reply notifications' do
+      it 'notifies when the status is a reply to the follower' do
+        allow(LocalNotificationWorker).to receive(:perform_async)
+        reply = Fabricate(:status, in_reply_to_id: status.id, in_reply_to_account: status.account)
+        subject.perform(reply.id, status.account.id)
+
+        expect(LocalNotificationWorker).to have_received(:perform_async).with(status.account.id, reply.id, 'Status', 'status')
+      end
+    end
+
     context 'when there are no records' do
       it 'skips push with missing status' do
         instance = instance_double(FeedManager, push_to_home: nil)
