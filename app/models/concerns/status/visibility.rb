@@ -10,7 +10,7 @@ module Status::Visibility
          validate: true
 
     scope :distributable_visibility, -> { where(visibility: %i(public unlisted)) }
-    scope :list_eligible_visibility, -> { where(visibility: %i(public unlisted private)) }
+    scope :list_eligible_visibility, -> { where(visibility: %i(public unlisted private limited)) }
     scope :not_direct_visibility, -> { where.not(visibility: :direct) }
 
     validates :visibility, exclusion: { in: %w(direct limited) }, if: :reblog?
