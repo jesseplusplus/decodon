@@ -26,7 +26,7 @@ class ActivityPub::ContextsController < ActivityPub::BaseController
   end
 
   def set_conversation
-    @conversation = Conversation.local.where(parent_status_id: params[:id]).first
+    @conversation = Conversation.lookup_by_context_id(params[:id])
   end
 
   def set_items
@@ -35,9 +35,9 @@ class ActivityPub::ContextsController < ActivityPub::BaseController
 
   def context_presenter
     first_page = ActivityPub::CollectionPresenter.new(
-      id: items_context_url(@conversation.parent_status, page_params),
+      id: items_context_url(@conversation.context, page_params),
       type: :unordered,
-      part_of: items_context_url(@conversation.parent_status),
+      part_of: items_context_url(@conversation.context),
       next: next_page,
       items: @items.map { |status| status.local? ? ActivityPub::TagManager.instance.uri_for(status) : status.uri }
     )
@@ -49,9 +49,9 @@ class ActivityPub::ContextsController < ActivityPub::BaseController
 
   def items_collection_presenter
     page = ActivityPub::CollectionPresenter.new(
-      id: items_context_url(@conversation.parent_status, page_params),
+      id: items_context_url(@conversation.context, page_params),
       type: :unordered,
-      part_of: items_context_url(@conversation.parent_status),
+      part_of: items_context_url(@conversation.context),
       next: next_page,
       items: @items.map { |status| status.local? ? ActivityPub::TagManager.instance.uri_for(status) : status.uri }
     )
@@ -59,7 +59,7 @@ class ActivityPub::ContextsController < ActivityPub::BaseController
     return page if page_requested?
 
     ActivityPub::CollectionPresenter.new(
-      id: items_context_url(@conversation.parent_status),
+      id: items_context_url(@conversation.context),
       type: :unordered,
       first: page
     )
@@ -72,7 +72,7 @@ class ActivityPub::ContextsController < ActivityPub::BaseController
   def next_page
     return nil if @items.size < DESCENDANTS_LIMIT
 
-    items_context_url(@conversation.parent_status, page: true, min_id: @items.last.id)
+    items_context_url(@conversation.context, page: true, min_id: @items.last.id)
   end
 
   def page_params

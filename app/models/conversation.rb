@@ -24,12 +24,24 @@ class Conversation < ApplicationRecord
 
   before_validation :set_parent_account, on: :create
 
+  def self.lookup_by_context_id(id)
+    local.where(parent_status_id: id).first
+  end
+
   def local?
     uri.nil?
   end
 
   def object_type
     :conversation
+  end
+
+  def context
+    parent_status
+  end
+
+  def context_id
+    parent_status_id
   end
 
   private
