@@ -13,6 +13,8 @@ RSpec.describe ActivityPub::NoteSerializer do
   let!(:reply_by_other_first) { Fabricate(:status, account: other, thread: parent, visibility: :public) }
   let!(:reply_by_account_third) { Fabricate(:status, account: account, thread: parent, visibility: :public) }
   let!(:reply_by_account_visibility_direct) { Fabricate(:status, account: account, thread: parent, visibility: :direct) }
+  let!(:conversation_without_parent_status) { Fabricate(:conversation, parent_status: nil) }
+  let!(:reply_to_conversation_without_parent_status) { Fabricate(:status, conversation_id: conversation_without_parent_status.id) }
 
   it 'has the expected shape and replies collection' do
     expect(subject).to include({
@@ -25,6 +27,10 @@ RSpec.describe ActivityPub::NoteSerializer do
       'replies' => replies_collection_values,
       'context' => ActivityPub::TagManager.instance.uri_for(parent.conversation),
     })
+  end
+
+  it 'has an empty context if the note belongs to a conversation with no parent status' do
+    expect(serialized_record_json(reply_to_conversation_without_parent_status, described_class, adapter: ActivityPub::Adapter)).to include('context' => nil)
   end
 
   def replies_collection_values

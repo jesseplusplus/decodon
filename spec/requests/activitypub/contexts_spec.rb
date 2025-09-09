@@ -3,12 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe 'ActivityPub Contexts' do
-  let(:conversation) { Fabricate(:conversation) }
+  let!(:status) { Fabricate(:status) }
+  let(:conversation) { status.conversation }
 
   describe 'GET #show' do
-    subject { get context_path(id: conversation.id), headers: nil }
+    subject { get context_path(id: conversation.parent_status_id), headers: nil }
 
-    let!(:status) { Fabricate(:status, conversation: conversation) }
     let!(:unrelated_status) { Fabricate(:status) }
 
     it 'returns http success and correct media type and correct items' do
@@ -63,11 +63,11 @@ RSpec.describe 'ActivityPub Contexts' do
   end
 
   describe 'GET #items' do
-    subject { get items_context_path(id: conversation.id, page: 0, min_id: nil), headers: nil }
+    subject { get items_context_path(id: conversation.parent_status_id, page: 0, min_id: nil), headers: nil }
 
     context 'with few statuses' do
       before do
-        3.times do
+        2.times do
           Fabricate(:status, conversation: conversation)
         end
       end
@@ -108,13 +108,13 @@ RSpec.describe 'ActivityPub Contexts' do
 
     context 'with page requested' do
       before do
-        (ActivityPub::ContextsController::DESCENDANTS_LIMIT + 1).times do |_i|
-          Fabricate(:status, conversation: conversation)
+        ActivityPub::ContextsController::DESCENDANTS_LIMIT.times do |_i|
+          Fabricate(:status, conversation_id: conversation.id)
         end
       end
 
       it 'returns the correct items' do
-        get items_context_path(id: conversation.id, page: 0, min_id: nil), headers: nil
+        get items_context_path(id: conversation.parent_status_id, page: 0, min_id: nil), headers: nil
         next_page = response.parsed_body['first']['next']
         get next_page, headers: nil
 
