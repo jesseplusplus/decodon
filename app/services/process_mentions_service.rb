@@ -77,10 +77,16 @@ class ProcessMentionsService < BaseService
       # need to send our reply to the remote author's inbox for distribution
 
       @status.thread.mentions.includes(:account).find_each do |mention|
-        @status.mentions.create(silent: true, account: mention.account) unless @status.account_id == mention.account_id && mentioned_account_ids.include?(mention.account.id)
+        next if @status.account_id == mention.account_id && mentioned_account_ids.include?(mention.account.id)
+
+        new_mention = @status.mentions.new(silent: true, account: mention.account)
+        @current_mentions << new_mention
       end
 
-      @status.mentions.create(silent: true, account: status.thread.account) unless @status.account_id == @status.thread.account_id && mentioned_account_ids.include?(@status.thread.account.id)
+      if @status.account_id != @status.thread.account_id && !mentioned_account_ids.include?(@status.thread.account.id)
+        new_mention = @status.mentions.new(silent: true, account: @status.thread.account)
+        @current_mentions << new_mention
+      end
     end
 
     @status.save! if @save_records
