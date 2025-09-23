@@ -69,9 +69,7 @@ class ProcessMentionsService < BaseService
     mentioned_account_ids = @current_mentions.pluck(:account_id)
 
     if @circle.present?
-      @circle.accounts.find_each do |target_account|
-        @status.mentions.find_or_create_by(silent: true, account: target_account) unless mentioned_account_ids.include?(target_account.id)
-      end
+      add_circle_mentions!(mentioned_account_ids)
     elsif @status.limited_visibility? && @status.thread&.limited_visibility?
       # If we are replying to a local status, then we'll have the complete
       # audience copied here, both local and remote. If we are replying
@@ -86,6 +84,17 @@ class ProcessMentionsService < BaseService
     end
 
     @status.save! if @save_records
+  end
+
+  def add_circle_mentions!(mentioned_account_ids)
+    @circle.accounts.find_each do |target_account|
+      next if mentioned_account_ids.include?(target_account.id)
+
+      mention = @previous_mentions.find { |x| x.account_id == target_account.id }
+      mention ||= @status.mentions.new(account: target_account)
+      mention.silent = true
+      @current_mentions << mention
+    end
   end
 
   def assign_mentions!
