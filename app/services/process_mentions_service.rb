@@ -69,9 +69,7 @@ class ProcessMentionsService < BaseService
     mentioned_account_ids = @current_mentions.pluck(:account_id)
 
     if @circle.present?
-      @circle.accounts.find_each do |target_account|
-        @status.mentions.find_or_create_by(silent: true, account: target_account) unless mentioned_account_ids.include?(target_account.id)
-      end
+      add_circle_mentions!(mentioned_account_ids)
     elsif @status.limited_visibility? && @status.thread&.limited_visibility?
       # If we are replying to a local status, then we'll have the complete
       # audience copied here, both local and remote. If we are replying
@@ -79,13 +77,30 @@ class ProcessMentionsService < BaseService
       # need to send our reply to the remote author's inbox for distribution
 
       @status.thread.mentions.includes(:account).find_each do |mention|
-        @status.mentions.create(silent: true, account: mention.account) unless @status.account_id == mention.account_id && mentioned_account_ids.include?(mention.account.id)
+        next if @status.account_id == mention.account_id && mentioned_account_ids.include?(mention.account.id)
+
+        new_mention = @status.mentions.new(silent: true, account: mention.account)
+        @current_mentions << new_mention
       end
 
-      @status.mentions.create(silent: true, account: status.thread.account) unless @status.account_id == @status.thread.account_id && mentioned_account_ids.include?(@status.thread.account.id)
+      if @status.account_id != @status.thread.account_id && !mentioned_account_ids.include?(@status.thread.account.id)
+        new_mention = @status.mentions.new(silent: true, account: @status.thread.account)
+        @current_mentions << new_mention
+      end
     end
 
     @status.save! if @save_records
+  end
+
+  def add_circle_mentions!(mentioned_account_ids)
+    @circle.accounts.find_each do |target_account|
+      next if mentioned_account_ids.include?(target_account.id)
+
+      mention = @previous_mentions.find { |x| x.account_id == target_account.id }
+      mention ||= @status.mentions.new(account: target_account)
+      mention.silent = true
+      @current_mentions << mention
+    end
   end
 
   def assign_mentions!
