@@ -33,7 +33,6 @@ module Subscription
           owner: sub.user_id == @user.id,
           provider: sub.is_a?(StripeSubscription) ? 'Stripe' : sub.provider,
           status: sub.status,
-          expires_at: sub.expires_at,
         }
       end
 
