@@ -10,5 +10,6 @@ Subscription::Engine.routes.draw do
 
   namespace :api do
     resources :invites, only: [:index]
+    get 'subscription_invites/:revenuecat_customer_id', to: 'revenuecat_invites#show'
   end
 end
