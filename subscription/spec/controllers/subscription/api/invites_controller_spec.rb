@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Subscription::Api::InvitesController do
+RSpec.describe Subscription::Api::InvitesController do
   routes { Subscription::Engine.routes }
 
   let(:user) { Fabricate(:user, account: Fabricate(:account)) }
