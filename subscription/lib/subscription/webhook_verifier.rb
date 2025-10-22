@@ -2,45 +2,31 @@
 
 module Subscription
   class WebhookVerifier
-    class InvalidSignature < StandardError; end
+    class InvalidSecret < StandardError; end
 
-    def self.verify_revenuecat!(request_body, authorization_header)
-      return true if Subscription.revenuecat_webhook_secret.blank?
+    def self.verify_revenuecat!(_request_body, authorization_header)
+      raise InvalidSecret, 'Missing secret' if Subscription.revenuecat_webhook_secret.blank?
 
-      signature = extract_signature(authorization_header)
-      raise InvalidSignature, 'Missing signature' if signature.blank?
+      secret = extract_secret(authorization_header)
+      raise InvalidSecret, 'Missing secret' if secret.blank?
 
-      expected_signature = compute_signature(request_body)
+      match = secure_compare(secret, Subscription.revenuecat_webhook_secret)
+      raise InvalidSecret, 'Secret does not match' unless match
 
-      raise InvalidSignature, 'Signature does not match' unless secure_compare(signature, expected_signature)
-
-      true
+      match
     end
 
-    def self.extract_signature(authorization_header)
+    def self.extract_secret(authorization_header)
       return nil if authorization_header.blank?
 
       # RevenueCat sends: "Bearer <signature>"
       authorization_header.sub(/^Bearer /, '')
     end
 
-    def self.compute_signature(body)
-      OpenSSL::HMAC.hexdigest(
-        OpenSSL::Digest.new('sha256'),
-        Subscription.revenuecat_webhook_secret,
-        body
-      )
-    end
+    def self.secure_compare(secret, expected_secret)
+      return false if secret.blank? || expected_secret.blank? || secret.bytesize != expected_secret.bytesize
 
-    def self.secure_compare(signature, expected_signature)
-      return false if signature.blank? || expected_signature.blank? || signature.bytesize != expected_signature.bytesize
-
-      signature_bytes = signature.bytes.to_a
-      expected_signature_bytes = expected_signature.bytes.to_a
-
-      signature_bytes.each_with_index.all? do |byte, index|
-        byte == expected_signature_bytes[index]
-      end
+      secret == expected_secret
     end
   end
 end
