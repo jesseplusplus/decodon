@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   root 'home#index'
 
   mount LetterOpenerWeb::Engine, at: 'letter_opener' if Rails.env.development?
+  mount Subscription::Engine, at: '/subscription', as: :subscription
 
   get 'health', to: 'health#show'
 
