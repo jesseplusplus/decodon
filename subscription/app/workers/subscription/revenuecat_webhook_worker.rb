@@ -84,90 +84,60 @@ module Subscription
 
     def handle_renewal(event)
       data = extract_subscription_data(event)
-      subscription = find_subscription(data[:subscription_id])
+      subscription = find_or_create_subscription(data)
 
-      if subscription.present?
-        subscription.update!(
-          expires_at: data[:expires_at],
-          status: data[:status],
-          trial_ends_at: data[:trial_ends_at]
-        )
-      else
-        user = User.find_by(id: data[:app_user_id])
-
-        RevenuecatSubscription.create!(
-          revenuecat_customer_id: data[:revenuecat_customer_id],
-          user_id: user&.id,
-          subscription_id: data[:subscription_id],
-          product_id: data[:product_id],
-          store: data[:store],
-          status: data[:status],
-          expires_at: data[:expires_at],
-          environment: data[:environment]
-        )
-      end
+      subscription.update!(
+        expires_at: data[:expires_at],
+        status: data[:status],
+        trial_ends_at: data[:trial_ends_at]
+      )
 
       Rails.logger.info("Renewed subscription #{data[:subscription_id]}")
     end
 
     def handle_cancellation(event)
       data = extract_subscription_data(event)
-      subscription = find_subscription(data[:subscription_id])
-
-      return unless subscription
+      subscription = find_or_create_subscription(data)
 
       subscription.update!(status: 'canceled')
 
-      Rails.logger.info("Canceled subscription #{data[:subscription_id]}")
+      Rails.logger.info("Canceled subscription #{subscription.subscription_id}")
     end
 
     def handle_expiration(event)
       data = extract_subscription_data(event)
-      subscription = find_subscription(data[:subscription_id])
-
-      return unless subscription
+      subscription = find_or_create_subscription(data)
 
       subscription.update!(status: data[:status])
 
-      Rails.logger.info("Expired subscription #{data[:subscription_id]}")
+      Rails.logger.info("Expired subscription #{subscription.subscription_id}")
     end
 
     def handle_uncancellation(event)
       data = extract_subscription_data(event)
-      subscription = find_subscription(data[:subscription_id])
+      subscription = find_or_create_subscription(data)
 
-      return unless subscription
+      subscription.update!(status: data[:status], expires_at: data[:expires_at])
 
-      subscription.update!(
-        status: data[:status],
-        expires_at: data[:expires_at]
-      )
-
-      Rails.logger.info("Uncanceled subscription #{data[:subscription_id]}")
+      Rails.logger.info("Uncanceled subscription #{subscription.subscription_id}")
     end
 
     def handle_billing_issue(event)
       data = extract_subscription_data(event)
-      subscription = find_subscription(data[:subscription_id])
-
-      return unless subscription
+      subscription = find_or_create_subscription(data)
 
       subscription.update!(status: data[:status])
 
-      Rails.logger.info("Billing issue for subscription #{data[:subscription_id]}")
+      Rails.logger.info("Billing issue for subscription #{subscription.subscription_id}")
     end
 
     def handle_product_change(event)
       data = extract_subscription_data(event)
-      subscription = find_subscription(data[:subscription_id])
+      subscription = find_or_create_subscription(data)
 
-      return unless subscription
+      subscription.update!(product_id: data[:product_id])
 
-      subscription.update!(
-        product_id: data[:product_id]
-      )
-
-      Rails.logger.info("Changed product for subscription #{data[:subscription_id]} to #{data[:product_id]}")
+      Rails.logger.info("Changed product for subscription #{subscription.subscription_id} to #{data[:product_id]}")
     end
 
     def handle_transfer(event)
@@ -251,8 +221,24 @@ module Subscription
       nil
     end
 
-    def find_subscription(subscription_id)
-      RevenuecatSubscription.find_by(subscription_id: subscription_id)
+    def find_or_create_subscription(data)
+      subscription = RevenuecatSubscription.find_by(subscription_id: data[:subscription_id])
+      return subscription if subscription.present?
+
+      user = User.find_by(id: data[:app_user_id])
+
+      RevenuecatSubscription.create!(
+        revenuecat_customer_id: data[:revenuecat_customer_id],
+        user_id: user&.id,
+        subscription_id: data[:subscription_id],
+        product_id: data[:product_id],
+        store: data[:store],
+        status: data[:status],
+        expires_at: data[:expires_at],
+        trial_ends_at: data[:trial_ends_at],
+        quantity: data[:quantity],
+        environment: data[:environment]
+      )
     end
   end
 end
