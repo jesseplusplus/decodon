@@ -86,13 +86,22 @@ module Subscription
       data = extract_subscription_data(event)
       subscription = find_subscription(data[:subscription_id])
 
-      return unless subscription
-
-      subscription.update!(
-        expires_at: data[:expires_at],
-        status: data[:status],
-        trial_ends_at: data[:trial_ends_at]
-      )
+      if subscription.present?
+        subscription.update!(
+          expires_at: data[:expires_at],
+          status: data[:status],
+          trial_ends_at: data[:trial_ends_at]
+        )
+      else
+        RevenuecatSubscription.create!(
+          revenuecat_customer_id: data[:revenuecat_customer_id],
+          subscription_id: data[:subscription_id],
+          product_id: data[:product_id],
+          store: data[:store],
+          status: data[:status],
+          expires_at: data[:expires_at]
+        )
+      end
 
       Rails.logger.info("Renewed subscription #{data[:subscription_id]}")
     end
@@ -183,6 +192,7 @@ module Subscription
 
     def extract_subscription_data(event)
       original_app_user_id = event['original_app_user_id']
+      app_user_id = event['app_user_id']
       product_id = event['product_id']
       store = event['store']
       environment = event['environment']
@@ -199,6 +209,7 @@ module Subscription
 
       {
         revenuecat_customer_id: original_app_user_id,
+        app_user_id: app_user_id,
         subscription_id: original_transaction_id,
         product_id: product_id,
         store: store&.downcase,

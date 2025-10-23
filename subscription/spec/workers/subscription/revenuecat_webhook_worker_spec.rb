@@ -99,37 +99,66 @@ RSpec.describe Subscription::RevenuecatWebhookWorker, type: :worker do
     end
 
     context 'when handling RENEWAL event' do
-      let!(:subscription) do
-        Fabricate(:revenuecat_subscription,
-                  subscription_id: 'txn_789ghi',
-                  status: 'trialing',
-                  expires_at: 1.day.ago)
+      context 'when subscription exists' do
+        let!(:subscription) do
+          Fabricate(:revenuecat_subscription,
+                    subscription_id: 'txn_789ghi',
+                    status: 'trialing',
+                    expires_at: 1.day.ago)
+        end
+
+        let(:event) do
+          {
+            'event' => {
+              'type' => 'RENEWAL',
+              'app_user_id' => subscription.revenuecat_customer_id,
+              'original_app_user_id' => 'anonymous_user_789',
+              'original_transaction_id' => 'txn_789ghi',
+              'product_id' => 'rc_monthly_individual',
+              'period_type' => 'NORMAL',
+              'purchased_at_ms' => Time.current.to_i * 1000,
+              'expiration_at_ms' => 1.month.from_now.to_i * 1000,
+              'store' => 'APP_STORE',
+              'environment' => 'PRODUCTION',
+            },
+          }.to_json
+        end
+
+        it 'updates expiration date and status' do
+          worker.perform(event)
+
+          subscription.reload
+          expect(subscription.status).to eq('active')
+          expect(subscription.expires_at).to be > Time.current
+          expect(subscription.trial_ends_at).to be_nil
+        end
       end
 
-      let(:event) do
-        {
-          'event' => {
-            'type' => 'RENEWAL',
-            'app_user_id' => subscription.revenuecat_customer_id,
-            'original_app_user_id' => 'anonymous_user_789',
-            'original_transaction_id' => 'txn_789ghi',
-            'product_id' => 'rc_monthly_individual',
-            'period_type' => 'NORMAL',
-            'purchased_at_ms' => Time.current.to_i * 1000,
-            'expiration_at_ms' => 1.month.from_now.to_i * 1000,
-            'store' => 'APP_STORE',
-            'environment' => 'PRODUCTION',
-          },
-        }.to_json
-      end
+      context 'when subscription does not exist' do
+        let(:event) do
+          {
+            'event' => {
+              'type' => 'RENEWAL',
+              'app_user_id' => 'anonymous_user_789',
+              'original_app_user_id' => 'anonymous_user_789',
+              'original_transaction_id' => 'txn_789jkl',
+              'product_id' => 'rc_monthly_individual',
+              'period_type' => 'NORMAL',
+              'purchased_at_ms' => Time.current.to_i * 1000,
+              'expiration_at_ms' => 1.month.from_now.to_i * 1000,
+              'store' => 'APP_STORE',
+              'environment' => 'PRODUCTION',
+            },
+          }.to_json
+        end
 
-      it 'updates expiration date and status' do
-        worker.perform(event)
-
-        subscription.reload
-        expect(subscription.status).to eq('active')
-        expect(subscription.expires_at).to be > Time.current
-        expect(subscription.trial_ends_at).to be_nil
+        it 'creates a new subscription' do
+          worker.perform(event)
+          expect(Subscription::RevenuecatSubscription.count).to eq(1)
+          expect(Subscription::RevenuecatSubscription.last.status).to eq('active')
+          expect(Subscription::RevenuecatSubscription.last.expires_at).to be > Time.current
+          expect(Subscription::RevenuecatSubscription.last.trial_ends_at).to be_nil
+        end
       end
     end
 
