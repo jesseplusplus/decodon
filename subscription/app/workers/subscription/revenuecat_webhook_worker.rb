@@ -93,9 +93,11 @@ module Subscription
           trial_ends_at: data[:trial_ends_at]
         )
       else
+        user = User.find_by(id: data[:app_user_id])
+
         RevenuecatSubscription.create!(
           revenuecat_customer_id: data[:revenuecat_customer_id],
-          app_user_id: data[:app_user_id],
+          user_id: user&.id,
           subscription_id: data[:subscription_id],
           product_id: data[:product_id],
           store: data[:store],
