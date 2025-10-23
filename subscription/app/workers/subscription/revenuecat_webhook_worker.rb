@@ -95,11 +95,13 @@ module Subscription
       else
         RevenuecatSubscription.create!(
           revenuecat_customer_id: data[:revenuecat_customer_id],
+          app_user_id: data[:app_user_id],
           subscription_id: data[:subscription_id],
           product_id: data[:product_id],
           store: data[:store],
           status: data[:status],
-          expires_at: data[:expires_at]
+          expires_at: data[:expires_at],
+          environment: data[:environment]
         )
       end
 
