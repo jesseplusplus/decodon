@@ -223,6 +223,32 @@ RSpec.describe Subscription::RevenuecatWebhookWorker, type: :worker do
       end
     end
 
+    context 'when handling PRODUCT_CHANGE event' do
+      let!(:subscription) do
+        Fabricate(:revenuecat_subscription,
+                  subscription_id: 'txn_product_change',
+                  product_id: 'rc_monthly_individual',
+                  status: 'expired',
+                  user: Fabricate(:user))
+      end
+      let(:event) do
+        {
+          'event' => {
+            'original_transaction_id' => 'txn_product_change',
+            'type' => 'PRODUCT_CHANGE',
+            'new_product_id' => 'rc_annual_individual',
+            'period_type' => 'NORMAL',
+          },
+        }.to_json
+      end
+
+      it 'updates product id' do
+        worker.perform(event)
+        subscription.reload
+        expect(subscription.product_id).to eq('rc_annual_individual')
+      end
+    end
+
     context 'when event is from Stripe store' do
       let(:event) do
         {

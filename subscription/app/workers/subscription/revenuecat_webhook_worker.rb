@@ -196,6 +196,7 @@ module Subscription
       original_app_user_id = event['original_app_user_id']
       app_user_id = event['app_user_id']
       product_id = event['product_id']
+      new_product_id = event['new_product_id']
       store = event['store']
       environment = event['environment']
       period_type = event['period_type']
@@ -213,7 +214,7 @@ module Subscription
         revenuecat_customer_id: original_app_user_id,
         app_user_id: app_user_id,
         subscription_id: original_transaction_id,
-        product_id: product_id,
+        product_id: new_product_id || product_id,
         store: store&.downcase,
         status: status,
         expires_at: expires_at,
