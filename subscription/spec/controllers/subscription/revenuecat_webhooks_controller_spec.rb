@@ -33,7 +33,7 @@ RSpec.describe Subscription::RevenuecatWebhooksController do
     context 'with invalid signature' do
       before do
         allow(Subscription::WebhookVerifier).to receive(:verify_revenuecat!)
-          .and_raise(Subscription::WebhookVerifier::InvalidSignature.new('Invalid'))
+          .and_raise(Subscription::WebhookVerifier::InvalidSecret.new('Invalid'))
       end
 
       it 'returns unauthorized' do
@@ -56,7 +56,7 @@ RSpec.describe Subscription::RevenuecatWebhooksController do
     context 'without signature' do
       before do
         allow(Subscription::WebhookVerifier).to receive(:verify_revenuecat!)
-          .and_raise(Subscription::WebhookVerifier::InvalidSignature.new('Missing'))
+          .and_raise(Subscription::WebhookVerifier::InvalidSecret.new('Missing'))
       end
 
       it 'returns unauthorized' do

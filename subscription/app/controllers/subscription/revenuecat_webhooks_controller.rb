@@ -10,7 +10,7 @@ module Subscription
       Subscription::RevenuecatWebhookWorker.perform_async(webhook_params.to_json)
 
       render body: nil, layout: false, status: 201
-    rescue Subscription::WebhookVerifier::InvalidSignature => e
+    rescue Subscription::WebhookVerifier::InvalidSecret => e
       Rails.logger.error("RevenueCat webhook signature verification failed: #{e.message}")
       head 401
     end
