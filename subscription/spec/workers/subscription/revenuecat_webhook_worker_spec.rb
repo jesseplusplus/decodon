@@ -247,6 +247,40 @@ RSpec.describe Subscription::RevenuecatWebhookWorker, type: :worker do
         expect(subscription.revenuecat_customer_id).to eq('old_customer_id')
         expect(subscription.user_id).to eq(user.id)
       end
+
+      context 'when user registered with a different invite' do
+        let(:default_invite) { Fabricate(:invite, max_uses: 10, uses: 5) }
+        let(:subscription_invite) { Fabricate(:invite, max_uses: 1, uses: 0) }
+        let!(:registered_user) { Fabricate(:user, invite: default_invite) }
+        let!(:subscription) do
+          Fabricate(:revenuecat_subscription,
+                    revenuecat_customer_id: 'anonymous_customer_123',
+                    invite: subscription_invite,
+                    user_id: nil)
+        end
+
+        let(:event) do
+          {
+            'event' => {
+              'type' => 'TRANSFER',
+              'transferred_from' => ['anonymous_customer_123'],
+              'transferred_to' => [registered_user.id.to_s],
+            },
+          }.to_json
+        end
+
+        it 'increments subscription invite uses and updates user invite' do
+          expect do
+            worker.perform(event)
+          end.to change { subscription_invite.reload.uses }.from(0).to(1)
+
+          registered_user.reload
+          expect(registered_user.invite_id).to eq(subscription_invite.id)
+
+          subscription.reload
+          expect(subscription.user_id).to eq(registered_user.id)
+        end
+      end
     end
 
     context 'when handling PRODUCT_CHANGE event' do

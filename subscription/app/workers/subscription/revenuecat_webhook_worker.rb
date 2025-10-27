@@ -160,6 +160,12 @@ module Subscription
           user_id: user.id
         )
 
+        if subscription.invite.present? && user.invite_id.present? && user.invite_id != subscription.invite_id
+          subscription.invite.increment!(:uses)
+
+          user.update_column(:invite_id, subscription.invite_id)
+        end
+
         Rails.logger.info("Transferred subscription #{subscription.subscription_id} from #{old_customer_id} to user #{user.id}")
       end
     end
