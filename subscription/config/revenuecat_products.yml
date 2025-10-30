@@ -1,44 +1,44 @@
 development:
   products:
-    rc_monthly_individual:
+    monthly_individual_1:
       name: 'Individual Monthly'
       max_uses: 1
       type: 'individual'
-    rc_monthly_group_5:
+    monthly_group_1:
       name: 'Group Monthly (5 users)'
       max_uses: 5
       type: 'group'
-    rc_annual_individual:
+    annual_individual_beta_1:
       name: 'Individual Annual'
       max_uses: 1
       type: 'individual'
 
 test:
   products:
-    rc_monthly_individual:
+    monthly_individual_1:
       name: 'Individual Monthly'
       max_uses: 1
       type: 'individual'
-    rc_monthly_group_5:
+    monthly_group_1:
       name: 'Group Monthly (5 users)'
       max_uses: 5
       type: 'group'
-    rc_annual_individual:
+    annual_individual_beta_1:
       name: 'Individual Annual'
       max_uses: 1
       type: 'individual'
 
 production:
   products:
-    rc_monthly_individual:
+    monthly_individual_1:
       name: 'Individual Monthly'
       max_uses: 1
       type: 'individual'
-    rc_monthly_group_5:
+    monthly_group_1:
       name: 'Group Monthly (5 users)'
       max_uses: 5
       type: 'group'
-    rc_annual_individual:
+    annual_individual_beta_1:
       name: 'Individual Annual'
       max_uses: 1
       type: 'individual'
