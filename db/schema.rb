@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_27_132728) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_21_181225) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1203,6 +1203,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_27_132728) do
     t.integer "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "subscription_revenuecat_subscriptions", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "invite_id"
+    t.string "revenuecat_customer_id", null: false
+    t.string "subscription_id"
+    t.string "product_id"
+    t.string "store"
+    t.string "status"
+    t.datetime "expires_at", precision: nil
+    t.datetime "trial_ends_at", precision: nil
+    t.integer "quantity", default: 1
+    t.string "environment"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["revenuecat_customer_id"], name: "index_revenuecat_subs_on_customer_id"
+    t.index ["subscription_id"], name: "index_revenuecat_subs_on_subscription_id"
   end
 
   create_table "subscription_stripe_subscriptions", force: :cascade do |t|

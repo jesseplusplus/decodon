@@ -153,6 +153,13 @@ class Rack::Attack
     req.warden_user_id if (req.put? || req.patch?) && (req.path_matches?('/auth') || req.path_matches?('/auth/password'))
   end
 
+  REVENUECAT_INVITE_REGEX = %r{/subscription/api/subscription_invites/([^/]+)}
+  throttle('throttle_revenuecat_invite_lookup', limit: 10, period: 1.minute) do |req|
+    if req.get? && (match = req.path.match(REVENUECAT_INVITE_REGEX))
+      match[1] # customer_id from path
+    end
+  end
+
   self.throttled_responder = lambda do |request|
     now        = Time.now.utc
     match_data = request.env['rack.attack.match_data']

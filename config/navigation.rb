@@ -34,7 +34,7 @@ SimpleNavigation::Configuration.run do |navigation|
       s.item :authorized_apps, safe_join([material_symbol('list_alt'), t('settings.authorized_apps')]), oauth_authorized_applications_path, if: -> { !self_destruct }
     end
 
-    n.item :subscription, safe_join([material_symbol('diamond'), '   Subscription']), settings_subscription.subscriptions_path, highlights_on: %r{/settings/subscription}
+    n.item :subscription, safe_join([material_symbol('diamond'), '   Subscription']), subscription.subscriptions_path, highlights_on: %r{/settings/subscription}
 
     n.item :data, safe_join([material_symbol('cloud_sync'), t('settings.import_and_export')]), settings_export_path do |s|
       s.item :import, safe_join([material_symbol('cloud_upload'), t('settings.import')]), settings_imports_path, highlights_on: %r{/settings/imports}, if: -> { current_user.functional? && !self_destruct }

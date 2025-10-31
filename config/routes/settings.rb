@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 namespace :settings do
-  mount Subscription::Engine, at: '/', as: :subscription
   resource :profile, only: [:show, :update] do
     resources :pictures, only: :destroy
   end
