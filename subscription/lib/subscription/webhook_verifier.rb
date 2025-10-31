@@ -19,14 +19,13 @@ module Subscription
     def self.extract_secret(authorization_header)
       return nil if authorization_header.blank?
 
-      # RevenueCat sends: "Bearer <signature>"
       authorization_header.sub(/^Bearer /, '')
     end
 
     def self.secure_compare(secret, expected_secret)
-      return false if secret.blank? || expected_secret.blank? || secret.bytesize != expected_secret.bytesize
+      return false if secret.blank? || expected_secret.blank?
 
-      secret == expected_secret
+      ActiveSupport::SecurityUtils.secure_compare(secret, expected_secret)
     end
   end
 end
