@@ -35,6 +35,37 @@ module Mastodon::CLI
       vacuum_and_analyze_conversations
     end
 
+    desc 'backfill-media-bearcaps', 'Send Updates for non-public statuses with media to distribute bearcap URLs'
+    long_desc <<~LONG_DESC
+      This command queues background jobs to send ActivityPub Update activities for all
+      existing non-public statuses that have media attachments. This is needed after
+      switching from media proxy URLs to bearcaps.
+
+      The process runs in batches to avoid overloading the database and sending too much
+      data to remote servers at once. Each batch processes 100 statuses with a 5 second
+      delay between batches.
+
+      This command only queues the initial batch - the worker will continue processing
+      subsequent batches automatically until all statuses have been updated.
+    LONG_DESC
+    def backfill_media_bearcaps
+      say('Queuing backfill job for media bearcaps...', :green)
+
+      count = Status.local
+                    .where.not(visibility: %i(public unlisted))
+                    .joins(:media_attachments)
+                    .distinct
+                    .count
+
+      say("Found #{count} non-public statuses with media attachments", :cyan)
+      say('The worker will process these in batches of 100 with 5 second delays between batches', :cyan)
+
+      BackfillMediaBearcapsWorker.perform_async
+
+      say('Initial batch queued! Monitor Sidekiq for progress.', :green)
+      say('You can check the worker status with: sidekiq-cli status', :cyan)
+    end
+
     private
 
     def remove_statuses
