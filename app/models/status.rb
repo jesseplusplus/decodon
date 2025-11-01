@@ -278,6 +278,12 @@ class Status < ApplicationRecord
     @reported ||= account.targeted_reports.unresolved.exists?(['? = ANY(status_ids)', id]) || account.strikes.exists?(['? = ANY(status_ids)', id.to_s])
   end
 
+  def ensure_capability_token
+    return if distributable?
+
+    capability_tokens.first_or_create!
+  end
+
   def emojis
     return @emojis if defined?(@emojis)
 

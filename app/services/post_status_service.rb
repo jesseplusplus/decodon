@@ -93,7 +93,7 @@ class PostStatusService < BaseService
     # the media attachments when the status is created
     ApplicationRecord.transaction do
       @status.save!
-      @status.capability_tokens.create! if @status.limited_visibility?
+      @status.capability_tokens.create! unless @status.distributable?
     end
   end
 

@@ -228,8 +228,13 @@ class ActivityPub::NoteSerializer < ActivityPub::Serializer
 
     def url
       if object.local?
-        token = object.generate_token
-        media_short_url(token.id)
+        if object.status.distributable?
+          full_asset_url(object.file.url(:original))
+        else
+          token = object.status.ensure_capability_token.token
+          media_url = Rails.application.routes.url_helpers.medium_url(object, host: ENV.fetch('WEB_DOMAIN', ENV.fetch('LOCAL_DOMAIN')))
+          "bear:?t=#{token}&u=#{media_url}"
+        end
       else
         object.remote_url
       end
