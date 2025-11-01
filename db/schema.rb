@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_21_181225) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_01_191310) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -513,6 +513,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_181225) do
     t.string "fediverse_account"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "delivery_last_failed_at"
     t.index ["base_url"], name: "index_fasp_providers_on_base_url", unique: true
   end
 
@@ -718,12 +719,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_181225) do
     t.index ["scheduled_status_id"], name: "index_media_attachments_on_scheduled_status_id", where: "(scheduled_status_id IS NOT NULL)"
     t.index ["shortcode"], name: "index_media_attachments_on_shortcode", unique: true, opclass: :text_pattern_ops, where: "(shortcode IS NOT NULL)"
     t.index ["status_id"], name: "index_media_attachments_on_status_id"
-  end
-
-  create_table "media_tokens", force: :cascade do |t|
-    t.bigint "media_attachment_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "mentions", force: :cascade do |t|
@@ -957,11 +952,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_181225) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "legacy", default: false, null: false
-    t.index ["account_id", "quoted_account_id"], name: "index_quotes_on_account_id_and_quoted_account_id"
+    t.index ["account_id", "quoted_account_id", "id"], name: "index_quotes_on_account_id_and_quoted_account_id_and_id"
     t.index ["activity_uri"], name: "index_quotes_on_activity_uri", unique: true, where: "(activity_uri IS NOT NULL)"
     t.index ["approval_uri"], name: "index_quotes_on_approval_uri", where: "(approval_uri IS NOT NULL)"
     t.index ["quoted_account_id"], name: "index_quotes_on_quoted_account_id"
-    t.index ["quoted_status_id"], name: "index_quotes_on_quoted_status_id"
+    t.index ["quoted_status_id", "id"], name: "index_quotes_on_quoted_status_id_and_id"
     t.index ["status_id"], name: "index_quotes_on_status_id", unique: true
   end
 
@@ -1142,6 +1137,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_181225) do
     t.datetime "updated_at", precision: nil, null: false
     t.bigint "untrusted_favourites_count"
     t.bigint "untrusted_reblogs_count"
+    t.bigint "quotes_count", default: 0, null: false
     t.index ["status_id"], name: "index_status_stats_on_status_id", unique: true
   end
 
@@ -1183,6 +1179,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_181225) do
     t.integer "quote_approval_policy", default: 0, null: false
     t.index ["account_id", "id", "visibility", "updated_at"], name: "index_statuses_20190820", order: { id: :desc }, where: "(deleted_at IS NULL)"
     t.index ["account_id"], name: "index_statuses_on_account_id"
+    t.index ["conversation_id"], name: "index_statuses_on_conversation_id"
     t.index ["deleted_at"], name: "index_statuses_on_deleted_at", where: "(deleted_at IS NOT NULL)"
     t.index ["id", "account_id"], name: "index_statuses_local_20190824", order: { id: :desc }, where: "((local OR (uri IS NULL)) AND (deleted_at IS NULL) AND (visibility = 0) AND (reblog_of_id IS NULL) AND ((NOT reply) OR (in_reply_to_account_id = account_id)))"
     t.index ["id", "language", "account_id"], name: "index_statuses_public_20250129", order: { id: :desc }, where: "((deleted_at IS NULL) AND (visibility = 0) AND (reblog_of_id IS NULL) AND ((NOT reply) OR (in_reply_to_account_id = account_id)))"
@@ -1311,6 +1308,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_181225) do
     t.boolean "highlighted", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "username_blocks", force: :cascade do |t|
+    t.string "username", null: false
+    t.string "normalized_username", null: false
+    t.boolean "exact", default: false, null: false
+    t.boolean "allow_with_approval", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((username)::text)", name: "index_username_blocks_on_username_lower_btree", unique: true
+    t.index ["normalized_username"], name: "index_username_blocks_on_normalized_username"
   end
 
   create_table "users", force: :cascade do |t|

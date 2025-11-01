@@ -9,6 +9,7 @@
 #  capabilities            :jsonb            not null
 #  confirmed               :boolean          default(FALSE), not null
 #  contact_email           :string
+#  delivery_last_failed_at :datetime
 #  fediverse_account       :string
 #  name                    :string           not null
 #  privacy_policy          :jsonb
