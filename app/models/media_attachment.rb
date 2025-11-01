@@ -179,8 +179,6 @@ class MediaAttachment < ApplicationRecord
   belongs_to :status,           inverse_of: :media_attachments, optional: true
   belongs_to :scheduled_status, inverse_of: :media_attachments, optional: true
 
-  has_many :media_tokens, dependent: :destroy
-
   has_attached_file :file,
                     styles: ->(f) { file_styles f },
                     processors: ->(f) { file_processors f },
@@ -278,10 +276,6 @@ class MediaAttachment < ApplicationRecord
 
   def delay_processing_for_attachment?(attachment_name)
     delay_processing? && attachment_name == :file
-  end
-
-  def generate_token
-    media_tokens.create
   end
 
   before_create :set_unknown_type
