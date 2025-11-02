@@ -37,9 +37,10 @@ class BackfillMediaBearcapsWorker
     return if status.nil?
 
     status.ensure_capability_token
+    status.update_column(:edited_at, Time.now.utc)
 
     ActivityPub::StatusUpdateDistributionWorker.perform_async(status_id)
   rescue ActiveRecord::RecordNotFound
-      nil
+    nil
   end
 end

@@ -61,6 +61,21 @@ RSpec.describe BackfillMediaBearcapsWorker do
         expect(private_status_with_media.reload.capability_tokens).to exist
         expect(direct_status_with_media.reload.capability_tokens).to exist
       end
+
+      it 'ensures edited_at is updated for processed statuses' do
+        allow(ActivityPub::StatusUpdateDistributionWorker).to receive(:perform_async)
+        allow(described_class).to receive(:perform_in)
+        private_status_with_media.edited_at
+        direct_status_with_media.edited_at
+        freeze_time
+        edit_time = 1.hour.from_now
+        travel_to(edit_time)
+
+        subject.perform
+
+        expect(private_status_with_media.reload.edited_at).to eq(edit_time)
+        expect(direct_status_with_media.reload.edited_at).to eq(edit_time)
+      end
     end
 
     context 'with a min_id parameter' do
