@@ -8,8 +8,8 @@ class MediaProxyController < ApplicationController
 
   skip_before_action :require_functional!
 
-  before_action :authenticate_user!, if: :limited_federation_mode?
-  before_action :set_media_attachment
+  before_action :authenticate_user!, if: :limited_federation_mode?, except: :short
+  before_action :set_media_attachment, except: :short
 
   rescue_from ActiveRecord::RecordInvalid, with: :not_found
   rescue_from Mastodon::UnexpectedResponseError, with: :not_found
