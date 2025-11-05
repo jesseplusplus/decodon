@@ -6,6 +6,7 @@ on:
     branches:
       - 'main'
       - 'stable-*'
+      - 'freq-main'  # Add your main development branch
   pull_request:
 
 env:

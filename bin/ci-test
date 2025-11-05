@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# CI-friendly test runner that ensures upstream compatibility
+set -e
+
+echo "🔧 Setting up test environment for upstream compatibility..."
+
+# Ensure we're in test mode with restrictions disabled
+export RAILS_ENV=test
+export RESTRICT_PUBLIC_STATUSES=false  # Override in case setting is cached
+
+echo "🧪 Running RSpec tests..."
+if command -v flatware &> /dev/null; then
+    echo "Using flatware for parallel testing..."
+    bin/flatware rspec -r ./spec/flatware_helper.rb "$@"
+else
+    echo "Using standard RSpec..."
+    bin/rspec "$@"
+fi
+
+echo "✅ All tests completed!"

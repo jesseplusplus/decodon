@@ -14,7 +14,7 @@ module Status::Visibility
     scope :not_direct_visibility, -> { where.not(visibility: :direct) }
 
     validates :visibility, exclusion: { in: %w(direct limited) }, if: :reblog?
-    validates :visibility, inclusion: { in: %w(private mutual direct limited) }, if: -> { account.local? && account.user.role != UserRole.find_by(name: 'Owner') }
+    validate :validate_visibility_restrictions
 
     before_validation :set_visibility, unless: :visibility?
   end
@@ -22,6 +22,10 @@ module Status::Visibility
   class_methods do
     def selectable_visibilities
       visibilities.keys - %w(direct limited)
+    end
+    
+    def selectable_visibilities_for(account)
+      StatusVisibilityPolicy.allowed_visibilities_for(account)
     end
   end
 
@@ -45,6 +49,18 @@ module Status::Visibility
   end
 
   def visibility_from_account
-    account.locked? ? :private : :public
+    if account.locked?
+      :private
+    elsif StatusVisibilityPolicy.can_create_visibility?(account, 'public')
+      :public
+    else
+      :private  # Default to private if public visibility is restricted
+    end
+  end
+  
+  def validate_visibility_restrictions
+    return unless account&.local?
+    
+    StatusVisibilityPolicy.validate_visibility_for_account(self)
   end
 end

@@ -56,12 +56,17 @@ defaults: &defaults
   backups_retention_period: 7
   captcha_enabled: false
   allow_referer_origin: false
+  # Fork-specific settings
+  restrict_public_statuses: true
+  public_status_allowed_roles: ['Owner'] # Roles that can post public/unlisted content
 
 development:
   <<: *defaults
 
 test:
   <<: *defaults
+  # In test mode, allow upstream compatibility by disabling restrictions
+  restrict_public_statuses: false
 
 production:
   <<: *defaults

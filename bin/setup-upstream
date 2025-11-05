@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Setup script for upstream tracking
+set -e
+
+echo "Setting up upstream remote and tracking branch..."
+
+# Add upstream remote if it doesn't exist
+if ! git remote | grep -q "^upstream$"; then
+    echo "Adding upstream remote..."
+    git remote add upstream https://github.com/mastodon/mastodon.git
+else
+    echo "Upstream remote already exists"
+fi
+
+# Fetch upstream
+echo "Fetching from upstream..."
+git fetch upstream main
+
+# Create or update upstream tracking branch
+if git branch | grep -q "upstream-main"; then
+    echo "Updating existing upstream-main branch..."
+    git checkout upstream-main
+    git reset --hard upstream/main
+else
+    echo "Creating upstream-main tracking branch..."
+    git checkout -b upstream-main upstream/main
+fi
+
+# Push the upstream tracking branch to your fork
+echo "Pushing upstream-main to origin..."
+git push origin upstream-main -f
+
+# Return to your main development branch
+echo "Switching back to freq-main..."
+git checkout freq-main
+
+echo ""
+echo "✅ Setup complete!"
+echo ""
+echo "To update from upstream in the future:"
+echo "  1. ./bin/setup-upstream (updates tracking branch)"
+echo "  2. git merge upstream-main"
+echo ""
+echo "Current remotes:"
+git remote -v
