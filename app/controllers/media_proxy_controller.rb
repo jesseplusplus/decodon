@@ -35,7 +35,8 @@ class MediaProxyController < ApplicationController
     media_token = MediaToken.find(params[:id])
     @media_attachment = media_token.media_attachment
 
-    redirect_to full_asset_url(@media_attachment.file.url(:original))
+    s3_url = @media_attachment.file.url(:original, expires_in: 15.minutes.to_i)
+    redirect_to s3_url, allow_other_host: true, status: 307
   end
 
   private

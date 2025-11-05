@@ -4,23 +4,21 @@
 
 An opinionated fork of mastodon with the following modifications:
 
-* All accounts are locked/private, meaning content is only distributed to followers [jesseplusplus/decodon#1](https://github.com/jesseplusplus/decodon/pull/1)
+- All accounts are locked/private, meaning content is only distributed to followers [jesseplusplus/decodon#1](https://github.com/jesseplusplus/decodon/pull/1)
 
-* Support for push notifications to Expo-based apps [jesseplusplus/decodon#2](https://github.com/jesseplusplus/decodon/pull/2)
+- Support for push notifications to Expo-based apps [jesseplusplus/decodon#2](https://github.com/jesseplusplus/decodon/pull/2)
 
-* Pre-signed URLs for extra-secure storage of uploaded private media [jesseplusplus/decodon#9](https://github.com/jesseplusplus/decodon/pull/9)
+- replies are treated more like comments and are filtered from the home feed [jesseplusplus/decodon#3](https://github.com/jesseplusplus/decodon/pull/3)
 
-* replies are treated more like comments and are filtered from the home feed [jesseplusplus/decodon#3](https://github.com/jesseplusplus/decodon/pull/3)
+- circles (lists of followers you can address posts to instead of only followers) - cherry-picked from [fedibird](https://github.com/fedibird/mastodon) - [jesseplusplus/decodon#13](https://github.com/jesseplusplus/decodon/pull/13)
 
-* circles (lists of followers you can address posts to instead of only followers) - cherry-picked from [fedibird](https://github.com/fedibird/mastodon) - [jesseplusplus/decodon#13](https://github.com/jesseplusplus/decodon/pull/13)
+- default "inner circle" for all accounts to get them started - [jesseplusplus/decodon#14](https://github.com/jesseplusplus/decodon/pull/14)
 
-* default "inner circle" for all accounts to get them started - [jesseplusplus/decodon#14](https://github.com/jesseplusplus/decodon/pull/14)
+- timeline markers for accounts' feed of updates - [jesseplusplus/decodon#189](https://github.com/jesseplusplus/decodon/pull/189)
 
-* timeline markers for accounts' feed of updates - [jesseplusplus/decodon#189](https://github.com/jesseplusplus/decodon/pull/189)
+- more control over logo and branding in email templates [jesseplusplus/decodon#10](https://github.com/jesseplusplus/decodon/pull/10)
 
-* more control over logo and branding in email templates [jesseplusplus/decodon#10](https://github.com/jesseplusplus/decodon/pull/10)
-
-* updated heroku deployment configs
+- updated heroku deployment configs
 
 ## Use
 
