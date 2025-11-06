@@ -121,11 +121,10 @@ if ENV['S3_ENABLED'] == 'true'
       module S3SignedExtensions
         def url(style_name = default_style, options = {})
           if path(style_name)
-            base_options = { expires_in: 1.week.to_i, time: Date.current.beginning_of_week.to_time }
             s3_url = "#{ENV['S3_BUCKET']}.s3.#{ENV['S3_REGION']}.amazonaws.com"
             s3_object(style_name).presigned_url(
               :get,
-              base_options.merge(s3_url_options)
+              options.merge(s3_url_options)
             ).to_s&.gsub(s3_url, ENV['S3_ALIAS_HOST'])
           else
             super
