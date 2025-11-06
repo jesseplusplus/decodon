@@ -8,6 +8,8 @@ An opinionated fork of mastodon with the following modifications:
 
 - Support for push notifications to Expo-based apps [jesseplusplus/decodon#2](https://github.com/jesseplusplus/decodon/pull/2)
 
+- Signed URLs for extra-secure storage of uploaded private media [jesseplusplus/decodon#9](https://github.com/jesseplusplus/decodon/pull/9) [jesseplusplus/decodon#199](https://github.com/jesseplusplus/decodon/pull/199)
+
 - replies are treated more like comments and are filtered from the home feed [jesseplusplus/decodon#3](https://github.com/jesseplusplus/decodon/pull/3)
 
 - circles (lists of followers you can address posts to instead of only followers) - cherry-picked from [fedibird](https://github.com/fedibird/mastodon) - [jesseplusplus/decodon#13](https://github.com/jesseplusplus/decodon/pull/13)
