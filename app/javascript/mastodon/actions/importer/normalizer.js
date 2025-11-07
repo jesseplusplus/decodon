@@ -21,6 +21,15 @@ export function normalizeFilterResult(result) {
   return normalResult;
 }
 
+function stripQuoteFallback(text) {
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = text;
+
+  wrapper.querySelector('.quote-inline')?.remove();
+
+  return wrapper.innerHTML;
+}
+
 export function normalizeStatus(status, normalOldStatus) {
   const normalStatus   = { ...status };
 
@@ -87,6 +96,11 @@ export function normalizeStatus(status, normalOldStatus) {
     normalStatus.hidden       = expandSpoilers ? false : spoilerText.length > 0 || normalStatus.sensitive;
     normalStatus.visibility   = normalStatus.limited ? 'limited' : normalStatus.visibility;
 
+    // Remove quote fallback link from the DOM so it doesn't mess with paragraph margins
+    if (normalStatus.quote) {
+      normalStatus.contentHtml = stripQuoteFallback(normalStatus.contentHtml);
+    }
+
     if (normalStatus.url && !(normalStatus.url.startsWith('http://') || normalStatus.url.startsWith('https://'))) {
       normalStatus.url = null;
     }
@@ -125,6 +139,11 @@ export function normalizeStatusTranslation(translation, status) {
     spoilerHtml: emojify(escapeTextContentForBrowser(translation.spoiler_text), emojiMap),
     spoiler_text: translation.spoiler_text,
   };
+
+  // Remove quote fallback link from the DOM so it doesn't mess with paragraph margins
+  if (status.get('quote')) {
+    normalTranslation.contentHtml = stripQuoteFallback(normalTranslation.contentHtml);
+  }
 
   return normalTranslation;
 }

@@ -450,17 +450,12 @@ export const composeReducer = (state = initialState, action) => {
   case COMPOSE_COMPOSING_CHANGE:
     return state.set('is_composing', action.value);
   case COMPOSE_REPLY:
-    const privacy = privacyPreference(
-      action.status.get('visibility'),
-      state.get('default_privacy')
-    );
-
     return state.withMutations((map) => {
       map.set('id', null);
       map.set('in_reply_to', action.status.get('id'));
       map.set('reply_status', action.status);
-      map.set('text', statusToTextMentions('', privacy, action.status));
-      map.set('privacy', privacy);
+      map.set('text', statusToTextMentions('', privacyPreference(action.status.get('visibility'), state.get('default_privacy')), action.status));
+      map.set('privacy', privacyPreference(action.status.get('visibility'), state.get('default_privacy')));
       map.set('circle_id', null);
       map.set('focusDate', new Date());
       map.set('caretPosition', null);
@@ -621,8 +616,13 @@ export const composeReducer = (state = initialState, action) => {
       }
 
       if (action.status.get('poll')) {
+        let options = ImmutableList(action.status.get('poll').options.map(x => x.title));
+        if (options.size < action.maxOptions) {
+          options = options.push('');
+        }
+
         map.set('poll', ImmutableMap({
-          options: ImmutableList(action.status.get('poll').options.map(x => x.title)),
+          options: options,
           multiple: action.status.get('poll').multiple,
           expires_in: expiresInFromExpiresAt(action.status.get('poll').expires_at),
         }));
@@ -650,8 +650,13 @@ export const composeReducer = (state = initialState, action) => {
       }
 
       if (action.status.get('poll')) {
+        let options = ImmutableList(action.status.get('poll').options.map(x => x.title));
+        if (options.size < action.maxOptions) {
+          options = options.push('');
+        }
+
         map.set('poll', ImmutableMap({
-          options: ImmutableList(action.status.get('poll').options.map(x => x.title)),
+          options: options,
           multiple: action.status.get('poll').multiple,
           expires_in: expiresInFromExpiresAt(action.status.get('poll').expires_at),
         }));

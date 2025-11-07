@@ -75,6 +75,7 @@ class ComposeForm extends ImmutablePureComponent {
     singleColumn: PropTypes.bool,
     lang: PropTypes.string,
     maxChars: PropTypes.number,
+    redirectOnSuccess: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -324,7 +325,7 @@ class ComposeForm extends ImmutablePureComponent {
                 >
                   {intl.formatMessage(
                     this.props.isEditing ?
-                      messages.saveChanges : 
+                      messages.saveChanges :
                       (this.props.isInReply ? messages.reply : messages.publish)
                   )}
                 </Button>

@@ -2353,6 +2353,7 @@ a .account__avatar {
 .detailed-status__display-name,
 .detailed-status__datetime,
 .detailed-status__application,
+.detailed-status__link,
 .account__display-name {
   text-decoration: none;
 }
@@ -2385,7 +2386,8 @@ a.account__display-name {
 }
 
 .detailed-status__application,
-.detailed-status__datetime {
+.detailed-status__datetime,
+.detailed-status__link {
   color: inherit;
 }
 
@@ -2573,8 +2575,9 @@ a.account__display-name {
 }
 
 .status__relative-time,
-.detailed-status__datetime {
-  &:hover {
+.detailed-status__datetime,
+.detailed-status__link {
+  &:is(a):hover {
     text-decoration: underline;
   }
 }
@@ -8023,6 +8026,7 @@ noscript {
   height: 100%;
   background: rgba($base-overlay-background, 0.5);
 }
+
 .circle-link {
   display: flex;
 
