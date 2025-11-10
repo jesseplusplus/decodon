@@ -4,13 +4,14 @@ import type { ApiAccountJSON } from './accounts';
 import type { ApiCustomEmojiJSON } from './custom_emoji';
 import type { ApiMediaAttachmentJSON } from './media_attachments';
 import type { ApiPollJSON } from './polls';
+import type { ApiQuoteJSON, ApiQuotePolicyJSON } from './quotes';
 
 // See app/modals/status.rb
 export type StatusVisibility =
   | 'public'
   | 'unlisted'
   | 'private'
-  // | 'limited' // This is never exposed to the API (they become `private`)
+  | 'limited'
   | 'direct';
 
 export interface ApiStatusApplicationJSON {
@@ -95,6 +96,7 @@ export interface ApiStatusJSON {
   replies_count: number;
   reblogs_count: number;
   favorites_count: number;
+  quotes_count: number;
   edited_at?: string;
 
   favorited?: boolean;
@@ -118,9 +120,25 @@ export interface ApiStatusJSON {
 
   card?: ApiPreviewCardJSON;
   poll?: ApiPollJSON;
+  quote?: ApiQuoteJSON;
+  quote_approval?: ApiQuotePolicyJSON;
 }
 
 export interface ApiContextJSON {
   ancestors: ApiStatusJSON[];
   descendants: ApiStatusJSON[];
+}
+
+export interface ApiStatusSourceJSON {
+  id: string;
+  text: string;
+  spoiler_text: string;
+}
+
+export function isStatusVisibility(
+  visibility: string,
+): visibility is StatusVisibility {
+  return ['public', 'unlisted', 'limited', 'private', 'direct'].includes(
+    visibility,
+  );
 }

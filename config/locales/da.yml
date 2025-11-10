@@ -190,6 +190,7 @@ da:
         create_relay: Opret Videresendelse
         create_unavailable_domain: Opret Utilgængeligt Domæne
         create_user_role: Opret rolle
+        create_username_block: Opret brugernavn-regel
         demote_user: Degradér bruger
         destroy_announcement: Slet bekendtgørelse
         destroy_canonical_email_block: Slet e-mailblokering
@@ -203,6 +204,7 @@ da:
         destroy_status: Slet indlæg
         destroy_unavailable_domain: Slet Utilgængeligt Domæne
         destroy_user_role: Ødelæg rolle
+        destroy_username_block: Slet brugernavn-regel
         disable_2fa_user: Deaktivér 2FA
         disable_custom_emoji: Deaktivér tilpasset emoji
         disable_relay: Deaktivér Videresendelse
@@ -237,6 +239,7 @@ da:
         update_report: Opdatér anmeldelse
         update_status: Opdatér indlæg
         update_user_role: Opdatér rolle
+        update_username_block: Opdatér brugernavn-regel
       actions:
         approve_appeal_html: "%{name} godkendte moderationsafgørelsesappellen fra %{target}"
         approve_user_html: "%{name} godkendte tilmeldingen fra %{target}"
@@ -255,6 +258,7 @@ da:
         create_relay_html: "%{name} oprettede videresendelsen %{target}"
         create_unavailable_domain_html: "%{name} stoppede levering til domænet %{target}"
         create_user_role_html: "%{name} oprettede %{target}-rolle"
+        create_username_block_html: "%{name} tilføjede regel for brugernavne indeholdende %{target}"
         demote_user_html: "%{name} degraderede brugeren %{target}"
         destroy_announcement_html: "%{name} slettede bekendtgørelsen %{target}"
         destroy_canonical_email_block_html: "%{name} afblokerede e-mailen med hash'et %{target}"
@@ -268,6 +272,7 @@ da:
         destroy_status_html: "%{name} fjernede indlægget fra %{target}"
         destroy_unavailable_domain_html: "%{name} genoptog levering til domænet %{target}"
         destroy_user_role_html: "%{name} slettede %{target}-rolle"
+        destroy_username_block_html: "%{name} fjernede regel for brugernavne indeholdende %{target}"
         disable_2fa_user_html: "%{name} deaktiverede tofaktorkravet for brugeren %{target}"
         disable_custom_emoji_html: "%{name} deaktiverede emojien %{target}"
         disable_relay_html: "%{name} deaktiverede videresendelsen %{target}"
@@ -302,6 +307,7 @@ da:
         update_report_html: "%{name} opdaterede rapporten %{target}"
         update_status_html: "%{name} opdaterede indlægget fra %{target}"
         update_user_role_html: "%{name} ændrede %{target}-rolle"
+        update_username_block_html: "%{name} opdaterede regel for brugernavne indeholdende %{target}"
       deleted_account: slettet konto
       empty: Ingen logger fundet.
       filter_by_action: Filtrér efter handling
@@ -790,6 +796,8 @@ da:
         view_dashboard_description: Tillader brugere at tilgå Dashboard'et og forskellige målinger
         view_devops: DevOps
         view_devops_description: Tillader brugere at tilgå Sidekiq- og pgHero-dashboards
+        view_feeds: Se live- og emne-feeds
+        view_feeds_description: Giver brugerne adgang til live- og emne-feeds uanset serverindstillinger
       title: Roller
     rules:
       add_new: Tilføj regel
@@ -831,7 +839,7 @@ da:
         title: Fravælg som standard søgemaskineindeksering for brugere
       discovery:
         follow_recommendations: Følg-anbefalinger
-        preamble: At vise interessant indhold er vitalt ifm. at få nye brugere om bord, som måske ikke kender nogen på Mastodon. Styr, hvordan forskellige opdagelsesfunktioner fungerer på serveren.
+        preamble: At bringe interessant indhold frem er afgørende for at engagere nye brugere, der måske ikke kender nogen på Mastodon. Kontroller, hvordan forskellige funktioner til at finde indhold fungerer på din server.
         privacy: Fortrolighed
         profile_directory: Profiloversigt
         public_timelines: Offentlige tidslinjer
@@ -842,6 +850,16 @@ da:
         all: Til alle
         disabled: Til ingen
         users: Til indloggede lokale brugere
+      feed_access:
+        modes:
+          authenticated: Kun godkendte brugere
+          disabled: Kræv specifik brugerrolle
+          public: Alle
+      landing_page:
+        values:
+          about: Om
+          local_feed: Lokalt feed
+          trends: Trends
       registrations:
         moderation_recommandation: Sørg for, at der er et tilstrækkeligt og reaktivt moderationsteam, før registrering åbnes for alle!
         preamble: Styr, hvem der kan oprette en konto på serveren.
@@ -895,6 +913,7 @@ da:
       no_status_selected: Ingen indlæg ændret (ingen valgt)
       open: Åbn indlæg
       original_status: Oprindeligt indlæg
+      quotes: Citater
       reblogs: Genblogninger
       replied_to_html: Besvarede %{acct_link}
       status_changed: Indlæg ændret
@@ -902,6 +921,7 @@ da:
       title: Kontoindlæg - @%{name}
       trending: Trender
       view_publicly: Vis offentligt
+      view_quoted_post: Vis citeret indlæg
       visibility: Synlighed
       with_media: Med medier
     strikes:
@@ -1085,6 +1105,25 @@ da:
           other: Brugt af %{count} personer den seneste uge
       title: Anbefalinger og trends
       trending: Trender
+    username_blocks:
+      add_new: Tilføj ny
+      block_registrations: Blokér registreringer
+      comparison:
+        contains: Indeholder
+        equals: Er lig
+      contains_html: Indeholder %{string}
+      created_msg: Brugernavn-regel er hermed oprettet
+      delete: Slet
+      edit:
+        title: Redigér brugernavn-regel
+      matches_exactly_html: Er lig med %{string}
+      new:
+        create: Opret regel
+        title: Opret ny brugernavn-regel
+      no_username_block_selected: Ingen brugernavn-regler ændret (ingen var valgt)
+      not_permitted: Ikke tilladt
+      title: Brugernavn-regler
+      updated_msg: Brugernavn-regel opdateret
     warning_presets:
       add_new: Tilføj ny
       delete: Slet
@@ -1157,10 +1196,10 @@ da:
     hint_html: Ønsker du at flytte fra en anden konto til denne, kan du hér oprette det alias, der kræves, for at du kan fortsætte med at flytte følgere fra den gamle konto til denne. Denne handling er i sig selv <strong>harmløs og reversibel</strong>. <strong>Kontomigreringen påbegyndes fra den gamle konto</strong>.
     remove: Fjern aliaslinkning
   appearance:
-    advanced_web_interface: Avanceret webgrænseflade
-    advanced_web_interface_hint: 'Ønsker du udnytte hele skærmbredden, lader den avancerede webgrænseflade dig opsætte mange forskellige kolonner for at se så meget information på samme tid som ønsket: Hjem, notifikationer, federeret tidslinje, et hvilket som helst antal lister og hashtags.'
+    advanced_settings: Avancerede indstillinger
     animations_and_accessibility: Animationer og tilgængelighed
-    confirmation_dialogs: Bekræftelsesdialoger
+    boosting_preferences: Præferencer for fremhævelse
+    boosting_preferences_info_html: "<strong>Tip:</strong> Uanset indstillinger vil <kbd>Skift</kbd> + <kbd>Klik</kbd> på %{icon} fremhæv-ikonet straks fremhæve."
     discovery: Opdagelse
     localization:
       body: Mastodon oversættes af frivillige.
@@ -1349,6 +1388,10 @@ da:
     basic_information: Oplysninger
     hint_html: "<strong>Tilpas, hvad folk ser på din offentlige profil og ved siden af dine indlæg.</strong> Andre personer er mere tilbøjelige til at følge dig tilbage og interagere med dig, når du har en udfyldt profil og et profilbillede."
     other: Andre
+  emoji_styles:
+    auto: Auto
+    native: Indbygget
+    twemoji: Twemoji
   errors:
     '400': Din indsendte anmodning er ugyldig eller fejlbehæftet.
     '403': Du har ikke tilladelse til at se denne side.
@@ -1558,6 +1601,13 @@ da:
       expires_at: Udløber
       uses: Benyttelser
     title: Invitér personer
+  link_preview:
+    author_html: Af %{name}
+    potentially_sensitive_content:
+      action: Klik for at vise
+      confirm_visit: Er du sikker på, at du vil åbne dette link?
+      hide_button: Skjul
+      label: Potentielt følsomt indhold
   lists:
     errors:
       limit: Maks. listeantal nået
@@ -1658,6 +1708,10 @@ da:
       title: Ny omtale
     poll:
       subject: En afstemning fra %{name} er afsluttet
+    quote:
+      body: 'Dit indlæg blev citeret af %{name}:'
+      subject: "%{name} citerede dit indlæg"
+      title: Nyt citat
     reblog:
       body: 'Dit indlæg blev fremhævet af %{name}:'
       subject: "%{name} fremhævede dit indlæg"
@@ -1707,6 +1761,8 @@ da:
       too_few_options: skal have flere end ét valg
       too_many_options: må maks. indeholde %{max} valg
     vote: Stem
+  posting_defaults:
+    explanation: Disse indstillinger vil blive brugt som standard, når du opretter nye indlæg, men du kan redigere dem for hvert enkelt indlæg i redigeringsværktøjet.
   preferences:
     other: Andet
     posting_defaults: Standarder for indlæg
@@ -1862,6 +1918,9 @@ da:
         other: "%{count} videoer"
     boosted_from_html: Fremhævet fra %{acct_link}
     content_warning: 'Indholdsadvarsel: %{warning}'
+    content_warnings:
+      hide: Skjul indlæg
+      show: Vis mere
     default_language: Samme som UI-sproget
     disallowed_hashtags:
       one: 'indeholdte et ikke tilladt hashtag: %{tags}'
@@ -1869,25 +1928,31 @@ da:
     edited_at_html: Redigeret %{date}
     errors:
       in_reply_not_found: Indlægget, der forsøges besvaret, ser ikke ud til at eksistere.
+      quoted_status_not_found: Indlægget, du forsøger at citere, ser ikke ud til at eksistere.
+      quoted_user_not_mentioned: Kan ikke citere en ikke-omtalt bruger i et privat omtale-indlæg.
     over_character_limit: grænsen på %{max} tegn overskredet
     pin_errors:
       direct: Indlæg, som kun kan ses af omtalte brugere, kan ikke fastgøres
       limit: Maksimalt antal indlæg allerede fastgjort
       ownership: Andres indlæg kan ikke fastgøres
       reblog: En fremhævelse kan ikke fastgøres
+    quote_error:
+      not_available: Indlæg utilgængeligt
+      pending_approval: Indlæg afventer
+      revoked: Indlæg fjernet af forfatter
     quote_policies:
       followers: Kun følgere
       nobody: Kun mig
       public: Alle
+    quote_post_author: Citerede et indlæg af %{acct}
     title: '%{name}: "%{quote}"'
     visibilities:
       direct: Privat omtale
       private: Kun følgere
-      private_long: Vis kun til følgere
       public: Offentlig
-      public_long: Kan ses af alle
-      unlisted: Ikke oplistet
-      unlisted_long: Kan ses af alle, men vises ikke på offentlige tidslinjer
+      public_long: Alle på og udenfor Mastodon
+      unlisted: Offentlig (stille)
+      unlisted_long: Skjult fra Mastodons søgeresultater, tendenser og offentlige tidslinjer
   statuses_cleanup:
     enabled: Slet automatisk gamle indlæg
     enabled_hint: Sletter automatisk dine indlæg, når disse når en bestemt alder, medmindre de matcher en af undtagelserne nedenfor

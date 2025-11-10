@@ -36,6 +36,9 @@ RSpec.describe Web::PushNotificationWorker do
   let(:std_input) { 'When I grow up, I want to be a watermelon' }
   let(:std_ciphertext) { 'DGv6ra1nlYgDCS1FRnbzlwAAEABBBP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A_yl95bQpu6cVPTpK4Mqgkf1CXztLVBSt2Ks3oZwbuwXPXLWyouBWLVWGNWQexSgSxsj_Qulcy4a-fN' }
 
+  # Invalid subscription:
+  let(:invalid_subscription) { Fabricate.build(:web_push_subscription, user_id: user.id, key_p256dh: 'invalid', key_auth: 'invalid', endpoint: endpoint, standard: true, data: { alerts: { notification.type => true } }) }
+
   describe 'perform' do
     around do |example|
       original_private = Rails.configuration.x.vapid.private_key
@@ -83,14 +86,25 @@ RSpec.describe Web::PushNotificationWorker do
     end
     # rubocop:enable RSpec/SubjectStub
 
-    it 'Expo push calls the relevant service with the expo headers' do
-      # rubocop:disable RSpec/AnyInstance
-      allow_any_instance_of(subscription.class).to receive(:expo?).and_return(true)
-      allow_any_instance_of(subscription.class).to receive(:expo).and_return('ExpoToken1234')
-      allow(subject).to receive(:push_notification_json).and_return(std_input)
+    context 'with invalid record that will fail' do
+      before do
+        # Fabricator always runs validation, here we deliberately want to bypass
+        # the validation, simulating an invalid Web::PushSubscription that was
+        # created before PRs #30542, #30540 added validation.
+        invalid_subscription.save(validate: false)
+      end
 
-      subject.perform(std_subscription.id, notification.id)
+      it 'removes the record and does not process the request' do
+        expect { subject.perform(invalid_subscription.id, notification.id) }
+          .to_not raise_error
+
+        expect { invalid_subscription.reload }
+          .to raise_error ActiveRecord::RecordNotFound
+
+        expect(a_request(:post, endpoint)).to_not have_been_made
+      end
     end
+
     it 'calls the relevant service with the correct headers and body when it is an expo subscription' do
       # rubocop:disable RSpec/AnyInstance
       allow_any_instance_of(subscription.class).to receive(:expo?).and_return(true)
@@ -141,16 +155,17 @@ RSpec.describe Web::PushNotificationWorker do
       a_request(
         :post,
         endpoint
-        ).with(
-          headers: {
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-            'Accept-Encoding' => 'gzip, deflate',
-            'Host' => 'exp.host',
-            'Ttl' => '172800',
-            'Urgency' => 'normal',
-          },
-        body: { to: 'ExpoToken1234', title: be_an_instance_of(String), body: be_an_instance_of(String), icon: be_an_instance_of(String) })
+      ).with(
+        headers: {
+          'Content-Type' => 'application/json',
+          'Accept' => 'application/json',
+          'Accept-Encoding' => 'gzip, deflate',
+          'Host' => 'exp.host',
+          'Ttl' => '172800',
+          'Urgency' => 'normal',
+        },
+        body: { to: 'ExpoToken1234', title: be_an_instance_of(String), body: be_an_instance_of(String), icon: be_an_instance_of(String) }
+      )
     end
 
     def std_as_keys
