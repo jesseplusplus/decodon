@@ -129,7 +129,7 @@ const mapDispatchToProps = (dispatch, { contextType }) => ({
 
   onQuotePolicyChange(status) {
     const statusId = status.get('id');
-    const handleChange = (_, quotePolicy) => {
+    const handleChange = (_, quotePolicy, _circleId) => {
       dispatch(
         setStatusQuotePolicy({ policy: quotePolicy, statusId }),
       );

@@ -1,10 +1,18 @@
-import { forwardRef, useCallback, useId, useMemo, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+} from 'react';
 import type { FC } from 'react';
 
 import { defineMessages, FormattedMessage, useIntl } from 'react-intl';
 
 import classNames from 'classnames';
 
+import { fetchCircles } from '@/mastodon/actions/circles_typed';
 import type { ApiQuotePolicy } from '@/mastodon/api_types/quotes';
 import { isQuotePolicy } from '@/mastodon/api_types/quotes';
 import { isStatusVisibility } from '@/mastodon/api_types/statuses';
@@ -14,7 +22,12 @@ import { Dropdown } from '@/mastodon/components/dropdown';
 import type { SelectItem } from '@/mastodon/components/dropdown_selector';
 import { IconButton } from '@/mastodon/components/icon_button';
 import { messages as privacyMessages } from '@/mastodon/features/compose/components/privacy_dropdown';
-import { createAppSelector, useAppSelector } from '@/mastodon/store';
+import { getOrderedCircles } from '@/mastodon/selectors/circles';
+import {
+  createAppSelector,
+  useAppSelector,
+  useAppDispatch,
+} from '@/mastodon/store';
 import AlternateEmailIcon from '@/material-icons/400-24px/alternate_email.svg?react';
 import CloseIcon from '@/material-icons/400-24px/close.svg?react';
 import LockIcon from '@/material-icons/400-24px/lock.svg?react';
@@ -42,11 +55,20 @@ const messages = defineMessages({
     id: 'visibility_modal.quote_nobody',
     defaultMessage: 'Just me',
   },
+  circleUnselect: {
+    id: 'circle.unselect',
+    defaultMessage: '(Select circle)',
+  },
+  circleReply: {
+    id: 'circle.reply',
+    defaultMessage: '(Reply to circle context)',
+  },
 });
 
 export type VisibilityModalCallback = (
   visibility: StatusVisibility,
   quotePolicy: ApiQuotePolicy,
+  circleId: string | null,
 ) => void;
 
 interface VisibilityModalProps extends BaseConfirmationModalProps {
@@ -112,6 +134,7 @@ export const VisibilityModal: FC<VisibilityModalProps> = forwardRef(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ({ onClose, onChange, statusId }, _ref) => {
     const intl = useIntl();
+    const dispatch = useAppDispatch();
     const currentVisibility = useAppSelector((state) =>
       statusId
         ? ((state.statuses.getIn([statusId, 'visibility'], 'public') as
@@ -122,9 +145,21 @@ export const VisibilityModal: FC<VisibilityModalProps> = forwardRef(
     const currentQuotePolicy = useAppSelector((state) =>
       selectStatusPolicy(state, statusId),
     );
+    const currentCircleId = useAppSelector((state) =>
+      statusId
+        ? (state.statuses.getIn([statusId, 'circle_id'], null) as string | null)
+        : (state.compose.get('circle_id') as string | null),
+    );
+    const circles = useAppSelector((state) => getOrderedCircles(state));
+    const isLimitedReply = useAppSelector(
+      (state) =>
+        state.compose.get('privacy') === 'limited' &&
+        state.compose.getIn(['reply_status', 'visibility']) === 'limited',
+    );
 
     const [visibility, setVisibility] = useState(currentVisibility);
     const [quotePolicy, setQuotePolicy] = useState(currentQuotePolicy);
+    const [circleId, setCircleId] = useState(currentCircleId ?? '');
 
     const disableVisibility = !!statusId;
     const disableQuotePolicy =
@@ -137,6 +172,13 @@ export const VisibilityModal: FC<VisibilityModalProps> = forwardRef(
     const isQuotePost = useAppSelector(
       (state) => state.compose.get('quoted_status_id') !== null,
     );
+    const isCirclePost = visibility === 'limited';
+
+    useEffect(() => {
+      if (visibility === 'limited') {
+        void dispatch(fetchCircles());
+      }
+    }, [dispatch, visibility]);
 
     const visibilityItems = useMemo<SelectItem<StatusVisibility>[]>(() => {
       const items: SelectItem<StatusVisibility>[] = [
@@ -195,6 +237,25 @@ export const VisibilityModal: FC<VisibilityModalProps> = forwardRef(
       ],
       [intl],
     );
+    const circleItems = useMemo<SelectItem[]>(() => {
+      const items: SelectItem[] = [
+        {
+          value: '',
+          text: intl.formatMessage(
+            isLimitedReply ? messages.circleReply : messages.circleUnselect,
+          ),
+        },
+      ];
+
+      circles.forEach((circle) => {
+        items.push({
+          value: circle.id,
+          text: circle.title,
+        });
+      });
+
+      return items;
+    }, [intl, circles, isLimitedReply]);
 
     const handleVisibilityChange = useCallback((value: string) => {
       if (isStatusVisibility(value)) {
@@ -206,12 +267,17 @@ export const VisibilityModal: FC<VisibilityModalProps> = forwardRef(
         setQuotePolicy(value);
       }
     }, []);
+    const handleCircleChange = useCallback((value: string) => {
+      setCircleId(value);
+    }, []);
     const handleSave = useCallback(() => {
-      onChange(visibility, quotePolicy);
+      onChange(visibility, quotePolicy, circleId);
       onClose();
-    }, [onChange, onClose, visibility, quotePolicy]);
+    }, [onChange, onClose, visibility, quotePolicy, circleId]);
 
     const uniqueId = useId();
+    const circleLabelId = `${uniqueId}-circle-label`;
+    const circleDescriptionId = `${uniqueId}-circle-desc`;
     const visibilityLabelId = `${uniqueId}-visibility-label`;
     const visibilityDescriptionId = `${uniqueId}-visibility-desc`;
     const quoteLabelId = `${uniqueId}-quote-label`;
@@ -296,6 +362,38 @@ export const VisibilityModal: FC<VisibilityModalProps> = forwardRef(
                     defaultMessage='Self-quotes of private posts cannot be made public.'
                   />
                 </p>
+              )}
+              {isCirclePost && (
+                <div className='visibility-dropdown'>
+                  {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                  <label
+                    className='visibility-dropdown__label'
+                    id={circleLabelId}
+                  >
+                    <FormattedMessage
+                      id='visibility_modal.circle_label'
+                      defaultMessage='Circle'
+                    />
+                  </label>
+
+                  <Dropdown
+                    items={circleItems}
+                    current={circleId}
+                    onChange={handleCircleChange}
+                    labelId={circleLabelId}
+                    descriptionId={circleDescriptionId}
+                    classPrefix='visibility-dropdown'
+                  />
+                  <p
+                    className='visibility-dropdown__helper'
+                    id={circleDescriptionId}
+                  >
+                    <FormattedMessage
+                      id='visibility_modal.helper.circle'
+                      defaultMessage='Choose which circle can see this post.'
+                    />
+                  </p>
+                </div>
               )}
             </div>
 

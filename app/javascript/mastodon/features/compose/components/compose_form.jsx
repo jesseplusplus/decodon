@@ -15,7 +15,6 @@ import { missingAltTextModal } from 'mastodon/initial_state';
 import AutosuggestInput from 'mastodon/components/autosuggest_input';
 import AutosuggestTextarea from 'mastodon/components/autosuggest_textarea';
 import { Button } from 'mastodon/components/button';
-import CircleDropdownContainer from '../containers/circle_dropdown_container';
 import EmojiPickerDropdown from '../containers/emoji_picker_dropdown_container';
 import PollButtonContainer from '../containers/poll_button_container';
 import SpoilerButtonContainer from '../containers/spoiler_button_container';
@@ -333,8 +332,6 @@ class ComposeForm extends ImmutablePureComponent {
                 <EmojiPickerDropdown onPickEmoji={this.handleEmojiPick} />
                 <CharacterCounter max={maxChars} text={this.getFulltextForCharacterCounting()} />
               </div>
-
-              <CircleDropdownContainer />
 
               <div className='compose-form__submit'>
                 <Button

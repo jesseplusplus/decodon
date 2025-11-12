@@ -5,6 +5,7 @@ import { defineMessages, useIntl } from 'react-intl';
 
 import classNames from 'classnames';
 
+import { changeComposeCircle } from '@/mastodon/actions/compose';
 import {
   changeComposeVisibility,
   setComposeQuotePolicy,
@@ -123,9 +124,12 @@ const PrivacyModalButton: FC<PrivacyDropdownProps> = ({ disabled = false }) => {
   const dispatch = useAppDispatch();
 
   const handleChange: VisibilityModalCallback = useCallback(
-    (newVisibility, newQuotePolicy) => {
+    (newVisibility, newQuotePolicy, newCircleId) => {
       if (newVisibility !== visibility) {
         dispatch(changeComposeVisibility(newVisibility));
+        if (newCircleId !== null) {
+          dispatch(changeComposeCircle(newCircleId));
+        }
       }
       if (newQuotePolicy !== quotePolicy) {
         dispatch(setComposeQuotePolicy(newQuotePolicy));

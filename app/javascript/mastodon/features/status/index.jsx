@@ -291,7 +291,7 @@ class Status extends ImmutablePureComponent {
   handleQuotePolicyChange = (status) => {
     const statusId = status.get('id');
     const { dispatch } = this.props;
-    const handleChange = (_, quotePolicy) => {
+    const handleChange = (_, quotePolicy, _circleId) => {
       dispatch(
         setStatusQuotePolicy({ policy: quotePolicy, statusId }),
       );
