@@ -42,4 +42,49 @@ RSpec.describe ActivityPub::NoteSerializer do
       .and(not_include(reply_by_other_first.uri)) # Replies from others
       .and(not_include(reply_by_account_visibility_direct.uri)) # Replies with direct visibility
   end
+
+  context 'with a quote' do
+    let(:quoted_status) { Fabricate(:status) }
+    let!(:quote) { Fabricate(:quote, status: parent, quoted_status: quoted_status, state: :accepted) }
+
+    it 'has the expected shape' do
+      expect(subject).to include({
+        'type' => 'Note',
+        'quote' => ActivityPub::TagManager.instance.uri_for(quote.quoted_status),
+        'quoteUri' => ActivityPub::TagManager.instance.uri_for(quote.quoted_status),
+        '_misskey_quote' => ActivityPub::TagManager.instance.uri_for(quote.quoted_status),
+        'quoteAuthorization' => ActivityPub::TagManager.instance.approval_uri_for(quote),
+      })
+    end
+  end
+
+  context 'with a deleted quote' do
+    let(:quoted_status) { Fabricate(:status) }
+
+    before do
+      Fabricate(:quote, status: parent, quoted_status: nil, state: :accepted)
+    end
+
+    it 'has the expected shape' do
+      expect(subject).to include({
+        'type' => 'Note',
+        'quote' => { 'type' => 'Tombstone' },
+      })
+    end
+  end
+
+  context 'with a quote policy' do
+    let(:parent) { Fabricate(:status, quote_approval_policy: Status::QUOTE_APPROVAL_POLICY_FLAGS[:followers] << 16) }
+
+    it 'has the expected shape' do
+      expect(subject).to include({
+        'type' => 'Note',
+        'interactionPolicy' => a_hash_including(
+          'canQuote' => a_hash_including(
+            'automaticApproval' => [ActivityPub::TagManager.instance.followers_uri_for(parent.account)]
+          )
+        ),
+      })
+    end
+  end
 end

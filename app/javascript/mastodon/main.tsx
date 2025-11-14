@@ -2,13 +2,14 @@ import { createRoot } from 'react-dom/client';
 
 import { Globals } from '@react-spring/web';
 
+import * as perf from '@/mastodon/utils/performance';
 import { setupBrowserNotifications } from 'mastodon/actions/notifications';
 import Mastodon from 'mastodon/containers/mastodon';
 import { me, reduceMotion } from 'mastodon/initial_state';
-import * as perf from 'mastodon/performance';
 import ready from 'mastodon/ready';
 import { store } from 'mastodon/store';
 
+import { initializeEmoji } from './features/emoji';
 import { isProduction, isDevelopment } from './utils/environment';
 
 function main() {
@@ -28,6 +29,8 @@ function main() {
         skipAnimation: true,
       });
     }
+
+    initializeEmoji();
 
     const root = createRoot(mountNode);
     root.render(<Mastodon {...props} />);

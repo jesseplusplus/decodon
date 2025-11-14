@@ -8,8 +8,8 @@
 #  uri               :string
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
-#  parent_status_id  :bigint(8)
 #  parent_account_id :bigint(8)
+#  parent_status_id  :bigint(8)
 #  inbox_url         :string
 #
 
@@ -26,6 +26,10 @@ class Conversation < ApplicationRecord
   before_validation :set_parent_account, on: :create
 
   after_create :set_conversation_on_parent_status
+
+  def to_param
+    "#{parent_account_id}-#{parent_status_id}" unless parent_account_id.nil? || parent_status_id.nil?
+  end
 
   def local?
     uri.nil?

@@ -10,11 +10,15 @@ import {
   insertEmojiCompose,
   uploadCompose,
 } from 'mastodon/actions/compose';
+import { pasteLinkCompose } from 'mastodon/actions/compose_typed';
 import { openModal } from 'mastodon/actions/modal';
+import { PRIVATE_QUOTE_MODAL_ID } from 'mastodon/features/ui/components/confirmation_modals/private_quote_notify';
 
 import ComposeForm from '../components/compose_form';
 
-const mapStateToProps = (state) => ({
+const urlLikeRegex = /^https?:\/\/[^\s]+\/[^\s]+$/i;
+
+const mapStateToProps = state => ({
   text: state.getIn(['compose', 'text']),
   suggestions: state.getIn(['compose', 'suggestions']),
   spoiler: state.getIn(['compose', 'spoiler']),
@@ -33,6 +37,10 @@ const mapStateToProps = (state) => ({
     !state.getIn(['compose', 'circle_id']),
   anyMedia: state.getIn(['compose', 'media_attachments']).size > 0,
   missingAltText: state.getIn(['compose', 'media_attachments']).some(media => ['image', 'gifv'].includes(media.get('type')) && (media.get('description') ?? '').length === 0),
+  quoteToPrivate:
+    !!state.getIn(['compose', 'quoted_status_id'])
+    && state.getIn(['compose', 'privacy']) === 'private'
+    && !state.getIn(['settings', 'dismissed_banners', PRIVATE_QUOTE_MODAL_ID]),
   isInReply: state.getIn(['compose', 'in_reply_to']) !== null,
   lang: state.getIn(['compose', 'language']),
   maxChars: state.getIn(['server', 'server', 'configuration', 'statuses', 'max_characters'], 500),
@@ -44,10 +52,15 @@ const mapDispatchToProps = (dispatch, props) => ({
     dispatch(changeCompose(text));
   },
 
-  onSubmit (missingAltText) {
+  onSubmit ({ missingAltText, quoteToPrivate }) {
     if (missingAltText) {
       dispatch(openModal({
         modalType: 'CONFIRM_MISSING_ALT_TEXT',
+        modalProps: {},
+      }));
+    } else if (quoteToPrivate) {
+      dispatch(openModal({
+        modalType: 'CONFIRM_PRIVATE_QUOTE_NOTIFY',
         modalProps: {},
       }));
     } else {
@@ -75,8 +88,21 @@ const mapDispatchToProps = (dispatch, props) => ({
     dispatch(changeComposeSpoilerText(checked));
   },
 
-  onPaste(files) {
-    dispatch(uploadCompose(files));
+  onPaste (e) {
+    if (e.clipboardData && e.clipboardData.files.length === 1) {
+      dispatch(uploadCompose(e.clipboardData.files));
+      e.preventDefault();
+    } else if (e.clipboardData && e.clipboardData.files.length === 0) {
+      const data = e.clipboardData.getData('text/plain');
+      if (!data.match(urlLikeRegex)) return;
+
+      try {
+        const url = new URL(data);
+        dispatch(pasteLinkCompose({ url }));
+      } catch {
+        return;
+      }
+    }
   },
 
   onPickEmoji(position, data, needsSpace) {

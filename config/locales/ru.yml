@@ -196,6 +196,7 @@ ru:
         create_relay: Создание ретранслятора
         create_unavailable_domain: Добавление домена в список недоступных
         create_user_role: Создание ролей
+        create_username_block: Создать правило имени пользователя
         demote_user: Разжалование пользователей
         destroy_announcement: Удаление объявлений
         destroy_canonical_email_block: Удаление блокировок e-mail
@@ -209,6 +210,7 @@ ru:
         destroy_status: Удаление постов
         destroy_unavailable_domain: Исключение доменов из списка недоступных
         destroy_user_role: Удаление ролей
+        destroy_username_block: Удалить правило имени пользователя
         disable_2fa_user: Отключение 2FA
         disable_custom_emoji: Отключение эмодзи
         disable_relay: Отключение ретранслятора
@@ -243,6 +245,7 @@ ru:
         update_report: Изменение жалоб
         update_status: Изменение постов
         update_user_role: Изменение ролей
+        update_username_block: Обновить правило имени пользователя
       actions:
         approve_appeal_html: "%{name} одобрил(а) обжалование действий модерации от %{target}"
         approve_user_html: "%{name} утвердил(а) регистрацию %{target}"
@@ -261,6 +264,7 @@ ru:
         create_relay_html: "%{name} создал(а) ретранслятор %{target}"
         create_unavailable_domain_html: "%{name} приостановил доставку на узел %{target}"
         create_user_role_html: "%{name} создал(а) роль %{target}"
+        create_username_block_html: "%{name} создал(а) правило для имён пользователей, содержащих %{target}"
         demote_user_html: "%{name} разжаловал(а) пользователя %{target}"
         destroy_announcement_html: "%{name} удалил(а) объявление %{target}"
         destroy_canonical_email_block_html: "%{name} снял(а) блокировку e-mail с хэшем %{target}"
@@ -274,6 +278,7 @@ ru:
         destroy_status_html: "%{name} удалил(а) пост пользователя %{target}"
         destroy_unavailable_domain_html: "%{name} возобновил доставку на узел %{target}"
         destroy_user_role_html: "%{name} удалил(а) роль %{target}"
+        destroy_username_block_html: "%{name} удалил(а) правило для имён пользователей, содержащих %{target}"
         disable_2fa_user_html: "%{name} отключил(а) требование двухэтапной авторизации для пользователя %{target}"
         disable_custom_emoji_html: "%{name} отключил(а) эмодзи %{target}"
         disable_relay_html: "%{name} отключил(а) ретранслятор %{target}"
@@ -308,6 +313,7 @@ ru:
         update_report_html: "%{name} изменил(а) жалобу %{target}"
         update_status_html: "%{name} изменил(а) пост пользователя %{target}"
         update_user_role_html: "%{name} изменил(а) роль %{target}"
+        update_username_block_html: "%{name} обновил(а) правило для имён пользователей, содержащих %{target}"
       deleted_account: удалённая учётная запись
       empty: Журнал пуст.
       filter_by_action: Фильтр по действию
@@ -845,7 +851,6 @@ ru:
         title: Исключить пользователей из индексации поисковиками по умолчанию
       discovery:
         follow_recommendations: Рекомендации подписок
-        preamble: Наблюдение интересного контента играет важную роль при открытии новых пользователей, которые могут не знать ни одного Mastodon. Контролируйте как работают различные функции обнаружения на вашем сервере.
         privacy: Конфиденциальность
         profile_directory: Каталог профилей
         public_timelines: Публичные ленты
@@ -1105,6 +1110,23 @@ ru:
           other: За последнюю неделю использовал %{count} человек
       title: Рекомендации и тренды
       trending: Популярное
+    username_blocks:
+      add_new: Добавить новое
+      block_registrations: Блокировать регистрации
+      comparison:
+        contains: Содержит
+        equals: Равен
+      contains_html: Содержит %{string}
+      created_msg: Успешно создано правило имени пользователя
+      delete: Удалить
+      edit:
+        title: Редактировать правило имени пользователя
+      matches_exactly_html: Равен %{string}
+      new:
+        create: Создать правило
+        title: Создать новое правило имени пользователя
+      not_permitted: Не разрешено
+      title: Правила имени пользователя
     warning_presets:
       add_new: Добавить
       delete: Удалить
@@ -1179,10 +1201,7 @@ ru:
     hint_html: Если вы собираетесь переехать с другой учётной записи на эту, то, прежде чем вы сможете перенести подписчиков со старой учётной записи, вы должны связать учётные записи здесь. Это действие само по себе <strong>безвредно и обратимо.</strong> <strong>Начать переезд можно только со старой учётной записи.</strong>
     remove: Отвязать учётную запись
   appearance:
-    advanced_web_interface: Многоколоночный интерфейс
-    advanced_web_interface_hint: 'Многоколоночный интерфейс даёт возможность использовать всю ширину экрана, позволяя вам обозревать столько информации, сколько вы захотите. Вы можете добавить множество различных столбцов: главную ленту, уведомления, глобальную ленту, неограниченное количество списков и хештегов.'
     animations_and_accessibility: Анимации и доступность
-    confirmation_dialogs: Диалоговые окна подтверждений
     discovery: Актуальное
     localization:
       body: Mastodon переводится добровольцами.
@@ -1371,6 +1390,10 @@ ru:
     basic_information: Основные данные
     hint_html: "<strong>Здесь вы можете изменить всё то, что будет отображаться в вашем публичном профиле и рядом с вашими постами.</strong> На вас будут чаще подписываться и с вами будут чаще взаимодействовать, если у вас будет заполнен профиль и добавлено фото профиля."
     other: Разное
+  emoji_styles:
+    auto: Автоматически
+    native: Как в системе
+    twemoji: Twemoji
   errors:
     '400': Ваш запрос повреждён или содержит ошибки.
     '403': У вас нет доступа для просмотра этой страницы.
@@ -1719,6 +1742,10 @@ ru:
       title: Новое упоминание
     poll:
       subject: Опрос %{name} завершился
+    quote:
+      body: 'Ваш пост был процитирован %{name}:'
+      subject: "%{name} процитировал(а) ваш пост"
+      title: Новая цитата
     reblog:
       body: "%{name} продвинул(а) ваш пост:"
       subject: "%{name} продвинул(а) ваш пост"
@@ -1937,6 +1964,7 @@ ru:
     edited_at_html: 'Последнее изменение: %{date}'
     errors:
       in_reply_not_found: Пост, на который вы собирались ответить, был удалён или не существует.
+      quoted_status_not_found: Пост, который вы собирались процитировать, был удалён или не существует.
     over_character_limit: превышает максимально допустимую длину (%{max} символов)
     pin_errors:
       direct: Нельзя закрепить пост, который доступен только тем, кто был упомянут в нём
@@ -1945,12 +1973,7 @@ ru:
       reblog: Нельзя закрепить продвижение
     title: "%{name}: «%{quote}»"
     visibilities:
-      private: Только для подписчиков
-      private_long: Доступен только вашим подписчикам
       public: Публичный
-      public_long: Доступен кому угодно
-      unlisted: Скрытый
-      unlisted_long: Доступен кому угодно, но не отображается в публичных лентах
   statuses_cleanup:
     enabled: Автоматически удалять старые посты
     enabled_hint: По истечении определённого срока с момента публикации ваши посты, кроме соответствующих отмеченным ниже исключениям, будут автоматически удалены

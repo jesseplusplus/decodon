@@ -44,15 +44,9 @@ class Status < ApplicationRecord
   include Status::SnapshotConcern
   include Status::ThreadingConcern
   include Status::Visibility
+  include Status::InteractionPolicyConcern
 
   MEDIA_ATTACHMENTS_LIMIT = 4
-
-  QUOTE_APPROVAL_POLICY_FLAGS = {
-    unknown: (1 << 0),
-    public: (1 << 1),
-    followers: (1 << 2),
-    followed: (1 << 3),
-  }.freeze
 
   rate_limit by: :account, family: :statuses
 
@@ -73,12 +67,13 @@ class Status < ApplicationRecord
   belongs_to :in_reply_to_account, class_name: 'Account', optional: true
   belongs_to :conversation, optional: true
   belongs_to :preloadable_poll, class_name: 'Poll', foreign_key: 'poll_id', optional: true, inverse_of: false
-  has_one :owned_conversation, class_name: 'Conversation', foreign_key: 'parent_status_id', inverse_of: :parent_status, dependent: nil
 
   with_options class_name: 'Status', optional: true do
     belongs_to :thread, foreign_key: 'in_reply_to_id', inverse_of: :replies
     belongs_to :reblog, foreign_key: 'reblog_of_id', inverse_of: :reblogs
   end
+
+  has_one :owned_conversation, class_name: 'Conversation', foreign_key: 'parent_status_id', inverse_of: :parent_status, dependent: nil
 
   has_many :favourites, inverse_of: :status, dependent: :destroy
   has_many :bookmarks, inverse_of: :status, dependent: :destroy
@@ -127,7 +122,10 @@ class Status < ApplicationRecord
   scope :without_replies, -> { not_reply.or(reply_to_account) }
   scope :not_reply, -> { where(reply: false) }
   scope :only_reblogs, -> { where.not(reblog_of_id: nil) }
+  scope :only_polls, -> { where.not(poll_id: nil) }
+  scope :without_polls, -> { where(poll_id: nil) }
   scope :reply_to_account, -> { where(arel_table[:in_reply_to_account_id].eq arel_table[:account_id]) }
+  scope :not_replying_to_account, ->(account) { where.not(in_reply_to_account: account) }
   scope :without_reblogs, -> { where(statuses: { reblog_of_id: nil }) }
   scope :tagged_with, ->(tag_ids) { joins(:statuses_tags).where(statuses_tags: { tag_id: tag_ids }) }
   scope :not_excluded_by_account, ->(account) { where.not(account_id: account.excluded_from_timeline_account_ids) }
@@ -314,6 +312,10 @@ class Status < ApplicationRecord
     status_stat&.favourites_count || 0
   end
 
+  def quotes_count
+    status_stat&.quotes_count || 0
+  end
+
   # Reblogs count received from an external instance
   def untrusted_reblogs_count
     status_stat&.untrusted_reblogs_count unless local?
@@ -447,14 +449,12 @@ class Status < ApplicationRecord
 
     self.reply = !(in_reply_to_id.nil? && thread.nil?) unless reply
 
-    self.in_reply_to_account_id = carried_over_reply_to_account_id if reply? && !thread.nil?
-
-    return unless conversation_id.nil?
-
     if reply? && !thread.nil? && circle.nil?
-      self.conversation_id = thread.conversation_id
-    else
-      build_owned_conversation
+      self.in_reply_to_account_id = carried_over_reply_to_account_id
+      self.conversation_id        = thread.conversation_id if conversation_id.nil?
+    elsif conversation_id.nil?
+      conversation = build_owned_conversation
+      self.conversation = conversation
     end
   end
 

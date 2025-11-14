@@ -5,7 +5,7 @@
   .container-alt
     .logo-container
       %h1
-        - if request.user_agent =~ /Mobile/
+        - if within_authorization_flow? || request.user_agent&.include?('Mobile')
           = logo_as_symbol(:wordmark)
         - else
           = link_to root_path do
