@@ -108,9 +108,22 @@ RSpec.shared_examples 'Status::Visibility' do
   end
 
   describe '.selectable_visibilities' do
-    it 'returns options available for default privacy selection' do
-      expect(Status.selectable_visibilities)
-        .to match(%w(public unlisted private))
+    subject(:visibility_options) { Status.selectable_visibilities(user) }
+
+    context 'when user has owner role' do
+      let(:user) { Fabricate(:user, role: UserRole.find_by(name: 'Owner')) }
+
+      it 'returns all distributable options' do
+        expect(visibility_options).to eq(%w(public unlisted private))
+      end
+    end
+
+    context 'when user does not have owner role' do
+      let(:user) { Fabricate(:user) }
+
+      it 'returns only private option' do
+        expect(visibility_options).to eq(%w(private))
+      end
     end
   end
 

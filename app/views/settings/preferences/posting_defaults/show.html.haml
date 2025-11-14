@@ -15,7 +15,7 @@
 
     .fields-group
       = ff.input :default_privacy,
-                 collection: Status.selectable_visibilities,
+                 collection: Status.selectable_visibilities(current_user),
                  selected: current_user.setting_default_privacy,
                  hint: false,
                  include_blank: false,

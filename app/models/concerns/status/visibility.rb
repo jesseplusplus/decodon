@@ -20,8 +20,12 @@ module Status::Visibility
   end
 
   class_methods do
-    def selectable_visibilities
-      visibilities.keys - %w(direct limited)
+    def selectable_visibilities(user = nil)
+      if user&.role == UserRole.find_by(name: 'Owner')
+        visibilities.keys - %w(direct limited)
+      else
+        visibilities.keys - %w(public unlisted direct limited)
+      end
     end
   end
 
