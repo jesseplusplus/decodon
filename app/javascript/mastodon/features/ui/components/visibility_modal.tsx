@@ -22,6 +22,7 @@ import { Dropdown } from '@/mastodon/components/dropdown';
 import type { SelectItem } from '@/mastodon/components/dropdown_selector';
 import { IconButton } from '@/mastodon/components/icon_button';
 import { messages as privacyMessages } from '@/mastodon/features/compose/components/privacy_dropdown';
+import { initialState } from '@/mastodon/initial_state';
 import { getOrderedCircles } from '@/mastodon/selectors/circles';
 import {
   createAppSelector,
@@ -119,6 +120,11 @@ const selectDisablePublicVisibilities = createAppSelector(
     (state) => state.compose.get('quoted_status_id') as string | null,
   ],
   (statuses, isEditing, statusId) => {
+    const isOwner = initialState?.role?.name === 'Owner';
+    if (!isOwner) {
+      return true;
+    }
+
     if (isEditing || !statusId) return false;
 
     const status = statuses.get(statusId);
@@ -166,8 +172,8 @@ export const VisibilityModal: FC<VisibilityModalProps> = forwardRef(
       visibility === 'private' ||
       visibility === 'limited' ||
       visibility === 'direct';
-    const disablePublicVisibilities = useAppSelector(
-      selectDisablePublicVisibilities,
+    const disablePublicVisibilities = useAppSelector((state) =>
+      selectDisablePublicVisibilities(state, statusId),
     );
     const isQuotePost = useAppSelector(
       (state) => state.compose.get('quoted_status_id') !== null,
