@@ -28,10 +28,10 @@ class Web::PushNotificationWorker
     # in the meantime, so we have to double-check before proceeding
     return unless @notification.activity.present? && @subscription.pushable?(@notification)
 
-    if web_push_request.legacy
-      perform_legacy_request
-    elsif @subscription.expo?
+    if @subscription.expo?
       expo_send
+    elsif web_push_request.legacy
+      perform_legacy_request
     else
       perform_standard_request
     end
