@@ -104,7 +104,7 @@ class Web::PushNotificationWorker
   end
 
   def expo_send
-    request_pool.with(@subscription.audience) do |http_client|
+    request_pool.with(Addressable::URI.parse(@subscription.endpoint).normalized_site) do |http_client|
       body = push_notification_json
 
       request = Request.new(:post, @subscription.endpoint, body: body, http_client: http_client)
