@@ -3,6 +3,8 @@
 module JsonLdHelper
   include ContextHelper
 
+  UNSUPPORTED_JSONLD_KEYWORDS = %w(@graph @included @reverse).freeze
+
   def equals_or_includes?(haystack, needle)
     haystack.is_a?(Array) ? haystack.include?(needle) : haystack == needle
   end
@@ -70,6 +72,10 @@ module JsonLdHelper
     !json.nil? && equals_or_includes?(json['@context'], ActivityPub::TagManager::CONTEXT)
   end
 
+  def supported_security_context?(json)
+    !json.nil? && equals_or_includes?(json['@context'], 'https://w3id.org/security/v1')
+  end
+
   def unsupported_uri_scheme?(uri)
     uri.nil? || !uri.start_with?('http://', 'https://')
   end
@@ -108,6 +114,16 @@ module JsonLdHelper
     compacted = JSON::LD::API.compact(json.without('signature'), full_context, documentLoader: method(:load_jsonld_context))
     compacted['signature'] = json['signature']
     compacted
+  end
+
+  def unsupported_jsonld_features?(json)
+    if json.is_a?(Hash)
+      json.any? { |key, value| UNSUPPORTED_JSONLD_KEYWORDS.include?(key) || unsupported_jsonld_features?(value) }
+    elsif json.is_a?(Array)
+      json.any? { |value| unsupported_jsonld_features?(value) }
+    else
+      false
+    end
   end
 
   # Patches a JSON-LD document to avoid compatibility issues on redistribution

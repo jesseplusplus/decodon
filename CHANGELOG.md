@@ -2,6 +2,160 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.5.10] - 2026-05-20
+
+### Security
+
+- Fix SSRF protection bypass ([GHSA-crr4-7rm4-8gpw](https://github.com/mastodon/mastodon/security/advisories/GHSA-crr4-7rm4-8gpw), [GHSA-xx55-4rrg-8xg6](https://github.com/mastodon/mastodon/security/advisories/GHSA-xx55-4rrg-8xg6))
+- Fix Linked-Data Signature bypass through JSON-LD graph restructuring features ([GHSA-53m7-2wrh-q839](https://github.com/mastodon/mastodon/security/advisories/GHSA-53m7-2wrh-q839), [GHSA-chgx-jx3p-rf73](https://github.com/mastodon/mastodon/security/advisories/GHSA-chgx-jx3p-rf73))
+- Updated dependencies
+
+### Fixed
+
+- Fix type of `interactingObject`, `interactionTarget` and add missing `QuoteAuthorization` (#38940 by @ClearlyClaire)
+
+### Removed
+
+- Remove unused devise strategies (#38795 by @ClearlyClaire)
+
+## [4.5.9] - 2026-04-15
+
+### Security
+
+- Insufficient verification of email addresses ([GHSA-5r37-qpwq-2jhh](https://github.com/mastodon/mastodon/security/advisories/GHSA-5r37-qpwq-2jhh))
+- Updated dependencies
+
+### Added
+
+- Add trademark warning to `mastodon:setup` task (#38548 by @ClearlyClaire)
+
+### Fixed
+
+- Fix definition for `quote` in JSON-LD context (#38686 by @ClearlyClaire)
+- Fix being unable to disable sound for quote update notification (#38537 by @ClearlyClaire)
+- Fix being able to quote someone you blocked (#38608 by @ClearlyClaire)
+
+## [4.5.8] - 2026-03-24
+
+### Security
+
+- Fix insufficient checks on quote authorizations ([GHSA-q4g8-82c5-9h33](https://github.com/mastodon/mastodon/security/advisories/GHSA-q4g8-82c5-9h33))
+- Fix open redirect in legacy path handler ([GHSA-xqw8-4j56-5hj6](https://github.com/mastodon/mastodon/security/advisories/GHSA-xqw8-4j56-5hj6))
+- Updated dependencies
+
+### Added
+
+- Add for searching already-known private GtS posts (#38057 by @ClearlyClaire)
+
+### Changed
+
+- Change media description length limit for remote media attachments from 1500 to 10000 characters (#37921 by @ClearlyClaire)
+- Change HTTP signatures to skip the `Accept` header (#38132 by @ClearlyClaire)
+- Change numeric AP endpoints to redirect to short account URLs when HTML is requested (#38056 by @ClearlyClaire)
+
+### Fixed
+
+- Fix some model definitions in `tootctl maintenance fix-duplicates` (#38214 by @ClearlyClaire)
+- Fix overly strict checks for current username on account migration page (#38183 by @mjankowski)
+- Fix OpenStack Swift Keystone token rate limiting (#38145 by @hugogameiro)
+- Fix poll expiration notification being re-triggered on implicit updates (#38078 by @ClearlyClaire)
+- Fix incorrect translation string in webauthn mailers (#38062 by @mjankowski)
+- Fix “Unblock” and “Unmute” actions being disabled when blocked (#38075 by @ClearlyClaire)
+- Fix username availability check being wrongly applied on race conditions (#37975 by @ClearlyClaire)
+- Fix hover card unintentionally being shown in some cases (#38039 and #38112 by @diondiondion)
+- Fix existing posts not being removed from lists when a list member is unfollowed (#38048 by @ClearlyClaire)
+
+## [4.5.7] - 2026-02-24
+
+### Security
+
+- Reject unconfirmed FASPs (#37926 by @oneiros, [GHSA-qgmm-vr4c-ggjg](https://github.com/mastodon/mastodon/security/advisories/GHSA-qgmm-vr4c-ggjg))
+- Re-use custom socket class for FASP requests (#37925 by @oneiros, [GHSA-46w6-g98f-wxqm](https://github.com/mastodon/mastodon/security/advisories/GHSA-46w6-g98f-wxqm))
+
+### Added
+
+- Add `--suspended-only` option to `tootctl emoji purge` (#37828 and #37861 by @ClearlyClaire and @mjankowski)
+
+### Fixed
+
+- Fix emoji data not being properly cached (#37858 by @ChaosExAnima)
+- Fix delete & redraft of pending posts (#37839 by @ClearlyClaire)
+- Fix processing separate key documents without the ActivityStreams context (#37826 by @ClearlyClaire)
+- Fix custom emojis not being purged on domain suspension (#37808 by @ClearlyClaire)
+- Fix users without special permissions being able to stream disabled timelines (#37791 by @ClearlyClaire)
+- Fix processing of object updates with duplicate hashtags (#37756 by @ClearlyClaire)
+
+## [4.5.6] - 2026-02-03
+
+### Security
+
+- Fix ActivityPub collection caching logic for pinned posts and featured tags not checking blocked accounts ([GHSA-ccpr-m53r-mfwr](https://github.com/mastodon/mastodon/security/advisories/GHSA-ccpr-m53r-mfwr))
+
+### Changed
+
+- Shorten caching of quote posts pending approval (#37570 and #37592 by @ClearlyClaire)
+
+### Fixed
+
+- Fix relationship cache not being cleared when handling account migrations (#37664 by @ClearlyClaire)
+- Fix quote cancel button not appearing after edit then delete-and-redraft (#37066 by @PGrayCS)
+- Fix followers with profile subscription (bell icon) being notified of post edits (#37646 by @ClearlyClaire)
+- Fix error when encountering invalid tag in updated object (#37635 by @ClearlyClaire)
+- Fix cross-server conversation tracking (#37559 by @ClearlyClaire)
+- Fix recycled connections not being immediately closed (#37335 and #37674 by @ClearlyClaire and @shleeable)
+
+## [4.5.5] - 2026-01-20
+
+### Security
+
+- Fix missing limits on various federated properties [GHSA-gg8q-rcg7-p79g](https://github.com/mastodon/mastodon/security/advisories/GHSA-gg8q-rcg7-p79g)
+- Fix remote user suspension bypass [GHSA-5h2f-wg8j-xqwp](https://github.com/mastodon/mastodon/security/advisories/GHSA-5h2f-wg8j-xqwp)
+- Fix missing length limits on some user-provided fields [GHSA-6x3w-9g92-gvf3](https://github.com/mastodon/mastodon/security/advisories/GHSA-6x3w-9g92-gvf3)
+- Fix missing access check for push notification settings update [GHSA-f3q8-7vw3-69v4](https://github.com/mastodon/mastodon/security/advisories/GHSA-f3q8-7vw3-69v4)
+
+### Changed
+
+- Skip tombstone creation on deleting from 404 (#37533 by @ClearlyClaire)
+
+### Fixed
+
+- Fix potential duplicate handling of quote accept/reject/delete (#37537 by @ClearlyClaire)
+- Fix `FeedManager#filter_from_home` error when handling a reblog of a deleted status (#37486 by @ClearlyClaire)
+- Fix needlessly complicated SQL query in status batch removal (#37469 by @ClearlyClaire)
+- Fix `quote_approval_policy` being reset to user defaults when omitted in status update (#37436 and #37474 by @mjankowski and @shleeable)
+- Fix `Vary` parsing in cache control enforcement (#37426 by @MegaManSec)
+- Fix missing URI scheme test in `QuoteRequest` handling (#37425 by @MegaManSec)
+- Fix thread-unsafe ActivityPub activity dispatch (#37423 by @MegaManSec)
+- Fix URI generation for reblogs by accounts with numerical ActivityPub identifiers (#37415 by @oneiros)
+- Fix SignatureParser accepting duplicate parameters in HTTP Signature header (#37375 by @shleeable)
+- Fix emoji with variant selector not being rendered properly (#37320 by @ChaosExAnima)
+- Fix mobile admin sidebar displaying under batch table toolbar (#37307 by @diondiondion)
+
+## [4.5.4] - 2026-01-07
+
+### Security
+
+- Fix SSRF protection bypass ([GHSA](https://github.com/mastodon/mastodon/security/advisories/GHSA-xfrj-c749-jxxq))
+- Fix missing ownership check in severed relationships controller ([GHSA](https://github.com/mastodon/mastodon/security/advisories/GHSA-ww85-x9cp-5v24))
+
+### Changed
+
+- Change HTTP Signature verification status from 401 to 503 on temporary failure to get remote actor (#37221 by @ClearlyClaire)
+
+### Fixed
+
+- Fix custom emojis not being rendered in profile fields (#37365 by @ClearlyClaire)
+- Fix serialization of context pages (#37376 by @ClearlyClaire)
+- Fix quotes with CWs but no text not having fallback link (#37361 by @ClearlyClaire)
+- Fix outdated link target for “locked” warning (#37366 by @ClearlyClaire)
+- Fix local custom emojis sometimes being rendered in remote posts (#37284 by @ChaosExAnima)
+- Fix some assets not being loaded from configured CDN (#37310 by @ChaosExAnima)
+- Fix notifications page error in Tor browser (#37285 by @diondiondion)
+- Fix custom emojis not being displayed in CWs and fav/boost notifications (#37272 and #37306 by @ChaosExAnima and @ClearlyClaire)
+- Fix default `Admin` role not including `view_feeds` permission (#37301 by @ClearlyClaire)
+- Fix hashtag autocomplete replacing suggestion's first characters with input (#37281 by @ClearlyClaire)
+- Fix mentions of domain-blocked users being processed (#37257 by @ClearlyClaire)
+
 ## [4.5.3] - 2025-12-08
 
 ### Security

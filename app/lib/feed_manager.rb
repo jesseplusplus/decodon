@@ -59,24 +59,6 @@ class FeedManager
     end
   end
 
-  # The filter result of the status to a particular feed
-  # @param [Symbol] timeline_type
-  # @param [Status] status
-  # @param [Account|List] receiver
-  # @return [void|Symbol] nil, :filter, or :skip_home
-  def filter(timeline_type, status, receiver)
-    case timeline_type
-    when :home
-      filter_from_home(status, receiver.id, build_crutches(receiver.id, [status]), :home)
-    when :list
-      (filter_from_list?(status, receiver) ? :filter : nil) || filter_from_home(status, receiver.account_id, build_crutches(receiver.account_id, [status], list: receiver), :list)
-    when :mentions
-      filter_from_mentions?(status, receiver.id) ? :filter : nil
-    when :tags
-      filter_from_tags?(status, receiver.id, build_crutches(receiver.id, [status])) ? :filter : nil
-    end
-  end
-
   # Check if the status should not be added to a feed
   # @param [Symbol] timeline_type
   # @param [Status] status
@@ -468,6 +450,7 @@ class FeedManager
     return :filter    if status.reply? && (status.in_reply_to_id.nil? || status.in_reply_to_account_id.nil?)
     return :skip_home if timeline_type != :list && crutches[:exclusive_list_users][status.account_id].present?
     return :filter    if crutches[:languages][status.account_id].present? && status.language.present? && !crutches[:languages][status.account_id].include?(status.language)
+    return :filter    if status.reblog? && status.reblog.blank?
 
     check_for_blocks = crutches[:active_mentions][status.id] || []
     check_for_blocks.push(status.account_id)
